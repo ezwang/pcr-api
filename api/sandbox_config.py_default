@@ -1,0 +1,34 @@
+"""
+NOTE: this is a development-specific file that lets us set various variables
+(such as branch name, etc) so that we can share changes in the more general
+django.wsgi and settings.py files without fear. This should be configured per-
+sandbox. This and nothing else.
+Author: AMK, Dec 27, 2010
+Updated for Courses API: MJC, May 12, 2011
+"""
+import os
+
+DISPLAY_NAME = "courses-mjc"
+
+DEV_ROOT = "/home/mcroop/mcroop_dev" # root of all apps you're working on
+COURSESAPI_APP_ROOT = os.path.join(DEV_ROOT, "Penn-Course-API")
+
+# see settings.py for possible values
+DATABASE_NAME = 'coursesapi-v3-dev'
+
+# should be True only in production. unless you really like caching.
+DO_CACHING = False 
+
+# should be False only in production. unless you really hate error messages.
+DEBUG = True
+
+# should be False unless you want to debug something
+USE_DJANGO_DEBUG_TOOLBAR = False
+
+DATABASE_NAME = 'coursesapi-v3-stable'
+DATABASE_USER = 'pcr-daemon'
+DATABASE_PWD = None # fill in
+
+IMPORT_DATABASE_NAME = 'old_pcr_2011b'
+IMPORT_DATABASE_USER = 'pcr-daemon'
+IMPORT_DATABASE_PWD = None # fill in
