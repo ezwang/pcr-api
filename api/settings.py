@@ -1,4 +1,5 @@
 # Django settings for api project.
+import sys
 from sandbox_config import *
 
 TEMPLATE_DEBUG = DEBUG
@@ -17,7 +18,7 @@ MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+        'ENGINE': 'django.db.backends.sqlite3' if 'test' in sys.argv else 'django.db.backends.mysql',
         # see sandbox_config.py
         'NAME': DATABASE_NAME,                      # Or path to database file if using sqlite3.
         'USER': DATABASE_USER,                      # Not used with sqlite3.
