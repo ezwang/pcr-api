@@ -1,3 +1,11 @@
+"""
+Code for semester objects.
+
+Note that:
+(Year Y, semester s) (with s=0,1,2 -> a,b,c) is semester
+  3(Y-1740) + s       = 780 + 3(Y-2000) + s
+Semester 2010a is 810. Current (2010c) is 812.
+"""
 from django.db import models
 import datetime
 
@@ -92,11 +100,14 @@ class SemesterField(models.Field):
         tmp_season, tmp_year = value.split(" ")
         if tmp_season in seasons:
           return Semester(tmp_year, "abc"[seasons.index(tmp_season)])
-      except: pass
+      except:
+        pass
     try: 
-      return semesterFromID(int(value))
-    except Exception as e:
-      raise Exception("badness %s %s" % (value, e))
+      id = int(value)
+    except ValueError as e:
+      raise e
+    else:
+      return semesterFromID(id)
 
   def get_prep_value(self, value):
     return value.id
