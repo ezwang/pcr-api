@@ -16,7 +16,7 @@ class Authenticate(object):
     old_path = request.path_info
     
     if old_path[:7] == "/admin/":   
-      return (old_path, None)
+      return None
     
     try:
       token = request.GET['token']
