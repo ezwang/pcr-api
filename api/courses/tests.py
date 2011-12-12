@@ -69,7 +69,7 @@ class DataTest(TestCase):
 
   def validate_results(self, path):
     result = self.get_result(path)
-    self.assertTrue(len(result['values']) > 0, results)
+    self.assertTrue(len(result['values']) > 0, result)
 
   def test_presence_of_depts(self):
     self.validate_results('/depts')
@@ -94,6 +94,14 @@ class DataTest(TestCase):
   def test_presence_of_instructors(self):
     self.validate_results('/instructors')
 
+  def test_instructor_should_have(self):
+    instructor = models.Instructor.objects.all()[0]
+    result = self.get_result(instructor.absolute_url)
+    self.assertTrue("id" in result)
+    self.assertTrue("name" in result)
+    self.assertTrue("path" in result)
+    self.assertTrue("reviews" in result)
+
   def test_course_should_have(self):
     result = self.get_result('/courses/1')
     self.assertTrue("aliases" in result)
@@ -111,7 +119,7 @@ class DataTest(TestCase):
     self.validate_results('/courses/1/reviews')
 
   def test_presence_of_sections(self):
-    self.validate_results('courses/1/sections')
+    self.validate_results('/courses/1/sections')
 
   def test_section_should_have(self):
     result = self.get_result('/courses/1/sections/001/')
