@@ -81,7 +81,7 @@ class Instructor(models.Model):
 
   @property
   def absolute_url(self):
-    return "/courses/instructor/%s/" % urllib.quote(self.pennkey) # temporary
+    return "/instructors/%s/" % self.temp_id # temporary
 
   def __unicode__(self):
     return self.name
