@@ -36,8 +36,6 @@ class DataTest(TestCase):
         )
     instructor1 = models.Instructor.objects.create(
         first_name="John", last_name="Doe")
-    instructor2 = models.Instructor.objects.create(
-        first_name="Jane", last_name="Doe")
     section1 = models.Section.objects.create(
         course=cis110_1, name="Intro to CS", 
         sectionnum='001', sectiontype='LEC')
@@ -69,10 +67,12 @@ class DataTest(TestCase):
     self.assertTrue(content['valid'], content)
     return content['result']
 
+  def validate_results(self, path):
+    result = self.get_result(path)
+    self.assertTrue(len(result['values']) > 0, results)
+
   def test_presence_of_depts(self):
-    result = self.get_result('/depts/')
-    values = result['values']
-    self.assertTrue(len(values) > 0, msg=result)
+    self.validate_results('/depts')
 
   def test_dept_should_have(self):
     result = self.get_result('/depts/CIS')
@@ -92,9 +92,7 @@ class DataTest(TestCase):
     self.assertTrue("reviews" in result)
 
   def test_presence_of_instructors(self):
-    result = self.get_result('/instructors/')
-    values = result['values']
-    self.assertTrue(len(values) > 0, msg=result)
+    self.validate_results('/instructors')
 
   def test_course_should_have(self):
     result = self.get_result('/courses/1')
@@ -110,14 +108,10 @@ class DataTest(TestCase):
     self.assertTrue("semester" in result)
 
   def test_presence_of_course_reviews(self):
-    result = self.get_result('/courses/1/reviews')
-    values = result['values']
-    self.assertTrue(len(values) > 0, msg=result)
+    self.validate_results('/courses/1/reviews')
 
   def test_presence_of_sections(self):
-    result = self.get_result('/courses/1/sections/')
-    values = result['values']
-    self.assertTrue(len(values) > 0, msg=result)
+    self.validate_results('courses/1/sections')
 
   def test_section_should_have(self):
     result = self.get_result('/courses/1/sections/001/')
@@ -133,9 +127,7 @@ class DataTest(TestCase):
     self.assertTrue("sectionnum" in result)
 
   def test_presence_of_section_reviews(self):
-    result = self.get_result('/courses/1/sections/001/reviews')
-    values = result['values']
-    self.assertTrue(len(values) > 0, msg=result)
+    self.validate_results('/courses/1/sections/001/reviews')
 
   def test_review_should_have(self):
     result = self.get_result('/courses/1/sections/001/reviews')
@@ -151,20 +143,16 @@ class DataTest(TestCase):
     self.assertTrue("section" in review)
 
     comments = review['comments']
+    instructor = review['instructor']
+    ratings = review['ratings']
+    num_reviewers = review['num_reviewers']
+    num_students = review['num_students']
+    section = review['section']
+
     self.assertTrue(comments != "null", msg=comments)
     self.assertTrue(len(comments) > 0, msg=comments)
-
-    instructor = review['instructor']
     self.assertTrue(instructor['name'] == "John Doe", msg=instructor)
-
-    ratings = review['ratings']
     self.assertTrue(len(ratings) > 0, msg=result)
-
-    num_reviewers = review['num_reviewers']
     self.assertTrue(int(num_reviewers) > 0)
-
-    num_students = review['num_students']
     self.assertTrue(int(num_students) > 0)
-
-    section = review['section']
     self.assertTrue(section['sectionnum'] == '001')
