@@ -55,9 +55,10 @@ class Semester:
     return "/courses/course/" + self.code()
 
   def __cmp__(self, other):
-    return cmp(self.id, other.id)
-
-  # todo: hash, comparison
+    if other:
+      return cmp(self.id, other.id)
+    else:
+      return 1 # arbitrarily, if other is given as '' 
 
 def current_semester():
   now = datetime.datetime.now()
