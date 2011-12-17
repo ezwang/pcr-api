@@ -1,5 +1,9 @@
 # Script to regenerate the Penn Course Review site cache.
 #
+# NOTE: On the production server, this should be run using
+#   /usr/bin/python2.6
+# since it has twisted installed, but python2.7 does not.
+#
 # Before running this, make sure the symlink at 
 #   penncoursereview.com:~pcr/projects/pcrsite/staticgenerator_output/write
 # points to a fresh cache directory. (Also, all cache directories and symlinks
