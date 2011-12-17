@@ -1,11 +1,17 @@
 from django.db import models
+from random import choice
+import string
+
+def generate_key():
+  chars = string.ascii_uppercase + string.ascii_lowercase + string.digits + '_'
+  return ''.join(choice(chars) for x in xrange(30))
 
 class APIConsumer(models.Model):
   name = models.CharField(max_length=200, unique=True)
   email = models.EmailField(max_length=75, unique=True)
   description = models.TextField()
-  token = models.CharField(max_length=200, unique=True)
-  permission_level = models.IntegerField()
+  token = models.CharField(max_length=200, unique=True, default=generate_key)
+  permission_level = models.IntegerField(default=2)
 
   # 0 - no access, equivalent to no key
   # 1 - access to public data only
