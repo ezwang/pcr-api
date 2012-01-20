@@ -106,7 +106,8 @@ INSTALLED_APPS = (
     'api.apiconsumer',
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
-    'api.static_content'
+    'api.static_content',
+    'django_extensions',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
 )
@@ -127,8 +128,8 @@ if DO_CACHING:
 
 
 if USE_DJANGO_DEBUG_TOOLBAR:
-    MIDDLEWARE_CLASSES = tuple(c for c in MIDDLEWARE_CLASSES if "Authenticate" not in c)
+    #MIDDLEWARE_CLASSES = tuple(c for c in MIDDLEWARE_CLASSES if "Authenticate" not in c)
     MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
     INSTALLED_APPS += ('debug_toolbar',)
     wifi_3913 = '76.124.117.94'
-    INTERNAL_IPS = (wifi_3913,)
+    INTERNAL_IPS = (wifi_3913,'158.130.103.7')

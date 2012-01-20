@@ -15,7 +15,7 @@ class Authenticate(object):
 
     old_path = request.path_info
     
-    if old_path[:7] == "/admin/":   
+    if old_path.startswith("/admin/") or old_path.startswith("/__debug__/"):
       return None
     
     try:
