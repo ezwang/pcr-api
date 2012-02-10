@@ -96,7 +96,7 @@ class DataTest(TestCase):
 
   def test_instructor_should_have(self):
     instructor = models.Instructor.objects.all()[0]
-    result = self.get_result(instructor.absolute_url)
+    result = self.get_result(instructor.get_absolute_url())
     self.assertTrue("id" in result)
     self.assertTrue("name" in result)
     self.assertTrue("path" in result)

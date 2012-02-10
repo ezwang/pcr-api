@@ -50,8 +50,7 @@ class Semester:
   def __str__(self):
     return "%s %d" % (["Spring", "Summer", "Fall"][self.semesternum], self.year)
 
-  @property
-  def absolute_url(self):
+  def get_absolute_url(self):
     return "/courses/course/" + self.code()
 
   def __cmp__(self, other):

@@ -13,8 +13,7 @@ class Department(models.Model):
   def __unicode__(self):
     return self.code
 
-  @property
-  def absolute_url(self):
+  def get_absolute_url(self):
     # don't know actual semester
     return "/courses/course/current/%s/" % self.code.lower()
 
@@ -54,8 +53,7 @@ class Course(models.Model):
   def __unicode__(self):
     return "%s %s" % (self.id, self.name)
 
-  @property
-  def absolute_url(self):
+  def get_absolute_url(self):
     return "/courses/course/%d" % (self.id,)
 
 class Instructor(models.Model):
@@ -79,8 +77,7 @@ class Instructor(models.Model):
     return re.sub(r"[^\w]", "-", "%d %s" % (self.id, self.name))
     #for pennapps demo only
 
-  @property
-  def absolute_url(self):
+  def get_absolute_url(self):
     return "/instructors/%s/" % self.temp_id # temporary
 
   def __unicode__(self):
@@ -104,8 +101,7 @@ class Alias(models.Model):
                                  self.semester.code()
                                 )
 
-  @property
-  def absolute_url(self):
+  def get_absolute_url(self):
     return "/courses/course/%s/%s/%03d/" % (
       self.semester.code(),
       str(self.course.department).lower(),
@@ -149,8 +145,7 @@ class Section(models.Model):
   def __unicode__(self):
     return "%s-%03d " % (self.course, self.sectionnum)
 
-  @property
-  def absolute_url(self):
+  def get_absolute_url(self):
     return "/courses/course/%s/%s/%03d/%03d/" % (self.semester.code(),
                            str(self.course.department).lower(),
                            self.course.coursenum,
@@ -198,8 +193,7 @@ class Building(models.Model):
   def __unicode__(self):
     return self.code
 
-  @property
-  def absolute_url(self):
+  def get_absolute_url(self):
     return "/courses/building/%s/" % self.code.lower()
 
 class Room(models.Model):
