@@ -1,23 +1,13 @@
 from models import *
 from Semester import *
 from APIObjects import *
+from links import *
 import json
 import datetime
 import sandbox_config
 from collections import defaultdict
 from django.http import HttpResponse, HttpResponseRedirect
 from json_helpers import JSON
-
-#tokens for paths and dispatcher - everything is plural now
-DEPARTMENT_TOKEN = 'depts'
-INSTRUCTOR_TOKEN = 'instructors'
-COURSEHISTORY_TOKEN = 'coursehistories'
-COURSE_TOKEN = 'courses'
-SECTION_TOKEN = 'sections'
-REVIEW_TOKEN = 'reviews'
-BUILDING_TOKEN = 'building'
-SEMESTER_TOKEN = 'semesters'
-
 
 DOCS_URL = 'http://www.pennapps.com/kevinsu/pcr_documentation.html'
 DOCS_HTML = "<a href='%s'> %s </a>" % (DOCS_URL, DOCS_URL)
@@ -84,7 +74,7 @@ class APICourseHistory:
     self.name = None
 
   def path(self):
-    return '/%s/%d' % (COURSEHISTORY_TOKEN, self.uid)
+    return coursehistory_url(self.uid)
 
   def basic_info(self):
     return {
@@ -108,7 +98,7 @@ class APISemester:
     self.sem = semester_object
 
   def path(self):
-    return '/%s/%s' % (SEMESTER_TOKEN, self.sem.code())
+    return semester_url(self.sem.code())
 
   def basic_info(self):
     return {
@@ -147,7 +137,7 @@ class APICourse:
     self.semester = None # String
 
   def path(self):
-    return '/%s/%d' % (COURSE_TOKEN, self.uid)
+    return course_url(self.uid)
 
   def getAliases(self):
     return ["%s-%03d" % x for x in self.aliases]
@@ -175,7 +165,7 @@ class APICourse:
       REVIEW_TOKEN: {
         'path': path + '/' + REVIEW_TOKEN,
       },
-      COURSEHISTORY_TOKEN: {'path': '/%s/%s' % (COURSEHISTORY_TOKEN, self.history)},
+      COURSEHISTORY_TOKEN: {'path': coursehistory_url(self.history)},
     })
 
     return json_output(result)
@@ -226,7 +216,7 @@ class APISection:
     return "%s-%03d" % (self.course.uid, self.sectionnum)
 
   def path(self):
-    return '/%s/%d/%s/%03d' % (COURSE_TOKEN, self.course.uid, SECTION_TOKEN, self.sectionnum)
+    return section_url(self.course.uid, self.sectionnum)
 
   def getAliases(self):
     return ["%s-%03d" % (alias, self.sectionnum)
@@ -268,7 +258,7 @@ class APIInstructor:
     self.reviews = reviews
 
   def path(self):
-    return '/%s/%s' % (INSTRUCTOR_TOKEN, self.pennkey)
+    return instructor_url(pennkey)
   
   def basic_info(self):
     result = {
@@ -319,7 +309,7 @@ def building_json(code, name, lat=13.371337, lng=90.01):
     'name': name,
     'latitude': lat,
     'longitude': lng,
-    'path': '/%s/%s' % (BUILDING_TOKEN, code),
+    'path': building_url(code)
     })
 
 class APIDepartment:
@@ -331,8 +321,10 @@ class APIDepartment:
     self.semester = semester #if True, add to path
 
   def path(self):
-    first_part = SEMESTER_TOKEN+'/'+self.semester if self.semester else DEPARTMENT_TOKEN 
-    return '/%s/%s' % (first_part, self.code)
+    if self.semester:
+      return semdept_url(self.semester, self.code)
+    else:
+      return department_url(self.code)
   
   def base_info(self):
     return {
@@ -378,9 +370,8 @@ class APIReview:
       'id': '%s-%s' % (self.section.id, self.instructor.pennkey),
       'section': self.section.toShortJSON(),
       'instructor': self.instructor_JSON, # to deal with possible none, hack
-      'path': "%s/%s/%s" % (self.section.path(), 
-                            REVIEW_TOKEN,
-                            self.instructor.pennkey if self.instructor else "99999-JAIME-MUNDO")
+      'path': review_url(self.section.course.uid, self.section.sectionnum,
+                         self.instructor.pennkey if self.instructor else "99999-JAIME-MUNDO")
     }
 
   def toShortJSON(self):
@@ -556,7 +547,7 @@ def course_sections(request, path, (courseid,)):
 
 def course_history(request, path, (courseid,)):
   course = Course.objects.get(id=int(courseid))
-  return redirect("%s/%d" % (COURSEHISTORY_TOKEN, course.history_id), request)
+  return redirect(coursehistory_url(course.history_id), request)
 
 @dead_end
 def section_main(request, path, (courseid, sectionnum)):
@@ -600,7 +591,7 @@ def alias_course(request, path, (coursealias,)):
   courseid = Alias.objects.get(semester=semester,
                                department=dept_code,
                                coursenum=coursenum).course_id
-  return redirect("%s/%d" % (COURSE_TOKEN, courseid), request, path)
+  return redirect(course_url(courseid), request, path)
 
 def alias_section(request, path, (sectionalias,)):
   try:
@@ -616,7 +607,7 @@ def alias_section(request, path, (sectionalias,)):
   courseid = Alias.objects.get(semester=semester,
                                department=dept_code,
                                coursenum=coursenum).course_id
-  return redirect("%s/%d/%s/%d" % (COURSE_TOKEN, courseid, SECTION_TOKEN, sectionnum), request, path)
+  return redirect(section_url(courseid, sectionnum), request, path)
 
 def alias_currentsemester(request, path, _):
   return HttpResponse("(redirect) current semester, extra %s" % path)
@@ -632,7 +623,7 @@ def alias_coursehistory(request, path, (historyalias,)):
   latest_alias = Alias.objects.filter(
     department=dept_code, coursenum=coursenum).order_by('-semester')[0]
   
-  return redirect("%s/%d" % (COURSEHISTORY_TOKEN, latest_alias.course.history_id),
+  return redirect(coursehistory_url(latest_alias.course.history_id),
                   request, path)
 
 def alias_misc(request, path, (alias,)):

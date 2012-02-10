@@ -7,6 +7,7 @@ Note that:
 Semester 2010a is 810. Current (2010c) is 812.
 """
 from django.db import models
+from links import semester_url
 import datetime
 
 class Semester:
@@ -51,7 +52,7 @@ class Semester:
     return "%s %d" % (["Spring", "Summer", "Fall"][self.semesternum], self.year)
 
   def get_absolute_url(self):
-    return "/courses/course/" + self.code()
+    return semester_url(self.code())
 
   def __cmp__(self, other):
     if other:

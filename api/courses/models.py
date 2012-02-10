@@ -1,5 +1,6 @@
 from django.db import models
 from Semester import *
+from links import *
 import urllib
 import re
 
@@ -15,7 +16,7 @@ class Department(models.Model):
 
   def get_absolute_url(self):
     # don't know actual semester
-    return "/courses/course/current/%s/" % self.code.lower()
+    return department_url(self.code.lower())
 
 class CourseHistory(models.Model):
   """A course, as it has existed for many semesters. Various courses
@@ -32,6 +33,9 @@ class CourseHistory(models.Model):
     #TODO: shadowing (IE, CIS 260 is not used by another course, don't alias 
     #me that way.
     return Alias.objects.filter(course__history=self).only('coursenum', 'department__name')
+
+  def get_absolute_url(self):
+    return coursehistory_url(self.id)
 
 class Course(models.Model):
   """A course that can be taken during a particular semester
@@ -54,7 +58,7 @@ class Course(models.Model):
     return "%s %s" % (self.id, self.name)
 
   def get_absolute_url(self):
-    return "/courses/course/%d" % (self.id,)
+    return course_url(self.id)
 
 class Instructor(models.Model):
   """ A course instructor or TA (or "STAFF")"""
@@ -78,7 +82,7 @@ class Instructor(models.Model):
     #for pennapps demo only
 
   def get_absolute_url(self):
-    return "/instructors/%s/" % self.temp_id # temporary
+    return instructor_url(self.temp_id)
 
   def __unicode__(self):
     return self.name
@@ -146,10 +150,8 @@ class Section(models.Model):
     return "%s-%03d " % (self.course, self.sectionnum)
 
   def get_absolute_url(self):
-    return "/courses/course/%s/%s/%03d/%03d/" % (self.semester.code(),
-                           str(self.course.department).lower(),
-                           self.course.coursenum,
-                           self.sectionnum) #TODO dereference alias?
+    return section_url(self.course_id, self.sectionnum)
+
   class Meta:
     """ To hold uniqueness constraint """
     unique_together = (("course", "sectionnum"),)
@@ -169,6 +171,10 @@ class Review(models.Model):
 
   def __unicode__(self):
     return "Review for %s" % str(self.section)
+
+  def get_absolute_url(self):
+    pennkey = self.instructor.pennkey if self.instructor else "99999-JAIME-MUNDO"
+    return review_url(self.section.course_id, self.section.sectionnum, pennkey)
 
 class ReviewBit(models.Model):
   """ A component of a review. """
