@@ -159,35 +159,6 @@ class APIInstructor:
       result[REVIEW_TOKEN][RSRCS] = [x.toShortJSON() for x in self.reviews]
     return result
 
-def apiify_meetingtimes(meetingtimeset):
-  #TODO for after 1.0
-  return [meetingtime_json(m.start, m.end, m.day, m.type, None, None, None) \
-    for m in meetingtimeset]
-
-def meetingtime_json(start, end, day, type,
-                     room_building, room_number, room_name):
-  return {
-    'start': start, # String (e.g. "13:30")
-    'end': end, # String (e.g. "15:00")
-    'day': day, # String (e.g. "R" for thursday)
-    'type': type, # String (e.g. "LEC")
-#TODO FOR AFTER 1.0
-#    'room': {'building': room_building, # building_json output
-#             'id': '%s %s' % (room_building['id'], room_number),
-#             'name': room_name, # String, or None if has no name.
-#             'number': room_number, # String (e.g. "321")
-#             }
-  }
-
-def building_json(code, name, lat=13.371337, lng=90.01):
-  return json_output({
-    'id': code,
-    'name': name,
-    'latitude': lat,
-    'longitude': lng,
-    'path': building_url(code)
-    })
-
 class APIDepartment:
   def __init__(self, code, name, semester=None):
     self.code = code # String
@@ -491,7 +462,7 @@ def dept_reviews(request, path, (dept_code,)):
 @dead_end
 def buildings(request, path, _):
   #TODO
-  return JSON({RSRCS: [building_json("LEVH", "Levine Hall")]})
+  return JSON({RSRCS: [Building(code="LEVH", name="Levine Hall").toJSON()]})
 
 @dead_end
 def building_main(request, path, (code,)):
@@ -499,7 +470,7 @@ def building_main(request, path, (code,)):
   if code != "LEVH":
     raise API404("Building %s not found" % code)
 
-  return JSON(building_json("LEVH", "Levine Hall"))
+  return JSON(Building(code="LEVH", name="Levine Hall").toJSON())
 
 @dead_end
 def index(request, path, _):

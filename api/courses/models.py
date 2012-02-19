@@ -218,7 +218,7 @@ class Section(models.Model):
       'name': self.name,
       'sectionnum': "%03d" % self.sectionnum, 
       INSTRUCTOR_TOKEN: '**TODO**', # optlist_map(lambda i: i.toShortJSON(), self.instructors.all()),
-      'meetingtimes': '**TODO**', # list_json(self.meetingtime_set.all()), 
+      'meetingtimes': [x.toJSON() for x in self.meetingtime_set.all()],
       'path': path,
       COURSE_TOKEN: self.course.toShortJSON(),
       REVIEW_TOKEN: {
@@ -297,6 +297,15 @@ class Building(models.Model):
   def get_absolute_url(self):
     return "/courses/building/%s/" % self.code.lower()
 
+  def toJSON(self):
+    return json_output({
+      'id': self.code,
+      'name': self.name,
+      'latitude': self.latitude,
+      'longitude': self.longitude,
+      'path': building_url(self.code)
+      })
+
 class Room(models.Model):
   """ A room in a Building. It optionally may be named. """
   building = models.ForeignKey(Building)
@@ -328,6 +337,20 @@ class MeetingTime(models.Model):
 
   def __unicode__(self):
     return "%s %s - %s @ %s" % (self.day, self.start, self.end, self.room)
+
+  def toJSON(self):
+    return {
+      'start': self.start, # String (e.g. "13:30")
+      'end': self.end, # String (e.g. "15:00")
+      'day': self.day, # String (e.g. "R" for thursday)
+      'type': self.type, # String (e.g. "LEC")
+      #TODO FOR AFTER 1.0
+      #    'room': {'building': room_building, # building_json output
+      #             'id': '%s %s' % (room_building['id'], room_number),
+      #             'name': room_name, # String, or None if has no name.
+      #             'number': room_number, # String (e.g. "321")
+      #             }
+      }
 
 class SemesterDepartment:
   """ A (semester, department) pair. Not a model, but treated like one
