@@ -222,48 +222,6 @@ class APIDepartment:
 
     return result
 
-def apiify_review(review, section=None):
-  bits = review.reviewbit_set.all()
-  ratings = dict((bit.field, "%1.2f" % bit.score) for bit in bits)
-  instructor = apiify_instructor(review.instructor) if review.instructor_id else None
-  section = section or review.section
-
-  return APIReview(section, ratings, instructor,
-                   review.forms_returned, review.forms_produced, review.comments)
-
-class APIReview:
-  def __init__(self, section, ratings, instructor, forms_returned, forms_produced, comments):
-    self.section = section # Section object
-    self.instructor = instructor #APIInstructor object 
-    self.instructor_JSON = instructor.toShortJSON() if instructor else None
-    self.ratings = ratings
-    self.forms_returned = forms_returned
-    self.forms_produced = forms_produced
-    self.comments = comments
-
-  def basic_info(self):
-    return {
-      'id': '%s-%s' % (self.section.api_id, self.instructor.pennkey),
-      'section': self.section.toShortJSON(),
-      'instructor': self.instructor_JSON, # to deal with possible none, hack
-      'path': review_url(self.section.course.id, self.section.sectionnum,
-                         self.instructor.pennkey if self.instructor else "99999-JAIME-MUNDO")
-    }
-
-  def toShortJSON(self):
-    return json_output(self.basic_info())
-
-  def toJSON(self):
-    result = self.basic_info()
-    result.update({
-      'num_reviewers': self.forms_returned,
-      'num_students': self.forms_produced,
-      'ratings': self.ratings,
-      'comments': self.comments,
-    })
-
-    return json_output(result)
-
 # FNAR 337 Advanced Orange (Jaime Mundo)
 # Explore the majesty of the color Orange in its natural habitat,
 # and ridicule other, uglier colors, such as Chartreuse (eww).
@@ -336,7 +294,7 @@ def semester_dept(request, path, (semester_code, dept_code,)):
 def apiify_instructor(instructor, depts=None, extra=[]):
   sections = list(instructor.section_set.all()) \
     if 'sections' in extra else None
-  reviews = [apiify_review(r) for r in instructor.review_set.all()] \
+  reviews = list(instructor.review_set.all()) \
     if 'reviews' in extra else None
   return APIInstructor(instructor.temp_id, instructor.name, depts, sections, reviews)
 
@@ -392,7 +350,7 @@ def instructor_reviews(request, path, (instructor_id,)):
   sections = Instructor.objects.get(id=db_id).section_set.all() 
   reviews = sum([list(s.review_set.all()) for s in sections], [])
    
-  return JSON({RSRCS: [apiify_review(r).toJSON() for r in reviews]})
+  return JSON({RSRCS: [r.toJSON() for r in reviews]})
 
 @dead_end
 def coursehistory_main(request, path, (histid,)):
@@ -402,7 +360,7 @@ def coursehistory_main(request, path, (histid,)):
 @dead_end
 def coursehistory_reviews(request, path, (histid,)):
   reviews = Review.objects.filter(section__course__history__id=histid)
-  return JSON({RSRCS: [apiify_review(r).toJSON() for r in reviews]})
+  return JSON({RSRCS: [r.toJSON() for r in reviews]})
 
 @dead_end
 def course_main(request, path, (courseid,)):
@@ -413,7 +371,7 @@ def course_main(request, path, (courseid,)):
 def course_reviews(request, path, (courseid,)):
   sections = Course.objects.get(id=courseid).section_set.all()
   reviews = sum([list(s.review_set.all()) for s in sections],[])
-  return JSON({RSRCS: [apiify_review(r).toJSON() for r in reviews]})
+  return JSON({RSRCS: [r.toJSON() for r in reviews]})
 
 @dead_end
 def course_sections(request, path, (courseid,)):
@@ -438,7 +396,7 @@ def section_main(request, path, (courseid, sectionnum)):
 def section_reviews(request, path, (courseid, sectionnum)):
   try:
     section = Section.objects.get(sectionnum=sectionnum, course=courseid)
-    return JSON({RSRCS: [apiify_review(r).toJSON() for r in section.review_set.all()]})
+    return JSON({RSRCS: [r.toJSON() for r in section.review_set.all()]})
   except Section.DoesNotExist:
     raise API404("Section %03d of course %d not found" % (sectionnum, courseid))
 
@@ -449,7 +407,7 @@ def review_main(request, path, (courseid, sectionnum, instructor_id)):
     db_review = Review.objects.get(section__sectionnum=sectionnum,
                                    section__course=courseid,
                                    instructor__id=db_instructor_id)
-    review = apiify_review(db_review)
+    review = db_review
     return JSON(review.toJSON())
   except Review.DoesNotExist:
     raise API404("Review for %s for section %03d of course %d not found" %
@@ -527,7 +485,7 @@ def dept_main(request, path, (dept_code,)):
 @dead_end
 def dept_reviews(request, path, (dept_code,)):
   reviews = Review.objects.filter(section__course__alias__department__code=dept_code)
-  return JSON({RSRCS: [apiify_review(r).toJSON() for r in reviews]})
+  return JSON({RSRCS: [r.toJSON() for r in reviews]})
 
 
 @dead_end

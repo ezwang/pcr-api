@@ -192,22 +192,6 @@ class Section(models.Model):
     """ To hold uniqueness constraint """
     unique_together = (("course", "sectionnum"),)
 
-  """
-  def apiify_section(section, course=None):
-  s.instructors = [apiify_instructor(i) for i in section.instructors.all()]
-  s.reviews = [apiify_review(r, section=s) for r in section.review_set.all()]
-  return s
-
-    def __init__(self, course, sectionnum):
-    self.course = course # Course object
-    self.name = None # String, with the name of the section
-    self.sectionnum = sectionnum # Integer (e.g. 1 for 001)
-    self.group = None # Integer
-    self.instructors = None # List of APIInstructors
-    self.meetingtimes = None # List of meetingtime_json outputs
-    self.reviews = None # List of APIReview Objects
-    """
-
   def getAliases(self):
     return ["%s-%03d" % (alias, self.sectionnum)
             for alias in self.course.getAliases()]
@@ -233,13 +217,13 @@ class Section(models.Model):
       'group': self.group, 
       'name': self.name,
       'sectionnum': "%03d" % self.sectionnum, 
-      INSTRUCTOR_TOKEN: '**TODO**', # optlist_map(lambda i: i.toShortJSON(), self.instructors),
+      INSTRUCTOR_TOKEN: '**TODO**', # optlist_map(lambda i: i.toShortJSON(), self.instructors.all()),
       'meetingtimes': '**TODO**', # list_json(self.meetingtime_set.all()), 
       'path': path,
       COURSE_TOKEN: self.course.toShortJSON(),
       REVIEW_TOKEN: {
         'path': '%s/%s' % (path, REVIEW_TOKEN),
-         RSRCS: '**TODO**' # [x.toShortJSON() for x in self.reviews]
+         RSRCS: [x.toShortJSON() for x in self.review_set.all()]
       },
     })
 
@@ -262,6 +246,30 @@ class Review(models.Model):
   def get_absolute_url(self):
     pennkey = self.instructor.pennkey if self.instructor else "99999-JAIME-MUNDO"
     return review_url(self.section.course_id, self.section.sectionnum, pennkey)
+
+  def basic_info(self):
+    return {
+      'id': '%s-%s' % (self.section.api_id, self.instructor.pennkey),
+      'section': self.section.toShortJSON(),
+      'instructor': '**TODO**', #self.instructor.toShortJSON() if self.instructor_id else None,
+      'path': review_url(self.section.course_id, self.section.sectionnum,
+                         self.instructor.pennkey if self.instructor_id else "99999-JAIME-MUNDO")
+    }
+  
+  def toShortJSON(self):
+    return json_output(self.basic_info())
+
+  def toJSON(self):
+    result = self.basic_info()
+    bits = self.reviewbit_set.all()
+    result.update({
+      'num_reviewers': self.forms_returned,
+      'num_students': self.forms_produced,
+      'ratings': dict((bit.field, "%1.2f" % bit.score) for bit in bits),
+      'comments': self.comments,
+    })
+
+    return json_output(result)
 
 class ReviewBit(models.Model):
   """ A component of a review. """
