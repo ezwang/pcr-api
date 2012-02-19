@@ -233,3 +233,16 @@ class MeetingTime(models.Model):
 
   def __unicode__(self):
     return "%s %s - %s @ %s" % (self.day, self.start, self.end, self.room)
+
+class SemesterDepartment:
+  """ A (semester, department) pair. Not a model, but treated like one
+  for JSON generation purposes. """
+  def __init__(self, semester, department):
+    self.semester = semester
+    self.department = department
+
+  def __unicode__(self):
+    return unicode((self.semester, self.department))
+
+  def get_absolute_url(self):
+    return semdept_url(self.semester.code(), self.department.code().lower())
