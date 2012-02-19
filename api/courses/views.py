@@ -258,7 +258,7 @@ class APIInstructor:
     self.reviews = reviews
 
   def path(self):
-    return instructor_url(pennkey)
+    return instructor_url(self.pennkey)
   
   def basic_info(self):
     result = {
