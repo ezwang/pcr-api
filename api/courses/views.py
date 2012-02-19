@@ -125,40 +125,6 @@ class APISemester:
     return json_output(result)
 
 
-class APIInstructor:
-  def __init__(self, pennkey, name, depts=None, sections=None, reviews=None):
-    self.pennkey = pennkey
-    self.name = name
-    self.depts = depts 
-    self.sections = sections
-    self.reviews = reviews
-
-  def path(self):
-    return instructor_url(self.pennkey)
-  
-  def basic_info(self):
-    result = {
-      'id': self.pennkey,
-      'name': self.name,
-      'path': self.path(),
-    }
-    if self.depts:
-      result[DEPARTMENT_TOKEN] = self.depts
-    return result
-
-  def toShortJSON(self):
-    return json_output(self.basic_info())
-
-  def toJSON(self):
-    result = self.basic_info()
-    result[SECTION_TOKEN] = {'path': "%s/%s" % (self.path(), SECTION_TOKEN)}
-    if self.sections:
-      result[SECTION_TOKEN][RSRCS] = [x.toShortJSON() for x in self.sections]
-    result[REVIEW_TOKEN] = {'path': "%s/%s" % (self.path(), REVIEW_TOKEN)}
-    if self.reviews:
-      result[REVIEW_TOKEN][RSRCS] = [x.toShortJSON() for x in self.reviews]
-    return result
-
 class APIDepartment:
   def __init__(self, code, name, semester=None):
     self.code = code # String
@@ -262,13 +228,6 @@ def semester_dept(request, path, (semester_code, dept_code,)):
   dept.courses = list(courses)
   return JSON(dept.toJSON())
 
-def apiify_instructor(instructor, depts=None, extra=[]):
-  sections = list(instructor.section_set.all()) \
-    if 'sections' in extra else None
-  reviews = list(instructor.review_set.all()) \
-    if 'reviews' in extra else None
-  return APIInstructor(instructor.temp_id, instructor.name, depts, sections, reviews)
-
 @dead_end
 def instructors(request, path, _):
   if not request.consumer.access_secret:
@@ -296,17 +255,22 @@ def instructors(request, path, _):
   def instructor_to_depts(i):
     return list(set(dept for course in prof_to_courses[i.id] for dept in course_to_depts[course]))
 
+  def make_instructor_json(i):
+    json = i.toShortJSON()
+    json[DEPARTMENT_TOKEN] = instructor_to_depts(i)
+    return json
+
   #3. get and aggregate all course alias data no 'this semester only' prof, please
   return JSON({RSRCS: [
-    apiify_instructor(i, instructor_to_depts(i)).toShortJSON() \
+    make_instructor_json(i) \
     for i in Instructor.objects.all() if i.id in prof_to_courses
   ]})
 
 @dead_end
 def instructor_main(request, path, (instructor_id,)):
   db_id = int(instructor_id.split("-")[0])
-  c = apiify_instructor(Instructor.objects.get(id=db_id), extra=['sections', 'reviews'])
-  return JSON(c.toJSON())
+  c = Instructor.objects.get(id=db_id)
+  return JSON(c.toJSON(extra=['sections', 'reviews']))
 
 @dead_end
 def instructor_sections(request, path, (instructor_id,)):

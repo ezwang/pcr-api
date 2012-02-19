@@ -122,6 +122,27 @@ class Instructor(models.Model):
 
   def __unicode__(self):
     return self.name
+    
+  def basic_info(self):
+    result = {
+      'id': self.temp_id,
+      'name': self.name,
+      'path': self.get_absolute_url(),
+    }
+    return result
+
+  def toShortJSON(self):
+    return json_output(self.basic_info())
+
+  def toJSON(self, extra=[]):
+    result = self.basic_info()
+    result[SECTION_TOKEN] = {'path': "%s/%s" % (self.get_absolute_url(), SECTION_TOKEN)}
+    if 'sections' in extra:
+      result[SECTION_TOKEN][RSRCS] = [x.toShortJSON() for x in self.section_set.all()]
+    result[REVIEW_TOKEN] = {'path': "%s/%s" % (self.get_absolute_url(), REVIEW_TOKEN)}
+    if 'reviews' in extra:
+      result[REVIEW_TOKEN][RSRCS] = [x.toShortJSON() for x in self.review_set.all()]
+    return result
 
 class Alias(models.Model):
   """ A (department, number) name for a Course. A Course will have
@@ -217,7 +238,7 @@ class Section(models.Model):
       'group': self.group, 
       'name': self.name,
       'sectionnum': "%03d" % self.sectionnum, 
-      INSTRUCTOR_TOKEN: '**TODO**', # optlist_map(lambda i: i.toShortJSON(), self.instructors.all()),
+      INSTRUCTOR_TOKEN: [i.toShortJSON() for i in self.instructors.all()],
       'meetingtimes': [x.toJSON() for x in self.meetingtime_set.all()],
       'path': path,
       COURSE_TOKEN: self.course.toShortJSON(),
@@ -251,7 +272,7 @@ class Review(models.Model):
     return {
       'id': '%s-%s' % (self.section.api_id, self.instructor.pennkey),
       'section': self.section.toShortJSON(),
-      'instructor': '**TODO**', #self.instructor.toShortJSON() if self.instructor_id else None,
+      'instructor': self.instructor.toShortJSON() if self.instructor_id else None,
       'path': review_url(self.section.course_id, self.section.sectionnum,
                          self.instructor.pennkey if self.instructor_id else "99999-JAIME-MUNDO")
     }
