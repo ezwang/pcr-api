@@ -124,64 +124,6 @@ class APISemester:
     result[DEPARTMENT_TOKEN] = depts_helper(self.sem.code(), current_sem_depts)
     return json_output(result)
 
-def apiify_section(section, course=None):
-  #to avoid circular dependencies
-  course = course or section.course
-  s = APISection(course, section.sectionnum)
-  s.meetingtimes = apiify_meetingtimes(section.meetingtime_set.all())
-  s.instructors = [apiify_instructor(i) for i in section.instructors.all()]
-  s.reviews = [apiify_review(r, section=s) for r in section.review_set.all()]
-  s.name = section.name or course.name
-  return s
-
-class APISection:
-  def __init__(self, course, sectionnum):
-    self.course = course # Course object
-    self.name = None # String, with the name of the section
-    self.sectionnum = sectionnum # Integer (e.g. 1 for 001)
-    # Doesn't actually suck this much.  See apiify_section
-    self.group = None # Integer
-    self.instructors = None # List of APIInstructors
-    self.meetingtimes = None # List of meetingtime_json outputs
-    self.reviews = None # List of APIReview Objects
-
-  @property
-  def id(self):
-    return "%s-%03d" % (self.course.id, self.sectionnum)
-
-  def path(self):
-    return section_url(self.course.id, self.sectionnum)
-
-  def getAliases(self):
-    return ["%s-%03d" % (alias, self.sectionnum)
-            for alias in self.course.getAliases()]
-    
-  def toShortJSON(self):
-    return json_output({
-      'id': self.id, 
-      'aliases': self.getAliases(),
-      'name': self.name,
-      'sectionnum': "%03d" % self.sectionnum, 
-      'path': self.path(),
-      })
-
-  def toJSON(self):
-    path = self.path()
-    return json_output({
-      'id': "%s-%03d" % (self.course.id, self.sectionnum),
-      'aliases': self.getAliases(),
-      'group': self.group, 
-      'name': self.name,
-      'sectionnum': "%03d" % self.sectionnum, 
-      INSTRUCTOR_TOKEN: optlist_map(lambda i: i.toShortJSON(), self.instructors),
-      'meetingtimes': list_json(self.meetingtimes), 
-      'path': path,
-      COURSE_TOKEN: self.course.toShortJSON(),
-      REVIEW_TOKEN: {
-        'path': '%s/%s' % (path, REVIEW_TOKEN),
-         RSRCS: [x.toShortJSON() for x in self.reviews]
-      },
-    })
 
 class APIInstructor:
   def __init__(self, pennkey, name, depts=None, sections=None, reviews=None):
@@ -284,14 +226,14 @@ def apiify_review(review, section=None):
   bits = review.reviewbit_set.all()
   ratings = dict((bit.field, "%1.2f" % bit.score) for bit in bits)
   instructor = apiify_instructor(review.instructor) if review.instructor_id else None
-  section = section or apiify_section(review.section)
+  section = section or review.section
 
   return APIReview(section, ratings, instructor,
                    review.forms_returned, review.forms_produced, review.comments)
 
 class APIReview:
   def __init__(self, section, ratings, instructor, forms_returned, forms_produced, comments):
-    self.section = section # APISection object
+    self.section = section # Section object
     self.instructor = instructor #APIInstructor object 
     self.instructor_JSON = instructor.toShortJSON() if instructor else None
     self.ratings = ratings
@@ -301,7 +243,7 @@ class APIReview:
 
   def basic_info(self):
     return {
-      'id': '%s-%s' % (self.section.id, self.instructor.pennkey),
+      'id': '%s-%s' % (self.section.api_id, self.instructor.pennkey),
       'section': self.section.toShortJSON(),
       'instructor': self.instructor_JSON, # to deal with possible none, hack
       'path': review_url(self.section.course.id, self.section.sectionnum,
@@ -392,7 +334,7 @@ def semester_dept(request, path, (semester_code, dept_code,)):
   return JSON(dept.toJSON())
 
 def apiify_instructor(instructor, depts=None, extra=[]):
-  sections = [apiify_section(s) for s in instructor.section_set.all()] \
+  sections = list(instructor.section_set.all()) \
     if 'sections' in extra else None
   reviews = [apiify_review(r) for r in instructor.review_set.all()] \
     if 'reviews' in extra else None
@@ -442,7 +384,7 @@ def instructor_sections(request, path, (instructor_id,)):
   db_id = int(instructor_id.split("-")[0])
   sections = Instructor.objects.get(id=db_id).section_set.all() 
 
-  return JSON({RSRCS: [apiify_section(s).toJSON() for s in sections]})
+  return JSON({RSRCS: [s.toJSON() for s in sections]})
 
 @dead_end
 def instructor_reviews(request, path, (instructor_id,)):
@@ -476,7 +418,7 @@ def course_reviews(request, path, (courseid,)):
 @dead_end
 def course_sections(request, path, (courseid,)):
   # Return full JSON.
-  api_sections = [apiify_section(s) for s in Course(courseid).section_set.all()]
+  api_sections = list(Course(courseid).section_set.all())
   return JSON({RSRCS: [s.toJSON() for s in api_sections]})
 
 def course_history(request, path, (courseid,)):
@@ -487,7 +429,7 @@ def course_history(request, path, (courseid,)):
 def section_main(request, path, (courseid, sectionnum)):
   try:  
     section = Section.objects.get(sectionnum=sectionnum, course=courseid)
-    return JSON(apiify_section(section).toJSON())
+    return JSON(section.toJSON())
   except Section.DoesNotExist:
     raise API404("Section %03d of course %d not found" % (sectionnum, courseid))
 

@@ -86,7 +86,7 @@ class Course(models.Model):
       'description': self.description,
       SECTION_TOKEN: {
         'path': path + '/' + SECTION_TOKEN,
-        RSRCS: '**TODO**' # [x.toShortJSON() for x in self.section_set.all()],
+        RSRCS: [x.toShortJSON() for x in self.section_set.all()],
       },
       REVIEW_TOKEN: {
         'path': path + '/' + REVIEW_TOKEN,
@@ -191,6 +191,57 @@ class Section(models.Model):
   class Meta:
     """ To hold uniqueness constraint """
     unique_together = (("course", "sectionnum"),)
+
+  """
+  def apiify_section(section, course=None):
+  s.instructors = [apiify_instructor(i) for i in section.instructors.all()]
+  s.reviews = [apiify_review(r, section=s) for r in section.review_set.all()]
+  return s
+
+    def __init__(self, course, sectionnum):
+    self.course = course # Course object
+    self.name = None # String, with the name of the section
+    self.sectionnum = sectionnum # Integer (e.g. 1 for 001)
+    self.group = None # Integer
+    self.instructors = None # List of APIInstructors
+    self.meetingtimes = None # List of meetingtime_json outputs
+    self.reviews = None # List of APIReview Objects
+    """
+
+  def getAliases(self):
+    return ["%s-%03d" % (alias, self.sectionnum)
+            for alias in self.course.getAliases()]
+
+  @property
+  def api_id(self):
+    return "%s-%03d" % (self.course_id, self.sectionnum)
+  
+  def toShortJSON(self):
+    return json_output({
+      'id': self.api_id, 
+      'aliases': self.getAliases(),
+      'name': self.name,
+      'sectionnum': "%03d" % self.sectionnum, 
+      'path': self.get_absolute_url(),
+      })
+
+  def toJSON(self):
+    path = self.get_absolute_url()
+    return json_output({
+      'id': self.api_id,
+      'aliases': self.getAliases(),
+      'group': self.group, 
+      'name': self.name,
+      'sectionnum': "%03d" % self.sectionnum, 
+      INSTRUCTOR_TOKEN: '**TODO**', # optlist_map(lambda i: i.toShortJSON(), self.instructors),
+      'meetingtimes': '**TODO**', # list_json(self.meetingtime_set.all()), 
+      'path': path,
+      COURSE_TOKEN: self.course.toShortJSON(),
+      REVIEW_TOKEN: {
+        'path': '%s/%s' % (path, REVIEW_TOKEN),
+         RSRCS: '**TODO**' # [x.toShortJSON() for x in self.reviews]
+      },
+    })
 
 class Review(models.Model):
   """ The aggregate review data for a class. """
