@@ -44,20 +44,31 @@ class Importer(object):
 
   @property
   def departments(self):
-    fields = ('dept_ID', 'dept_code', 'dept_title')
-    return self._select(fields, ('coursereview_tbldepts',))
+    """Set of department rows.
+    dept_ID - id
+    dept_code - ie, ACCT, ECON, CIS
+    dept_title - ACCOUNTING, ECONOMICS, COMPUTER & INFORMATION SCIENCE
+    """
+    # NOTE: No dept_ID
+    # IDEA: Use enumerate?
+    fields = ('subject_code', 'subject_area_desc')
+    return self._select(fields, ('test_pcr_summary_v',))
 
   @property
   def instructors(self):
-    fields = ('lecturer_ID', 'first_name', 'last_name')
-    return self._select(fields, ('coursereview_tbllecturers',))
+    fields = ('instructor_penn_id', 'instructor_fname', 'instructor_lname')
+    return self._select(fields, ('test_pcr_summary_v',))
 
   @property
   def courses(self):
+    fields = ('course_id', 'course_description')
+    tables = ('test_pcr_course_desc_v',)
+    """
     fields = ('course_ID', 'dept_ID', 'course_code', 'course_description',
         'crosslist_ID')
     tables = ('coursereview_tblcourses',)
     order_by = ('course_ID ASC',)
+    """
     return self._select(fields, tables, order_by=order_by)
 
   @property
@@ -70,16 +81,25 @@ class Importer(object):
     return self._select(fields, tables, conditions, group_by, order_by)
 
   def sections(self, year, semester):
+    # NOTE: No course_ID
+    # NOTE: No year, semester, instead term
+    fields = ('term', 'section_code', 'instructor_penn_id', 'section_id', 'title')
+    """
     fields = ('year', 'semester', 'course_ID', 'section_code', 'lecturer_ID',
-        'section_ID', 'section_title')
+       'section_ID', 'section_title')
     conditions = ('year="%s"' % year, 'semester="%s"' % semester)
-    return self._select(fields, ('coursereview_tblsections',), conditions)
+    """
+    return self._select(fields, ('test_pcr_summary_v',), conditions)
 
   def reviews(self, year, semester):
+    # NOTE: No form_type, course_ID, year, semester
+    fields = ('responses', 'enrollment', 'term', 'section_code', 'section_id', 'lecturer_id')
+    """
     fields = ('num_forms_returned', 'num_forms_produced', 'form_type',
         'course_ID', 'year', 'semester', 'section_code', 'section_ID',
         'lecturer_id')
     conditions = ('year="%s"' % year, 'semester="%s"' % semester)
+    """
     return self._select(fields, ('coursereview_tblsections',), conditions)
 
   def comments(self, year, semester):
