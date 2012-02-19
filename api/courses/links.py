@@ -8,6 +8,9 @@ REVIEW_TOKEN = 'reviews'
 BUILDING_TOKEN = 'building'
 SEMESTER_TOKEN = 'semesters'
 
+#TODO: do we want JSON keys to be here or elsewhere?
+RSRCS = 'values'
+
 def coursehistory_url(uid):
     return '/%s/%d' % (COURSEHISTORY_TOKEN, uid)
 

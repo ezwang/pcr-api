@@ -12,7 +12,6 @@ from json_helpers import JSON
 DOCS_URL = 'http://www.pennapps.com/kevinsu/pcr_documentation.html'
 DOCS_HTML = "<a href='%s'> %s </a>" % (DOCS_URL, DOCS_URL)
 
-RSRCS = 'values'
 API_ROOT = '/' + sandbox_config.DISPLAY_NAME
 
 def redirect(path, request, extras=[]):
@@ -61,7 +60,7 @@ def apiify_course_history_slow(history_uid):
   history = CourseHistory.objects.get(id=history_uid)
 
   result = APICourseHistory(history_uid)
-  result.courses = [apiify_course(c) for c in history.course_set.all()] 
+  result.courses = list(history.course_set.all())
   result.aliases = set(alias.course_code for alias in history.aliases)
   result.name = list(history.course_set.all())[-1].name
   return result
@@ -69,7 +68,7 @@ def apiify_course_history_slow(history_uid):
 class APICourseHistory:
   def __init__(self, uid):
     self.uid = uid # Integer id (unique to course histories)
-    self.courses = [] #APICourse Objects
+    self.courses = [] #Course Objects
     self.aliases = [] #(dept, num) tuple pairs
     self.name = None
 
@@ -125,74 +124,9 @@ class APISemester:
     result[DEPARTMENT_TOKEN] = depts_helper(self.sem.code(), current_sem_depts)
     return json_output(result)
 
-class APICourse:
-  def __init__(self, uid):
-    self.uid = uid # Integer id (unique to courses)
-    self.name = None # String, with the name of the course
-    self.aliases = [] # List of (department_code_str, coursenum_int) tuples
-    self.description = None # String
-    self.credits = None # Float
-    self.sections = None # list of APISection objects
-    self.history = None # Integer; history ID
-    self.semester = None # String
-
-  def path(self):
-    return course_url(self.uid)
-
-  def getAliases(self):
-    return ["%s-%03d" % x for x in self.aliases]
-  
-  def basic_info(self):
-    return {
-      'id': self.uid, 'name': self.name,
-      'aliases': self.getAliases(), 'path': self.path(),
-      'semester': self.semester
-    }
-
-  def toShortJSON(self):
-    return json_output(self.basic_info()) 
-
-  def toJSON(self):
-    result = self.basic_info()
-    path = self.path()
-    result.update({
-      'credits': self.credits,
-      'description': self.description,
-      SECTION_TOKEN: {
-        'path': path + '/' + SECTION_TOKEN,
-        RSRCS: [x.toShortJSON() for x in self.sections],
-      },
-      REVIEW_TOKEN: {
-        'path': path + '/' + REVIEW_TOKEN,
-      },
-      COURSEHISTORY_TOKEN: {'path': coursehistory_url(self.history)},
-    })
-
-    return json_output(result)
-
-  def makeChildSection(self, *args, **kwargs):
-    s = APISection(self, *args, **kwargs)
-    if self.sections is not None:
-      self.sections.append(s)
-    return s
-
-def apiify_course(course):
-  api_course = APICourse(course.id)  
-  #add aliases and sections manually, sadly
-  api_course.aliases = [(a.department.code, a.coursenum) 
-    for a in course.alias_set.all()
-  ]
-  api_course.sections = [apiify_section(s, api_course) 
-    for s in course.section_set.all()]
-  api_course.name = course.name
-  api_course.semester = course.semester.code()
-  api_course.description = course.description
-  api_course.history = course.history_id
-  return api_course
-
 def apiify_section(section, course=None):
   #to avoid circular dependencies
-  course = course or apiify_course(section.course)
+  course = course or section.course
   s = APISection(course, section.sectionnum)
   s.meetingtimes = apiify_meetingtimes(section.meetingtime_set.all())
   s.instructors = [apiify_instructor(i) for i in section.instructors.all()]
@@ -202,7 +136,7 @@ def apiify_section(section, course=None):
 
 class APISection:
   def __init__(self, course, sectionnum):
-    self.course = course # APICourse object
+    self.course = course # Course object
     self.name = None # String, with the name of the section
     self.sectionnum = sectionnum # Integer (e.g. 1 for 001)
     # Doesn't actually suck this much.  See apiify_section
@@ -213,10 +147,10 @@ class APISection:
 
   @property
   def id(self):
-    return "%s-%03d" % (self.course.uid, self.sectionnum)
+    return "%s-%03d" % (self.course.id, self.sectionnum)
 
   def path(self):
-    return section_url(self.course.uid, self.sectionnum)
+    return section_url(self.course.id, self.sectionnum)
 
   def getAliases(self):
     return ["%s-%03d" % (alias, self.sectionnum)
@@ -234,7 +168,7 @@ class APISection:
   def toJSON(self):
     path = self.path()
     return json_output({
-      'id': "%s-%03d" % (self.course.uid, self.sectionnum),
+      'id': "%s-%03d" % (self.course.id, self.sectionnum),
       'aliases': self.getAliases(),
       'group': self.group, 
       'name': self.name,
@@ -317,7 +251,7 @@ class APIDepartment:
     self.code = code # String
     self.name = name # String
     self.hists = None # List of APICourseHistories
-    self.courses = None # List of APICourses, if semester specific
+    self.courses = None # List of Courses, if semester specific
     self.semester = semester #if True, add to path
 
   def path(self):
@@ -370,7 +304,7 @@ class APIReview:
       'id': '%s-%s' % (self.section.id, self.instructor.pennkey),
       'section': self.section.toShortJSON(),
       'instructor': self.instructor_JSON, # to deal with possible none, hack
-      'path': review_url(self.section.course.uid, self.section.sectionnum,
+      'path': review_url(self.section.course.id, self.section.sectionnum,
                          self.instructor.pennkey if self.instructor else "99999-JAIME-MUNDO")
     }
 
@@ -454,7 +388,7 @@ def semester_dept(request, path, (semester_code, dept_code,)):
     alias__department = d, \
     semester = semesterFromCode(semester_code))
 
-  dept.courses = [apiify_course(c) for c in courses]
+  dept.courses = list(courses)
   return JSON(dept.toJSON())
 
 def apiify_instructor(instructor, depts=None, extra=[]):
@@ -531,7 +465,7 @@ def coursehistory_reviews(request, path, (histid,)):
 @dead_end
 def course_main(request, path, (courseid,)):
   course = Course.objects.get(id=int(courseid))
-  return JSON(apiify_course(course).toJSON())
+  return JSON(course.toJSON())
 
 @dead_end
 def course_reviews(request, path, (courseid,)):

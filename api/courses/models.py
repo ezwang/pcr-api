@@ -6,6 +6,10 @@ import re
 
 # Note: each class has get_absolute_url - this is for "url" when queried
 
+# TODO get rid of this?
+def json_output(d):
+  return d # dict((k, v) for (k, v) in d.iteritems() if v is not None)
+
 class Department(models.Model):
   """A department/subject"""
   code = models.CharField(max_length=5, primary_key=True)
@@ -59,6 +63,38 @@ class Course(models.Model):
 
   def get_absolute_url(self):
     return course_url(self.id)
+
+  def getAliases(self):
+    return ["%s-%03d" % (x.department.code, x.coursenum)
+            for x in self.alias_set.all()]
+
+  def basic_info(self):
+    return {
+      'id': self.id, 'name': self.name,
+      'aliases': self.getAliases(), 'path': self.get_absolute_url(),
+      'semester': self.semester.code()
+    }
+
+  def toShortJSON(self):
+    return json_output(self.basic_info()) 
+
+  def toJSON(self):
+    result = self.basic_info()
+    path = self.get_absolute_url()
+    result.update({
+      'credits': self.credits,
+      'description': self.description,
+      SECTION_TOKEN: {
+        'path': path + '/' + SECTION_TOKEN,
+        RSRCS: '**TODO**' # [x.toShortJSON() for x in self.section_set.all()],
+      },
+      REVIEW_TOKEN: {
+        'path': path + '/' + REVIEW_TOKEN,
+      },
+      COURSEHISTORY_TOKEN: {'path': coursehistory_url(self.history_id)},
+    })
+
+    return json_output(result)
 
 class Instructor(models.Model):
   """ A course instructor or TA (or "STAFF")"""
