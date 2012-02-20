@@ -103,7 +103,7 @@ class APIDepartment:
     if self.hists:
       result[COURSEHISTORY_TOKEN] = [h.toShortJSON() for h in self.hists]
       #Post 1.0/nice to have, reviews for semester-department.
-      result[REVIEW_TOKEN] = {'path': "%s/%s" % (self.path(), REVIEW_TOKEN)},
+      result[REVIEW_TOKEN] = {'path': "%s/%s" % (self.path(), REVIEW_TOKEN)}
     elif self.courses:
       result[COURSE_TOKEN] = [c.toShortJSON() for c in self.courses]
 
