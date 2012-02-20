@@ -209,12 +209,6 @@ class Alias(models.Model):
                                  self.semester.code()
                                 )
 
-  def get_absolute_url(self):
-    return "/courses/course/%s/%s/%03d/" % (
-      self.semester.code(),
-      str(self.course.department).lower(),
-      self.course.coursenum) #TODO dereference alias?
-
   @property
   def course_code(self):
     """returns something akin to the tuple ('CIS', 120)"""
@@ -363,7 +357,7 @@ class Building(models.Model):
     return self.code
 
   def get_absolute_url(self):
-    return "/courses/building/%s/" % self.code.lower()
+    return "/courses/building/%s/" % self.code
 
   def toJSON(self):
     return json_output({
@@ -431,7 +425,7 @@ class SemesterDepartment:
     return unicode((self.semester, self.department))
 
   def get_absolute_url(self):
-    return semdept_url(self.semester.code().lower(), self.department.code)
+    return semdept_url(self.semester.code(), self.department.code)
 
   def base_info(self):
     return {
