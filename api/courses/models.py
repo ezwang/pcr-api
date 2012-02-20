@@ -39,7 +39,7 @@ class Department(models.Model):
     result[COURSEHISTORY_TOKEN] = [h.toShortJSON() for h in hists]
 
     #Post 1.0/nice to have, reviews for semester-department.
-    result[REVIEW_TOKEN] = {'path': "%s/%s" % (self.path(), REVIEW_TOKEN)}
+    result[REVIEW_TOKEN] = {'path': "%s/%s" % (self.get_absolute_url(), REVIEW_TOKEN)}
 
     return result
 
