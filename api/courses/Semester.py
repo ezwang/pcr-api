@@ -7,7 +7,7 @@ Note that:
 Semester 2010a is 810. Current (2010c) is 812.
 """
 from django.db import models
-from links import semester_url
+from links import semester_url, DEPARTMENT_TOKEN
 import datetime
 
 class Semester:
@@ -59,6 +59,31 @@ class Semester:
       return cmp(self.id, other.id)
     else:
       return 1 # arbitrarily, if other is given as '' 
+
+  def basic_info(self):
+    return {
+      'id': self.code(),
+      'name': str(self),
+      'year': self.year,
+      'seasoncode': self.seasoncodeABC,
+      'path': self.get_absolute_url()
+    }
+
+  def toShortJSON(self):
+    return self.basic_info()
+
+  def toJSON(self):
+    # import here, to avoid circular import
+    from models import Department, SemesterDepartment
+
+    result = self.basic_info()
+
+    depts = Department.objects.filter(alias__semester=self).order_by(
+      'code').distinct()
+    result[DEPARTMENT_TOKEN] = [SemesterDepartment(self, d).toShortJSON()
+                                for d in depts]
+    return result
+
 
 def current_semester():
   now = datetime.datetime.now()

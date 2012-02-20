@@ -47,34 +47,6 @@ def list_json(l):
 def json_output(d):
   return d # dict((k, v) for (k, v) in d.iteritems() if v is not None)
 
-
-class APISemester:
-  def __init__(self, semester_object):
-    self.sem = semester_object
-
-  def path(self):
-    return semester_url(self.sem.code())
-
-  def basic_info(self):
-    return {
-      'id': self.sem.code(),
-      'name': str(self.sem),
-      'year': self.sem.year,
-      'seasoncode': self.sem.seasoncodeABC,
-      'path': self.path()
-    }
-
-  def toShortJSON(self):
-    return json_output(self.basic_info())
-
-  def toJSON(self):
-    result = self.basic_info()
-
-    depts = Department.objects.filter(alias__semester=self.sem).order_by('code').distinct()
-    result[DEPARTMENT_TOKEN] = [SemesterDepartment(self.sem, d).toShortJSON() for d in depts]
-    return json_output(result)
-
-
 # FNAR 337 Advanced Orange (Jaime Mundo)
 # Explore the majesty of the color Orange in its natural habitat,
 # and ridicule other, uglier colors, such as Chartreuse (eww).
@@ -127,11 +99,11 @@ def course_histories(request, path, _):
 def semesters(request, path, _):
   semester_list = (semesterFromID(d['semester']) for d in \
     Course.objects.values('semester').order_by('semester').distinct())
-  return JSON({RSRCS: [APISemester(s).toShortJSON() for s in semester_list]})
+  return JSON({RSRCS: [s.toShortJSON() for s in semester_list]})
 
 @dead_end
 def semester_main(request, path, (semester_code,)):
-  return JSON(APISemester(semesterFromCode(semester_code)).toJSON())
+  return JSON(semesterFromCode(semester_code).toJSON())
 
 @dead_end
 def semester_dept(request, path, (semester_code, dept_code,)):
