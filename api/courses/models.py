@@ -112,7 +112,7 @@ class Course(models.Model):
     return course_url(self.id)
 
   def getAliases(self):
-    return ["%s-%03d" % (x.department.code, x.coursenum)
+    return ["%s-%03d" % (x.department_id, x.coursenum)
             for x in self.alias_set.all()]
 
   def basic_info(self):
@@ -203,7 +203,7 @@ class Alias(models.Model):
   oldpcr_id = models.IntegerField(null=True)
 
   def __unicode__(self):
-    return "%s: %s-%03d (%s)" % (self.course.id, 
+    return "%s: %s-%03d (%s)" % (self.course_id, 
                                  self.department, 
                                  self.coursenum,
                                  self.semester.code()
@@ -212,7 +212,7 @@ class Alias(models.Model):
   @property
   def course_code(self):
     """returns something akin to the tuple ('CIS', 120)"""
-    return (self.department.code, self.coursenum)
+    return (self.department_id, self.coursenum)
  
 class Section(models.Model):
   """ A section of a Course
@@ -425,11 +425,11 @@ class SemesterDepartment:
     return unicode((self.semester, self.department))
 
   def get_absolute_url(self):
-    return semdept_url(self.semester.code(), self.department.code)
+    return semdept_url(self.semester.code(), self.department_id)
 
   def base_info(self):
     return {
-      'id': self.department.code,
+      'id': self.department_id,
       'name': self.department.name,
       'path': self.get_absolute_url(),
     }
