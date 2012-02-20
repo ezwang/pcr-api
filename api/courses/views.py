@@ -47,50 +47,6 @@ def list_json(l):
 def json_output(d):
   return d # dict((k, v) for (k, v) in d.iteritems() if v is not None)
 
-def apiify_course_history(history, courses=None, aliases=None, name=None):
-  """when you absolutely, positively, need this shit to work quickly"""
-  result = APICourseHistory(history.id)
-  result.courses = courses 
-  result.aliases = aliases
-  result.name = name 
-  return result
-
-def apiify_course_history_slow(history_uid):
-  """used by pages that only need a few course histories"""
-  history = CourseHistory.objects.get(id=history_uid)
-
-  result = APICourseHistory(history_uid)
-  result.courses = list(history.course_set.all())
-  result.aliases = set(alias.course_code for alias in history.aliases)
-  result.name = list(history.course_set.all())[-1].name
-  return result
-
-class APICourseHistory:
-  def __init__(self, uid):
-    self.uid = uid # Integer id (unique to course histories)
-    self.courses = [] #Course Objects
-    self.aliases = [] #(dept, num) tuple pairs
-    self.name = None
-
-  def path(self):
-    return coursehistory_url(self.uid)
-
-  def basic_info(self):
-    return {
-      'id': self.uid,
-      'name': self.name,
-      'path': self.path(),
-      'aliases': ["%s-%03d" % (code[0], code[1]) for code in self.aliases]
-    }
-
-  def toShortJSON(self):
-    return json_output(self.basic_info())
-
-  def toJSON(self):
-    response = self.basic_info()
-    response[COURSE_TOKEN] = [c.toShortJSON() for c in self.courses]
-    response[REVIEW_TOKEN] = {'path': self.path() + '/' + REVIEW_TOKEN}
-    return json_output(response)
 
 class APISemester:
   def __init__(self, semester_object):
@@ -129,7 +85,7 @@ class APIDepartment:
   def __init__(self, code, name, semester=None):
     self.code = code # String
     self.name = name # String
-    self.hists = None # List of APICourseHistories
+    self.hists = None # List of CourseHistories
     self.courses = None # List of Courses, if semester specific
     self.semester = semester #if True, add to path
 
@@ -182,8 +138,13 @@ def course_histories(request, path, _):
   alias_fields = ['coursenum', 'department__code', 'course__history', 'course__name']
   query_results = Alias.objects.select_related(*alias_fields).values(*alias_fields)
 
+  # Note: Some courses have no aliases (probably an import script bug).
+  # This function will not see those courses (we don't really want to anyway),
+  # so we have hist_to_name default to "" (if it defaulted to None, then
+  # name_override would not happen and it would fetch their real names and that
+  # would be slow)
   hist_to_aliases = defaultdict(set)
-  hist_to_name = defaultdict(lambda: None)
+  hist_to_name = defaultdict(lambda: "")
   for e in query_results:
     hist_to_aliases[e['course__history']].add((e['department__code'], e['coursenum']))
     hist_to_name[e['course__history']] = (e['course__name'])
@@ -195,14 +156,11 @@ def course_histories(request, path, _):
     .values_list('history') \
     .distinct()]
 
-  api_course_histories = [
-      apiify_course_history(c, 
-        aliases=hist_to_aliases[c.id],
-        name=hist_to_name[c.id],
-        courses=None
-    ) for c in CourseHistory.objects.filter(id__in=old_course_history_ids)]
+  hists = CourseHistory.objects.filter(id__in=old_course_history_ids)
+  course_histories = [h.toShortJSON(name_override=hist_to_name[h.id],
+                                    aliases_override=hist_to_aliases[h.id])
+                      for h in hists]
 
-  course_histories = [c.toShortJSON() for c in api_course_histories]
   return JSON({RSRCS: course_histories})
 
 @dead_end
@@ -289,7 +247,7 @@ def instructor_reviews(request, path, (instructor_id,)):
 
 @dead_end
 def coursehistory_main(request, path, (histid,)):
-  hist = apiify_course_history_slow(histid)
+  hist = CourseHistory.objects.get(id=histid)
   return JSON(hist.toJSON())
 
 @dead_end
@@ -413,8 +371,8 @@ def dept_main(request, path, (dept_code,)):
   hists = CourseHistory.objects.filter(course__alias__department=d)
   
   dept = APIDepartment(d.code, d.name)
-  #using set to remove duplicate course histories 
-  dept.hists = [apiify_course_history_slow(h.id) for h in set(hists)]
+  #using set to remove duplicate course histories #TODO do this in orm
+  dept.hists = list(set(hists))
   return JSON(dept.toJSON())
 
 @dead_end

@@ -41,6 +41,32 @@ class CourseHistory(models.Model):
   def get_absolute_url(self):
     return coursehistory_url(self.id)
 
+  # name_override: string, or None
+  # aliases_override: list of (dept, num) tuple pairs, or None
+  # courses_override: list of Course objects, or None
+    
+  def basic_info(self, name_override=None, aliases_override=None):
+    # need to explictly check for None; user may override with empty string/list
+    name = list(self.course_set.all())[-1].name if name_override is None else name_override
+    aliases = set(alias.course_code for alias in self.aliases) if aliases_override is None else aliases_override
+    return {
+      'id': self.id,
+      'name': name,
+      'path': self.get_absolute_url(),
+      'aliases': ["%s-%03d" % (code[0], code[1]) for code in aliases]
+    }
+  
+  def toShortJSON(self, *args, **kwargs):
+    return json_output(self.basic_info(*args, **kwargs))
+
+  def toJSON(self, name_override=None, aliases_override=None, courses_override=None):
+    courses = list(self.course_set.all()) if courses_override is None else courses_override
+    response = self.basic_info(name_override=name_override, aliases_override=aliases_override)
+    response[COURSE_TOKEN] = [c.toShortJSON() for c in courses]
+    response[REVIEW_TOKEN] = {'path': self.get_absolute_url() + '/' + REVIEW_TOKEN}
+    return json_output(response)
+
+
 class Course(models.Model):
   """A course that can be taken during a particular semester
      (e.g. CIS-120 @2010c). A course may have multiple
