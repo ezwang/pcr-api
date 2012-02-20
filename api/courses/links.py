@@ -37,7 +37,7 @@ def department_url(code):
     return '/%s/%s' % (DEPARTMENT_TOKEN, code)
 
 def semdept_url(semcode, deptcode):
-    return '/%s/%s/%s' % (SEMESTER_TOKEN, self.semester, self.code)
+    return '/%s/%s/%s' % (SEMESTER_TOKEN, semcode, deptcode)
 
 def review_url(course_uid, sectionnum, pennkey):
     # leading / comes from section_url
