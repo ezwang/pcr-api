@@ -359,11 +359,9 @@ def depts(request, path, _):
 def dept_main(request, path, (dept_code,)):
   dept_code = dept_code.upper()
   d = Department.objects.get(code=dept_code)
-  hists = CourseHistory.objects.filter(course__alias__department=d)
   
   dept = APIDepartment(d.code, d.name)
-  #using set to remove duplicate course histories #TODO do this in orm
-  dept.hists = list(set(hists))
+  dept.hists = CourseHistory.objects.filter(course__alias__department=d).distinct()
   return JSON(dept.toJSON())
 
 @dead_end
