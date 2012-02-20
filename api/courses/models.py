@@ -306,16 +306,16 @@ class Review(models.Model):
     return "Review for %s" % str(self.section)
 
   def get_absolute_url(self):
-    pennkey = self.instructor.pennkey if self.instructor else "99999-JAIME-MUNDO"
+    pennkey = self.instructor.temp_id if self.instructor else "99999-JAIME-MUNDO"
     return review_url(self.section.course_id, self.section.sectionnum, pennkey)
 
   def basic_info(self):
     return {
-      'id': '%s-%s' % (self.section.api_id, self.instructor.pennkey),
+      'id': '%s-%s' % (self.section.api_id, self.instructor.temp_id),
       'section': self.section.toShortJSON(),
       'instructor': self.instructor.toShortJSON() if self.instructor_id else None,
       'path': review_url(self.section.course_id, self.section.sectionnum,
-                         self.instructor.pennkey if self.instructor_id else "99999-JAIME-MUNDO")
+                         self.instructor.temp_id if self.instructor_id else "99999-JAIME-MUNDO")
     }
   
   def toShortJSON(self):
