@@ -69,15 +69,9 @@ class APISemester:
 
   def toJSON(self):
     result = self.basic_info()
-    def current_sem_depts(depts):
-      courses = Course.objects.filter(semester=self.sem).all()
-      #Super slow but it gets cached
-      good_depts = set(alias.department for course in courses for alias \
-        in course.alias_set.all())
-      #filter original set based on good list, to preserve ordering
-      return [d for d in depts.all() if d in good_depts]
 
-    result[DEPARTMENT_TOKEN] = depts_helper(self.sem.code(), current_sem_depts)
+    depts = Department.objects.filter(alias__semester=self.sem).order_by('code').distinct()
+    result[DEPARTMENT_TOKEN] = [APIDepartment(d.code, d.name, self.sem.code()).toShortJSON() for d in depts]
     return json_output(result)
 
 
@@ -358,11 +352,8 @@ def alias_misc(request, path, (alias,)):
 
 @dead_end
 def depts(request, path, _):
-  return JSON({RSRCS: depts_helper()})
-
-def depts_helper(semester = None, *condition_funcs):
-  filt_depts = reduce(lambda depts, filt: filt(depts), condition_funcs, Department.objects.order_by('code').all())
-  return [APIDepartment(d.code, d.name, semester).toShortJSON() for d in filt_depts] 
+  depts = Department.objects.order_by('code').all()
+  return JSON({RSRCS: [APIDepartment(d.code, d.name).toShortJSON() for d in depts] })
 
 @dead_end
 def dept_main(request, path, (dept_code,)):
