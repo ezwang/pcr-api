@@ -20,7 +20,28 @@ class Department(models.Model):
 
   def get_absolute_url(self):
     # don't know actual semester
-    return department_url(self.code.lower())
+    return department_url(self.code)
+
+  def base_info(self):
+    return {
+      'id': self.code,
+      'name': self.name,
+      'path': self.get_absolute_url(),
+    }
+  
+  def toShortJSON(self):
+    return json_output(self.base_info())
+  
+  def toJSON(self):
+    result = self.base_info()
+    
+    hists = CourseHistory.objects.filter(course__alias__department=self).distinct()
+    result[COURSEHISTORY_TOKEN] = [h.toShortJSON() for h in hists]
+
+    #Post 1.0/nice to have, reviews for semester-department.
+    result[REVIEW_TOKEN] = {'path': "%s/%s" % (self.path(), REVIEW_TOKEN)}
+
+    return result
 
 class CourseHistory(models.Model):
   """A course, as it has existed for many semesters. Various courses
@@ -410,4 +431,24 @@ class SemesterDepartment:
     return unicode((self.semester, self.department))
 
   def get_absolute_url(self):
-    return semdept_url(self.semester.code(), self.department.code().lower())
+    return semdept_url(self.semester.code().lower(), self.department.code)
+
+  def base_info(self):
+    return {
+      'id': self.department.code,
+      'name': self.department.name,
+      'path': self.get_absolute_url(),
+    }
+  
+  def toShortJSON(self):
+    return json_output(self.base_info())
+  
+  def toJSON(self):
+    result = self.base_info()
+
+    courses = Course.objects.filter(alias__department = self.department,
+                                    semester = self.semester)
+
+    result[COURSE_TOKEN] = [c.toShortJSON() for c in courses]
+      
+    return result

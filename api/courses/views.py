@@ -71,43 +71,9 @@ class APISemester:
     result = self.basic_info()
 
     depts = Department.objects.filter(alias__semester=self.sem).order_by('code').distinct()
-    result[DEPARTMENT_TOKEN] = [APIDepartment(d.code, d.name, self.sem.code()).toShortJSON() for d in depts]
+    result[DEPARTMENT_TOKEN] = [SemesterDepartment(self.sem, d).toShortJSON() for d in depts]
     return json_output(result)
 
-
-class APIDepartment:
-  def __init__(self, code, name, semester=None):
-    self.code = code # String
-    self.name = name # String
-    self.hists = None # List of CourseHistories
-    self.courses = None # List of Courses, if semester specific
-    self.semester = semester #if True, add to path
-
-  def path(self):
-    if self.semester:
-      return semdept_url(self.semester, self.code)
-    else:
-      return department_url(self.code)
-  
-  def base_info(self):
-    return {
-      'id': self.code,
-      'name': self.name,
-      'path': self.path(),
-    }
-  def toShortJSON(self):
-    return json_output(self.base_info())
-
-  def toJSON(self):
-    result = self.base_info() 
-    if self.hists:
-      result[COURSEHISTORY_TOKEN] = [h.toShortJSON() for h in self.hists]
-      #Post 1.0/nice to have, reviews for semester-department.
-      result[REVIEW_TOKEN] = {'path': "%s/%s" % (self.path(), REVIEW_TOKEN)}
-    elif self.courses:
-      result[COURSE_TOKEN] = [c.toShortJSON() for c in self.courses]
-
-    return result
 
 # FNAR 337 Advanced Orange (Jaime Mundo)
 # Explore the majesty of the color Orange in its natural habitat,
@@ -171,13 +137,7 @@ def semester_main(request, path, (semester_code,)):
 def semester_dept(request, path, (semester_code, dept_code,)):
   dept_code = dept_code.upper()
   d = Department.objects.get(code=dept_code)
-  dept = APIDepartment(d.code, d.name, semester_code)
-
-  courses = Course.objects.filter( \
-    alias__department = d, \
-    semester = semesterFromCode(semester_code))
-
-  dept.courses = list(courses)
+  dept = SemesterDepartment(semesterFromCode(semester_code), d)
   return JSON(dept.toJSON())
 
 @dead_end
@@ -353,16 +313,13 @@ def alias_misc(request, path, (alias,)):
 @dead_end
 def depts(request, path, _):
   depts = Department.objects.order_by('code').all()
-  return JSON({RSRCS: [APIDepartment(d.code, d.name).toShortJSON() for d in depts] })
+  return JSON({RSRCS: [d.toShortJSON() for d in depts] })
 
 @dead_end
 def dept_main(request, path, (dept_code,)):
   dept_code = dept_code.upper()
   d = Department.objects.get(code=dept_code)
-  
-  dept = APIDepartment(d.code, d.name)
-  dept.hists = CourseHistory.objects.filter(course__alias__department=d).distinct()
-  return JSON(dept.toJSON())
+  return JSON(d.toJSON())
 
 @dead_end
 def dept_reviews(request, path, (dept_code,)):
