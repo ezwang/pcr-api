@@ -1,6 +1,5 @@
 from models import *
 from Semester import *
-from APIObjects import *
 from links import *
 import json
 import datetime
