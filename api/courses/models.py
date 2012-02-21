@@ -402,11 +402,11 @@ class SemesterDepartment:
     return unicode((self.semester, self.department))
 
   def get_absolute_url(self):
-    return semdept_url(self.semester.code(), self.department_id)
+    return semdept_url(self.semester.code(), self.department.code)
 
   def toShortJSON(self):
     return {
-      'id': self.department_id,
+      'id': self.department.code, # no department_id here
       'name': self.department.name,
       'path': self.get_absolute_url(),
     }
