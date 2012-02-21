@@ -43,9 +43,6 @@ def optlist_map(func, l):
 def list_json(l):
   return None if l is None else l if type(l) is list else list(l)
 
-def json_output(d):
-  return d # dict((k, v) for (k, v) in d.iteritems() if v is not None)
-
 # FNAR 337 Advanced Orange (Jaime Mundo)
 # Explore the majesty of the color Orange in its natural habitat,
 # and ridicule other, uglier colors, such as Chartreuse (eww).

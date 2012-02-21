@@ -6,10 +6,6 @@ import re
 
 # Note: each class has get_absolute_url - this is for "url" when queried
 
-# TODO get rid of this?
-def json_output(d):
-  return d # dict((k, v) for (k, v) in d.iteritems() if v is not None)
-
 class Department(models.Model):
   """A department/subject"""
   code = models.CharField(max_length=5, primary_key=True)
@@ -30,7 +26,7 @@ class Department(models.Model):
     }
   
   def toShortJSON(self):
-    return json_output(self.base_info())
+    return self.base_info()
   
   def toJSON(self):
     result = self.base_info()
@@ -78,14 +74,14 @@ class CourseHistory(models.Model):
     }
   
   def toShortJSON(self, *args, **kwargs):
-    return json_output(self.basic_info(*args, **kwargs))
+    return self.basic_info(*args, **kwargs)
 
   def toJSON(self, name_override=None, aliases_override=None, courses_override=None):
     courses = list(self.course_set.all()) if courses_override is None else courses_override
     response = self.basic_info(name_override=name_override, aliases_override=aliases_override)
     response[COURSE_TOKEN] = [c.toShortJSON() for c in courses]
     response[REVIEW_TOKEN] = {'path': self.get_absolute_url() + '/' + REVIEW_TOKEN}
-    return json_output(response)
+    return response
 
 
 class Course(models.Model):
@@ -123,7 +119,7 @@ class Course(models.Model):
     }
 
   def toShortJSON(self):
-    return json_output(self.basic_info()) 
+    return self.basic_info()
 
   def toJSON(self):
     result = self.basic_info()
@@ -141,7 +137,7 @@ class Course(models.Model):
       COURSEHISTORY_TOKEN: {'path': coursehistory_url(self.history_id)},
     })
 
-    return json_output(result)
+    return result
 
 class Instructor(models.Model):
   """ A course instructor or TA (or "STAFF")"""
@@ -179,7 +175,7 @@ class Instructor(models.Model):
     return result
 
   def toShortJSON(self):
-    return json_output(self.basic_info())
+    return self.basic_info()
 
   def toJSON(self, extra=[]):
     result = self.basic_info()
@@ -263,17 +259,17 @@ class Section(models.Model):
     return "%s-%03d" % (self.course_id, self.sectionnum)
   
   def toShortJSON(self):
-    return json_output({
+    return {
       'id': self.api_id, 
       'aliases': self.getAliases(),
       'name': self.name,
       'sectionnum': "%03d" % self.sectionnum, 
       'path': self.get_absolute_url(),
-      })
+      }
 
   def toJSON(self):
     path = self.get_absolute_url()
-    return json_output({
+    return {
       'id': self.api_id,
       'aliases': self.getAliases(),
       'group': self.group, 
@@ -287,7 +283,7 @@ class Section(models.Model):
         'path': '%s/%s' % (path, REVIEW_TOKEN),
          RSRCS: [x.toShortJSON() for x in self.review_set.all()]
       },
-    })
+    }
 
 class Review(models.Model):
   """ The aggregate review data for a class. """
@@ -319,7 +315,7 @@ class Review(models.Model):
     }
   
   def toShortJSON(self):
-    return json_output(self.basic_info())
+    return self.basic_info()
 
   def toJSON(self):
     result = self.basic_info()
@@ -331,7 +327,7 @@ class Review(models.Model):
       'comments': self.comments,
     })
 
-    return json_output(result)
+    return result
 
 class ReviewBit(models.Model):
   """ A component of a review. """
@@ -360,13 +356,13 @@ class Building(models.Model):
     return "/courses/building/%s/" % self.code
 
   def toJSON(self):
-    return json_output({
+    return {
       'id': self.code,
       'name': self.name,
       'latitude': self.latitude,
       'longitude': self.longitude,
       'path': building_url(self.code)
-      })
+      }
 
 class Room(models.Model):
   """ A room in a Building. It optionally may be named. """
@@ -435,7 +431,7 @@ class SemesterDepartment:
     }
   
   def toShortJSON(self):
-    return json_output(self.base_info())
+    return self.base_info()
   
   def toJSON(self):
     result = self.base_info()
