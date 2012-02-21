@@ -18,18 +18,15 @@ class Department(models.Model):
     # don't know actual semester
     return department_url(self.code)
 
-  def base_info(self):
+  def toShortJSON(self):
     return {
       'id': self.code,
       'name': self.name,
       'path': self.get_absolute_url(),
     }
   
-  def toShortJSON(self):
-    return self.base_info()
-  
   def toJSON(self):
-    result = self.base_info()
+    result = self.toShortJSON()
     
     hists = CourseHistory.objects.filter(course__alias__department=self).distinct()
     result[COURSEHISTORY_TOKEN] = [h.toShortJSON() for h in hists]
@@ -62,7 +59,7 @@ class CourseHistory(models.Model):
   # aliases_override: list of (dept, num) tuple pairs, or None
   # courses_override: list of Course objects, or None
     
-  def basic_info(self, name_override=None, aliases_override=None):
+  def toShortJSON(self, name_override=None, aliases_override=None):
     # need to explictly check for None; user may override with empty string/list
     name = list(self.course_set.all())[-1].name if name_override is None else name_override
     aliases = set(alias.course_code for alias in self.aliases) if aliases_override is None else aliases_override
@@ -73,12 +70,9 @@ class CourseHistory(models.Model):
       'aliases': ["%s-%03d" % (code[0], code[1]) for code in aliases]
     }
   
-  def toShortJSON(self, *args, **kwargs):
-    return self.basic_info(*args, **kwargs)
-
   def toJSON(self, name_override=None, aliases_override=None, courses_override=None):
     courses = list(self.course_set.all()) if courses_override is None else courses_override
-    response = self.basic_info(name_override=name_override, aliases_override=aliases_override)
+    response = self.toShortJSON(name_override=name_override, aliases_override=aliases_override)
     response[COURSE_TOKEN] = [c.toShortJSON() for c in courses]
     response[REVIEW_TOKEN] = {'path': self.get_absolute_url() + '/' + REVIEW_TOKEN}
     return response
@@ -111,18 +105,15 @@ class Course(models.Model):
     return ["%s-%03d" % (x.department_id, x.coursenum)
             for x in self.alias_set.all()]
 
-  def basic_info(self):
+  def toShortJSON(self):
     return {
       'id': self.id, 'name': self.name,
       'aliases': self.getAliases(), 'path': self.get_absolute_url(),
       'semester': self.semester.code()
     }
 
-  def toShortJSON(self):
-    return self.basic_info()
-
   def toJSON(self):
-    result = self.basic_info()
+    result = self.toShortJSON()
     path = self.get_absolute_url()
     result.update({
       'credits': self.credits,
@@ -166,19 +157,15 @@ class Instructor(models.Model):
   def __unicode__(self):
     return self.name
     
-  def basic_info(self):
-    result = {
+  def toShortJSON(self):
+    return {
       'id': self.temp_id,
       'name': self.name,
       'path': self.get_absolute_url(),
     }
-    return result
-
-  def toShortJSON(self):
-    return self.basic_info()
 
   def toJSON(self, extra=[]):
-    result = self.basic_info()
+    result = self.toShortJSON()
     result[SECTION_TOKEN] = {'path': "%s/%s" % (self.get_absolute_url(), SECTION_TOKEN)}
     if 'sections' in extra:
       result[SECTION_TOKEN][RSRCS] = [x.toShortJSON() for x in self.section_set.all()]
@@ -269,21 +256,18 @@ class Section(models.Model):
 
   def toJSON(self):
     path = self.get_absolute_url()
-    return {
-      'id': self.api_id,
-      'aliases': self.getAliases(),
+    result = self.toShortJSON()
+    result.update({
       'group': self.group, 
-      'name': self.name,
-      'sectionnum': "%03d" % self.sectionnum, 
       INSTRUCTOR_TOKEN: [i.toShortJSON() for i in self.instructors.all()],
       'meetingtimes': [x.toJSON() for x in self.meetingtime_set.all()],
-      'path': path,
       COURSE_TOKEN: self.course.toShortJSON(),
       REVIEW_TOKEN: {
         'path': '%s/%s' % (path, REVIEW_TOKEN),
          RSRCS: [x.toShortJSON() for x in self.review_set.all()]
       },
-    }
+    })
+    return result
 
 class Review(models.Model):
   """ The aggregate review data for a class. """
@@ -305,7 +289,7 @@ class Review(models.Model):
     pennkey = self.instructor.temp_id if self.instructor else "99999-JAIME-MUNDO"
     return review_url(self.section.course_id, self.section.sectionnum, pennkey)
 
-  def basic_info(self):
+  def toShortJSON(self):
     return {
       'id': '%s-%s' % (self.section.api_id, self.instructor.temp_id),
       'section': self.section.toShortJSON(),
@@ -314,11 +298,8 @@ class Review(models.Model):
                          self.instructor.temp_id if self.instructor_id else "99999-JAIME-MUNDO")
     }
   
-  def toShortJSON(self):
-    return self.basic_info()
-
   def toJSON(self):
-    result = self.basic_info()
+    result = self.toShortJSON()
     bits = self.reviewbit_set.all()
     result.update({
       'num_reviewers': self.forms_returned,
@@ -423,18 +404,15 @@ class SemesterDepartment:
   def get_absolute_url(self):
     return semdept_url(self.semester.code(), self.department_id)
 
-  def base_info(self):
+  def toShortJSON(self):
     return {
       'id': self.department_id,
       'name': self.department.name,
       'path': self.get_absolute_url(),
     }
   
-  def toShortJSON(self):
-    return self.base_info()
-  
   def toJSON(self):
-    result = self.base_info()
+    result = self.toShortJSON()
 
     courses = Course.objects.filter(alias__department = self.department,
                                     semester = self.semester)
