@@ -60,7 +60,7 @@ class Semester:
     else:
       return 1 # arbitrarily, if other is given as '' 
 
-  def basic_info(self):
+  def toShortJSON(self):
     return {
       'id': self.code(),
       'name': str(self),
@@ -69,14 +69,11 @@ class Semester:
       'path': self.get_absolute_url()
     }
 
-  def toShortJSON(self):
-    return self.basic_info()
-
   def toJSON(self):
     # import here, to avoid circular import
     from models import Department, SemesterDepartment
 
-    result = self.basic_info()
+    result = self.toShortJSON()
 
     depts = Department.objects.filter(alias__semester=self).order_by(
       'code').distinct()
