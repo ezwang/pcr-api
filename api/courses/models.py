@@ -1,5 +1,6 @@
 from django.db import models
 from Semester import *
+from links import *
 import urllib
 import re
 
@@ -13,10 +14,27 @@ class Department(models.Model):
   def __unicode__(self):
     return self.code
 
-  @property
-  def absolute_url(self):
+  def get_absolute_url(self):
     # don't know actual semester
-    return "/courses/course/current/%s/" % self.code.lower()
+    return department_url(self.code)
+
+  def toShortJSON(self):
+    return {
+      'id': self.code,
+      'name': self.name,
+      'path': self.get_absolute_url(),
+    }
+  
+  def toJSON(self):
+    result = self.toShortJSON()
+    
+    hists = CourseHistory.objects.filter(course__alias__department=self).distinct()
+    result[COURSEHISTORY_TOKEN] = [h.toShortJSON() for h in hists]
+
+    #Post 1.0/nice to have, reviews for semester-department.
+    result[REVIEW_TOKEN] = {'path': "%s/%s" % (self.get_absolute_url(), REVIEW_TOKEN)}
+
+    return result
 
 class CourseHistory(models.Model):
   """A course, as it has existed for many semesters. Various courses
@@ -33,6 +51,32 @@ class CourseHistory(models.Model):
     #TODO: shadowing (IE, CIS 260 is not used by another course, don't alias 
     #me that way.
     return Alias.objects.filter(course__history=self).only('coursenum', 'department__name')
+
+  def get_absolute_url(self):
+    return coursehistory_url(self.id)
+
+  # name_override: string, or None
+  # aliases_override: list of (dept, num) tuple pairs, or None
+  # courses_override: list of Course objects, or None
+    
+  def toShortJSON(self, name_override=None, aliases_override=None):
+    # need to explictly check for None; user may override with empty string/list
+    name = list(self.course_set.all())[-1].name if name_override is None else name_override
+    aliases = set(alias.course_code for alias in self.aliases) if aliases_override is None else aliases_override
+    return {
+      'id': self.id,
+      'name': name,
+      'path': self.get_absolute_url(),
+      'aliases': ["%s-%03d" % (code[0], code[1]) for code in aliases]
+    }
+  
+  def toJSON(self, name_override=None, aliases_override=None, courses_override=None):
+    courses = list(self.course_set.all()) if courses_override is None else courses_override
+    response = self.toShortJSON(name_override=name_override, aliases_override=aliases_override)
+    response[COURSE_TOKEN] = [c.toShortJSON() for c in courses]
+    response[REVIEW_TOKEN] = {'path': self.get_absolute_url() + '/' + REVIEW_TOKEN}
+    return response
+
 
 class Course(models.Model):
   """A course that can be taken during a particular semester
@@ -54,9 +98,37 @@ class Course(models.Model):
   def __unicode__(self):
     return "%s %s" % (self.id, self.name)
 
-  @property
-  def absolute_url(self):
-    return "/courses/course/%d" % (self.id,)
+  def get_absolute_url(self):
+    return course_url(self.id)
+
+  def getAliases(self):
+    return ["%s-%03d" % (x.department_id, x.coursenum)
+            for x in self.alias_set.all()]
+
+  def toShortJSON(self):
+    return {
+      'id': self.id, 'name': self.name,
+      'aliases': self.getAliases(), 'path': self.get_absolute_url(),
+      'semester': self.semester.code()
+    }
+
+  def toJSON(self):
+    result = self.toShortJSON()
+    path = self.get_absolute_url()
+    result.update({
+      'credits': self.credits,
+      'description': self.description,
+      SECTION_TOKEN: {
+        'path': path + '/' + SECTION_TOKEN,
+        RSRCS: [x.toShortJSON() for x in self.section_set.all()],
+      },
+      REVIEW_TOKEN: {
+        'path': path + '/' + REVIEW_TOKEN,
+      },
+      COURSEHISTORY_TOKEN: {'path': coursehistory_url(self.history_id)},
+    })
+
+    return result
 
 class Instructor(models.Model):
   """ A course instructor or TA (or "STAFF")"""
@@ -79,12 +151,28 @@ class Instructor(models.Model):
     return re.sub(r"[^\w]", "-", "%d %s" % (self.id, self.name))
     #for pennapps demo only
 
-  @property
-  def absolute_url(self):
-    return "/instructors/%s/" % self.temp_id # temporary
+  def get_absolute_url(self):
+    return instructor_url(self.temp_id)
 
   def __unicode__(self):
     return self.name
+    
+  def toShortJSON(self):
+    return {
+      'id': self.temp_id,
+      'name': self.name,
+      'path': self.get_absolute_url(),
+    }
+
+  def toJSON(self, extra=[]):
+    result = self.toShortJSON()
+    result[SECTION_TOKEN] = {'path': "%s/%s" % (self.get_absolute_url(), SECTION_TOKEN)}
+    if 'sections' in extra:
+      result[SECTION_TOKEN][RSRCS] = [x.toShortJSON() for x in self.section_set.all()]
+    result[REVIEW_TOKEN] = {'path': "%s/%s" % (self.get_absolute_url(), REVIEW_TOKEN)}
+    if 'reviews' in extra:
+      result[REVIEW_TOKEN][RSRCS] = [x.toShortJSON() for x in self.review_set.all()]
+    return result
 
 class Alias(models.Model):
   """ A (department, number) name for a Course. A Course will have
@@ -98,23 +186,16 @@ class Alias(models.Model):
   oldpcr_id = models.IntegerField(null=True)
 
   def __unicode__(self):
-    return "%s: %s-%03d (%s)" % (self.course.id, 
+    return "%s: %s-%03d (%s)" % (self.course_id, 
                                  self.department, 
                                  self.coursenum,
                                  self.semester.code()
                                 )
 
   @property
-  def absolute_url(self):
-    return "/courses/course/%s/%s/%03d/" % (
-      self.semester.code(),
-      str(self.course.department).lower(),
-      self.course.coursenum) #TODO dereference alias?
-
-  @property
   def course_code(self):
     """returns something akin to the tuple ('CIS', 120)"""
-    return (self.department.code, self.coursenum)
+    return (self.department_id, self.coursenum)
  
 class Section(models.Model):
   """ A section of a Course
@@ -149,15 +230,44 @@ class Section(models.Model):
   def __unicode__(self):
     return "%s-%03d " % (self.course, self.sectionnum)
 
-  @property
-  def absolute_url(self):
-    return "/courses/course/%s/%s/%03d/%03d/" % (self.semester.code(),
-                           str(self.course.department).lower(),
-                           self.course.coursenum,
-                           self.sectionnum) #TODO dereference alias?
+  def get_absolute_url(self):
+    return section_url(self.course_id, self.sectionnum)
+
   class Meta:
     """ To hold uniqueness constraint """
     unique_together = (("course", "sectionnum"),)
+
+  def getAliases(self):
+    return ["%s-%03d" % (alias, self.sectionnum)
+            for alias in self.course.getAliases()]
+
+  @property
+  def api_id(self):
+    return "%s-%03d" % (self.course_id, self.sectionnum)
+  
+  def toShortJSON(self):
+    return {
+      'id': self.api_id, 
+      'aliases': self.getAliases(),
+      'name': self.name,
+      'sectionnum': "%03d" % self.sectionnum, 
+      'path': self.get_absolute_url(),
+      }
+
+  def toJSON(self):
+    path = self.get_absolute_url()
+    result = self.toShortJSON()
+    result.update({
+      'group': self.group, 
+      INSTRUCTOR_TOKEN: [i.toShortJSON() for i in self.instructors.all()],
+      'meetingtimes': [x.toJSON() for x in self.meetingtime_set.all()],
+      COURSE_TOKEN: self.course.toShortJSON(),
+      REVIEW_TOKEN: {
+        'path': '%s/%s' % (path, REVIEW_TOKEN),
+         RSRCS: [x.toShortJSON() for x in self.review_set.all()]
+      },
+    })
+    return result
 
 class Review(models.Model):
   """ The aggregate review data for a class. """
@@ -174,6 +284,31 @@ class Review(models.Model):
 
   def __unicode__(self):
     return "Review for %s" % str(self.section)
+
+  def get_absolute_url(self):
+    pennkey = self.instructor.temp_id if self.instructor else "99999-JAIME-MUNDO"
+    return review_url(self.section.course_id, self.section.sectionnum, pennkey)
+
+  def toShortJSON(self):
+    return {
+      'id': '%s-%s' % (self.section.api_id, self.instructor.temp_id),
+      'section': self.section.toShortJSON(),
+      'instructor': self.instructor.toShortJSON() if self.instructor_id else None,
+      'path': review_url(self.section.course_id, self.section.sectionnum,
+                         self.instructor.temp_id if self.instructor_id else "99999-JAIME-MUNDO")
+    }
+  
+  def toJSON(self):
+    result = self.toShortJSON()
+    bits = self.reviewbit_set.all()
+    result.update({
+      'num_reviewers': self.forms_returned,
+      'num_students': self.forms_produced,
+      'ratings': dict((bit.field, "%1.2f" % bit.score) for bit in bits),
+      'comments': self.comments,
+    })
+
+    return result
 
 class ReviewBit(models.Model):
   """ A component of a review. """
@@ -198,9 +333,17 @@ class Building(models.Model):
   def __unicode__(self):
     return self.code
 
-  @property
-  def absolute_url(self):
-    return "/courses/building/%s/" % self.code.lower()
+  def get_absolute_url(self):
+    return building_url(self.code)
+
+  def toJSON(self):
+    return {
+      'id': self.code,
+      'name': self.name,
+      'latitude': self.latitude,
+      'longitude': self.longitude,
+      'path': building_url(self.code)
+      }
 
 class Room(models.Model):
   """ A room in a Building. It optionally may be named. """
@@ -233,3 +376,47 @@ class MeetingTime(models.Model):
 
   def __unicode__(self):
     return "%s %s - %s @ %s" % (self.day, self.start, self.end, self.room)
+
+  def toJSON(self):
+    return {
+      'start': self.start, # String (e.g. "13:30")
+      'end': self.end, # String (e.g. "15:00")
+      'day': self.day, # String (e.g. "R" for thursday)
+      'type': self.type, # String (e.g. "LEC")
+      #TODO FOR AFTER 1.0
+      #    'room': {'building': room_building, # building_json output
+      #             'id': '%s %s' % (room_building['id'], room_number),
+      #             'name': room_name, # String, or None if has no name.
+      #             'number': room_number, # String (e.g. "321")
+      #             }
+      }
+
+class SemesterDepartment:
+  """ A (semester, department) pair. Not a model, but treated like one
+  for JSON generation purposes. """
+  def __init__(self, semester, department):
+    self.semester = semester
+    self.department = department
+
+  def __unicode__(self):
+    return unicode((self.semester, self.department))
+
+  def get_absolute_url(self):
+    return semdept_url(self.semester.code(), self.department.code)
+
+  def toShortJSON(self):
+    return {
+      'id': self.department.code, # no department_id here
+      'name': self.department.name,
+      'path': self.get_absolute_url(),
+    }
+  
+  def toJSON(self):
+    result = self.toShortJSON()
+
+    courses = Course.objects.filter(alias__department = self.department,
+                                    semester = self.semester)
+
+    result[COURSE_TOKEN] = [c.toShortJSON() for c in courses]
+      
+    return result
