@@ -334,7 +334,7 @@ class Building(models.Model):
     return self.code
 
   def get_absolute_url(self):
-    return "/courses/building/%s/" % self.code
+    return building_url(self.code)
 
   def toJSON(self):
     return {
