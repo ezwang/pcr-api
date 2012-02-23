@@ -20,9 +20,6 @@ def semester_url(code):
 def course_url(uid):
     return '/%s/%d' % (COURSE_TOKEN, uid)
 
-def coursehistory_url(uid):
-    return '/%s/%d' % (COURSEHISTORY_TOKEN, uid)
-
 def section_url(course_uid, sectionnum):
     return '/%s/%d/%s/%03d' % (COURSE_TOKEN, course_uid,
                                SECTION_TOKEN, sectionnum)
