@@ -9,8 +9,6 @@ sys.path.append("..")
 sys.path.append("../api")
 os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
 
-import MySQLdb as db
-
 from courses.models import Department
 from sandbox_config import IMPORT_DATABASE_NAME, IMPORT_DATABASE_USER, \
     IMPORT_DATABASE_PWD
@@ -37,7 +35,7 @@ def load(row):
 
 
 if __name__ == "__main__":
-  extractor = Extractor(db.connect(db=IMPORT_DATABASE_NAME, \
-      user=IMPORT_DATABASE_USER, passwd=IMPORT_DATABASE_PWD))
+  extractor = Extractor(IMPORT_DATABASE_NAME, 
+      IMPORT_DATABASE_USER, IMPORT_DATABASE_PWD)
   for val in extract(extractor):
     load(transform(val))
