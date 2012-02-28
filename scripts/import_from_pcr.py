@@ -1,6 +1,8 @@
-from collections import defaultdict
-import itertools
+from collections import defaultdict, namedtuple
+from itertools import izip, groupby, product
+import re
 import string
+import time
 
 import MySQLdb as db
 from django.core.exceptions import ObjectDoesNotExist
@@ -25,94 +27,119 @@ class Importer(object):
     self._depts = {}
 
   def _run_query(self, query_str, args=None):
-    print query_str
+    start = time.time()
     cursor = self.db.cursor()
     cursor.execute(query_str, args)
-    while cursor.nextset() is not None: pass
-    return cursor.fetchall()
+    results = cursor.fetchall()
+    print query_str
+    print "Took: %s" % (time.time() - start)
+    print "Founds %s results.\n" % len(results)
+    return results
 
   def _select(self, fields, tables, conditions=None,
       group_by=None, order_by=None):
     query = ["SELECT", ", ".join(fields), "FROM", ", ".join(tables)]
     if conditions:
-      query.extend(["WHERE", " AND ".join(conditions)])
+      items = ['%s="%s"'% (k, v) for k, v in conditions.items()]
+      query.extend(["WHERE", " AND ".join(items)])
+          
     if group_by:
       query.extend(["GROUP BY", ", ".join(group_by)])
     if order_by:
       query.extend(["ORDER BY", ", ".join(order_by)])
     return self._run_query(" ".join(query))
 
+  Department = namedtuple('Department', 'id code title')
+
   @property
   def departments(self):
     """Set of department rows.
-    dept_ID - id
-    dept_code - ie, ACCT, ECON, CIS
-    dept_title - ACCOUNTING, ECONOMICS, COMPUTER & INFORMATION SCIENCE
+    id - unique identifier
+    code - ie, ACCT, ECON, CIS
+    title - ACCOUNTING, ECONOMICS, COMPUTER & INFORMATION SCIENCE
     """
-    # NOTE: No dept_ID
-    # IDEA: Use enumerate?
     fields = ('subject_code', 'subject_area_desc')
-    return self._select(fields, ('test_pcr_summary_v',))
+    tables = ('TEST_PCR_SUMMARY_V',)
+    for code, title in self._select(fields, tables):
+      yield self.Department(code, code, title)
+
+  Instructor = namedtuple('Instructor', 'id first_name last_name')
 
   @property
   def instructors(self):
+    """Set of instructor rows."""
     fields = ('instructor_penn_id', 'instructor_fname', 'instructor_lname')
-    return self._select(fields, ('test_pcr_summary_v',))
+    tables = ('TEST_PCR_SUMMARY_V',)
+    instructors = self._select(fields, tables)
+    for id, first_name, last_name in instructors:
+      yield self.Instructor(id, first_name, last_name)
+
+  Course = namedtuple('Course', 'id dept code description crosslist_ID')
 
   @property
   def courses(self):
-    fields = ('course_id', 'course_description')
-    tables = ('test_pcr_course_desc_v',)
-    """
-    fields = ('course_ID', 'dept_ID', 'course_code', 'course_description',
-        'crosslist_ID')
-    tables = ('coursereview_tblcourses',)
-    order_by = ('course_ID ASC',)
-    """
-    return self._select(fields, tables, order_by=order_by)
+    """Set of course rows."""
+    fields = ('course_id', 'paragraph_number', 'course_description')
+    # course_id is of form CIS110
+    # course_description is split into paragraphs each with a number
+    tables = ('TEST_PCR_COURSE_DESC_V',)
+    order_by = ('course_id ASC', 'paragraph_number ASC')
+    courses = self._select(fields, tables, order_by=order_by)
+
+    def keyfunc(course):
+      return course[0]  # id
+
+    for id, paragraphs in groupby(courses, key=keyfunc):
+      dept = re.search("[A-Z]*", id).group(0)
+      code = re.search("\d+", id).group(0)
+      description = "\n".join(paragraph for _, _, paragraph in paragraphs)
+      # TODO: Crosslist ID
+      crosslist_id = None
+      yield self.Course(id, dept, code, description, crosslist_id)
+
+  CourseHistory = namedtuple('CourseHistory', 'course_id, year, semester, section_title')
 
   @property
   def course_histories(self):
-    fields = ('c.course_ID', 's.year', 's.semester', 's.section_title')
-    tables = ('coursereview_tblcourses as c', 'coursereview_tblsections as s')
-    conditions = ('c.course_ID = s.course_ID',)
-    group_by = ('s.course_ID', 's.year', 's.semester')
-    order_by = ('s.course_ID',)
-    return self._select(fields, tables, conditions, group_by, order_by)
+    fields = ('subject_code', 'course_code', 'term', 'title')
+    tables = ('TEST_PCR_SUMMARY_V',)
+    histories = self._select(fields, tables)
+    for subject_code, course_code, term, title in histories:
+      course_id = subject_code + course_code
+      year = re.search("\d+", term).group(0)
+      semester = re.search("[A-Z]*", term).group(0)
+      yield self.CourseHistory(course_id, year, semester, title)
+
+  Section = namedtuple("Section", \
+    "year semester course_id section_code lecturer_id section_id section_title")
 
   def sections(self, year, semester):
-    # NOTE: No course_ID
-    # NOTE: No year, semester, instead term
-    fields = ('term', 'section_code', 'instructor_penn_id', 'section_id', 'title')
-    """
-    fields = ('year', 'semester', 'course_ID', 'section_code', 'lecturer_ID',
-       'section_ID', 'section_title')
-    conditions = ('year="%s"' % year, 'semester="%s"' % semester)
-    """
-    return self._select(fields, ('test_pcr_summary_v',), conditions)
+    fields = ('term', 'subject_code', 'course_code', 'section_code', 'instructor_penn_id', 'section_id', 'title')
+    tables = ('TEST_PCR_SUMMARY_V',)
+    term = str(year) + str(semester).upper()
+    conditions = {'term': term}
+    sections = self._select(fields, tables, conditions)
+    for term, subject_code, course_code, section_code, lecturer_id, section_id, title in sections:
+      year = re.search("\d+", term).group(0)
+      semester = re.search("[A-Z]*", term).group(0)
+      course_id = subject_code + course_code
+      yield self.Section(year, semester, course_id, section_code, lecturer_id, section_id, title)
+
+  Review = namedtuple('Review', \
+      'responses enrollment form_type course_id year semester section_code section_id lecturer_id')
 
   def reviews(self, year, semester):
-    # NOTE: No form_type, course_ID, year, semester
-    fields = ('responses', 'enrollment', 'term', 'section_code', 'section_id', 'lecturer_id')
-    """
-    fields = ('num_forms_returned', 'num_forms_produced', 'form_type',
-        'course_ID', 'year', 'semester', 'section_code', 'section_ID',
-        'lecturer_id')
-    conditions = ('year="%s"' % year, 'semester="%s"' % semester)
-    """
-    return self._select(fields, ('coursereview_tblsections',), conditions)
-
-  def comments(self, year, semester):
-    fields = ['review', 'lecturer_ID', 'course_ID']
-    conditions = ['year="%s"' % year, 'semester="%s"' % str(semester).upper()]
-    comments = {}
-    for review, lecturer_id, course_id in self._select(fields, \
-        ('coursereview_tbllecturerreviews',), conditions):
-      if review is not None:
-        review = review.decode('cp1252', "ignore").encode(
-            'utf-8', 'ignore')
-      comments[course_id, lecturer_id] = review
-    return comments
+    fields = ('responses', 'enrollment', 'form_type', 'subject_code', \
+        'course_code', 'term', 'section_code', 'section_id', 'instructor_penn_id')
+    tables = ('TEST_PCR_SUMMARY_V',)
+    term = str(year) + str(semester).upper()
+    conditions = {'term': term}
+    reviews = self._select(fields, tables, conditions)
+    for responses, enrollment, form_type, subject_code, course_code, term, section_code, section_id, lecturer_id in reviews:
+      course_id = subject_code + course_code
+      year = re.search("\d+", term).group(0)
+      semester = re.search("[A-Z]*", term).group(0)
+      yield self.Review(responses, enrollment, form_type, course_id, year, semester, section_code, section_id, lecturer_id)
 
   @property
   def _review_bit_fields(self):
@@ -127,9 +154,11 @@ class Importer(object):
         'rTAQuality', 'section_ID')
 
   def review_bits(self, year, semester):
-    conditions = ('year="%s"' % year, 'semester="%s"' % semester)
-    return self._select(self._review_bit_fields, \
-        ('coursereview_tblsections',), conditions)
+    fields = self._review_bit_fields
+    tables = ('TEST_PCR_SUMMARY_V',)
+    term = str(year) + str(semester).upper()
+    conditions = {'term': term}
+    return self._select(fields, tables, conditions)
 
   def import_departments(self):
     for dept_id, code, title in self.departments:
@@ -139,8 +168,6 @@ class Importer(object):
       # a bit of a hack-- We can't later uniquely identify departments by
       # their old ids in future references, so we need to store their ids
       # it's possible there exists a more efficient way to store these
-      self._depts[dept_id] = dept
-
 
   def import_instructors(self):
     for oldpcr_id, first_name, last_name in self.instructors:
@@ -159,19 +186,22 @@ class Importer(object):
 
     for course_id, dept_id, course_num, description, crosslist_id \
         in self.courses:
-      name = course_names[course_id]
+      try:
+        name = course_names[course_id]
+      except:
+        name = course_id
       oldpcr_id = crosslist_id or course_id
-      dept = self._depts[dept_id]
+      dept = Department.objects.get_or_create(code=dept_id)
 
       courses = set()
       for semester in sems_taught[course_id]:
+        print semester, name, description
         course, _ = Course.objects.get_or_create(
             oldpcr_id=oldpcr_id,
             semester=semester,
             defaults={
-              "name": name or "%s %d" % (dept.code, int(course_num)),
+              "name": name,
               "description": description,
-              "history": None
               }
             )
         courses.add(course)
@@ -214,14 +244,11 @@ class Importer(object):
 
   def import_reviews(self, year, semester):
     for forms_returned, forms_produced, form_type, course_id, year, \
-        semester, section_num, oldpcr_id, lecturer_id in self.reviews(year, \
-        semester):
+        semester, section_num, oldpcr_id, lecturer_id \
+        in self.reviews(year, semester):
       try:
         instructor = Instructor.objects.get(id=lecturer_id)
-        try:
-          comments = self.comments(year, semester)[course_id, lecturer_id]
-        except KeyError:
-          comments = None
+        comments = None  # TODO: Integrate comments
         section = Section.objects.get(course__oldpcr_id=course_id)
         Review.objects.get_or_create(section=section,
          instructor=instructor,
@@ -241,7 +268,7 @@ class Importer(object):
       section_id = review_bit_raw[-1]
       review = Review.objects.get(section__id=section_id)
       if review:
-        for field, score in itertools.izip(self._review_bit_fields[:-1], \
+        for field, score in izip(self._review_bit_fields[:-1], \
             review_bit_raw[:-1]):
           if score:
             ReviewBit.objects.get_or_create(
@@ -254,14 +281,20 @@ class Importer(object):
 
 
 if __name__ == "__main__":
+  import sys
+  args = sys.argv[1:]
   importer = Importer(db.connect(db=IMPORT_DATABASE_NAME, \
       user=IMPORT_DATABASE_USER, passwd=IMPORT_DATABASE_PWD))
   importer.import_departments()
+
   importer.import_instructors()
+
   importer.import_courses()
 
+  # This is done to reduce memory overhead.
   years = range(2002, 2012)
-  for year, semester in itertools.product(years, ('a', 'b', 'c')):
+  semesters = ('a', 'b', 'c')
+  for year, semester in product(years, semesters):
     importer.import_sections(year, semester)
     importer.import_reviews(year, semester)
     importer.import_review_bits(year, semester)
