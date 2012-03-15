@@ -110,8 +110,8 @@ def semester_dept(request, path, (semester_code, dept_code,)):
 
 @dead_end
 def instructors(request, path, _):
-  if not request.consumer.access_secret:
-    # This method is for the PCR site only.
+  if not request.consumer.access_pcr:
+    # This method is only available to those with review data access.
     raise API404("This is not the database dump you are looking for.")
 
   #get departments for every instructor
