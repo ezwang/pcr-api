@@ -15,7 +15,7 @@ def coursehistory_url(uid):
     return '/%s/%d' % (COURSEHISTORY_TOKEN, uid)
 
 def semester_url(code):
-    return '/%s/%s' % (SEMESTER_TOKEN, code.upper())
+    return '/%s/%s' % (SEMESTER_TOKEN, code.lower())
 
 def course_url(uid):
     return '/%s/%d' % (COURSE_TOKEN, uid)
@@ -28,13 +28,13 @@ def instructor_url(pennkey):
     return '/%s/%s' % (INSTRUCTOR_TOKEN, pennkey)
 
 def building_url(code):
-    return '/%s/%s' % (BUILDING_TOKEN, code.upper()),
+    return '/%s/%s' % (BUILDING_TOKEN, code.lower()),
 
 def department_url(code):
-    return '/%s/%s' % (DEPARTMENT_TOKEN, code.upper())
+    return '/%s/%s' % (DEPARTMENT_TOKEN, code.lower())
 
 def semdept_url(semcode, deptcode):
-    return '/%s/%s/%s' % (SEMESTER_TOKEN, semcode.upper(), deptcode.upper())
+    return '/%s/%s/%s' % (SEMESTER_TOKEN, semcode.lower(), deptcode.lower())
 
 def review_url(course_uid, sectionnum, pennkey):
     # leading / comes from section_url

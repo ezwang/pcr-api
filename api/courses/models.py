@@ -74,7 +74,7 @@ class CourseHistory(models.Model):
     courses = list(self.course_set.all()) if courses_override is None else courses_override
     response = self.toShortJSON(name_override=name_override, aliases_override=aliases_override)
     response[COURSE_TOKEN] = [c.toShortJSON() for c in courses]
-    response[REVIEW_TOKEN] = {'path': self.get_absolute_url() + '/' + REVIEW_TOKEN}
+    response[REVIEW_TOKEN] = {'path': '%s/%s' % (self.get_absolute_url(), REVIEW_TOKEN)}
     return response
 
 
@@ -119,11 +119,11 @@ class Course(models.Model):
       'credits': self.credits,
       'description': self.description,
       SECTION_TOKEN: {
-        'path': path + '/' + SECTION_TOKEN,
+        'path': '%s/%s' % (path, SECTION_TOKEN),
         RSRCS: [x.toShortJSON() for x in self.section_set.all()],
       },
       REVIEW_TOKEN: {
-        'path': path + '/' + REVIEW_TOKEN,
+        'path': '%s/%s' % (path, REVIEW_TOKEN),
       },
       COURSEHISTORY_TOKEN: {'path': coursehistory_url(self.history_id)},
     })
