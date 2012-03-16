@@ -107,7 +107,7 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
     'api.static_content',
-    'django_extensions',
+    'django_extensions', # used for debugging, remove if problematic
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
 )
