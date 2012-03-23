@@ -13,18 +13,16 @@ DISPLAY_NAME = "courses-mjc"
 DEV_ROOT = "/home/mcroop/mcroop_dev" # root of all apps you're working on
 COURSESAPI_APP_ROOT = os.path.join(DEV_ROOT, "Penn-Course-API")
 
-# see settings.py for possible values
-DATABASE_NAME = 'coursesapi-v3-dev'
-
 # should be True only in production. unless you really like caching.
 DO_CACHING = False 
 
 # should be False only in production. unless you really hate error messages.
 DEBUG = True
 
-# should be False unless you want to debug something
+# should be False unless you want to debug something (or use debugsqlshell)
 USE_DJANGO_DEBUG_TOOLBAR = False
 
+# see settings.py for possible values
 DATABASE_NAME = 'coursesapi-v3-stable'
 DATABASE_USER = 'pcr-daemon'
 DATABASE_PWD = None # fill in
