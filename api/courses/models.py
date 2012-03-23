@@ -162,6 +162,8 @@ class Instructor(models.Model):
       'id': self.temp_id,
       'name': self.name,
       'path': self.get_absolute_url(),
+      'first_name': self.first_name,
+      'last_name': self.last_name,
     }
 
   def toJSON(self, extra=[]):
