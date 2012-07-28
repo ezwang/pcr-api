@@ -7,8 +7,8 @@ from django.test import TestCase
 from django.test.client import Client
 
 from api.apiconsumer.models import APIConsumer
-
-import models
+from models import (Alias, Course, CourseHistory, Department, Instructor,
+                    Section, Semester, Review, ReviewBit)
 
 
 class DataTest(TestCase):
@@ -22,36 +22,36 @@ class DataTest(TestCase):
         )
     self.client = Client()
 
-    cis = models.Department.objects.create(
+    cis = Department.objects.create(
         code='CIS', name='Computer Science')
-    ese = models.Department.objects.create(
+    ese = Department.objects.create(
         code='ESE', name='Electrical Engineering')
-    cis110 = models.CourseHistory.objects.create(notes="None.")
-    cis110_1 = models.Course.objects.create(
+    cis110 = CourseHistory.objects.create(notes="None.")
+    cis110_1 = Course.objects.create(
         semester = 810,
         name = "CIS 110",
         credits = 1.0,
         description = "intro to CS.",
         history = cis110
         )
-    instructor1 = models.Instructor.objects.create(
+    instructor1 = Instructor.objects.create(
         first_name="John", last_name="Doe")
-    section1 = models.Section.objects.create(
+    section1 = Section.objects.create(
         course=cis110_1, name="Intro to CS", 
         sectionnum='001', sectiontype='LEC')
-    alias1 = models.Alias.objects.create(
+    alias1 = Alias.objects.create(
         course=cis110_1, department=cis, coursenum=1, semester='810')
-    alias2 = models.Alias.objects.create(
+    alias2 = Alias.objects.create(
         course=cis110_1, department=ese, coursenum=1, semester='810')
-    review1 = models.Review.objects.create(
+    review1 = Review.objects.create(
         section=section1, instructor=instructor1,
         forms_returned=10, forms_produced=20, form_type=1,
         comments="Students enjoyed the course.")
-    reviewbit1 = models.ReviewBit.objects.create(
+    reviewbit1 = ReviewBit.objects.create(
         review=review1, field="Instructor Quality", score=3.0)
-    reviewbit2 = models.ReviewBit.objects.create(
+    reviewbit2 = ReviewBit.objects.create(
         review=review1, field="Difficulty", score=1.0)
-    reviewbit3 = models.ReviewBit.objects.create(
+    reviewbit3 = ReviewBit.objects.create(
         review=review1, field="Course Quality", score=2.0)
 
   def get_result(self, path):
@@ -95,7 +95,7 @@ class DataTest(TestCase):
     self.validate_results('/instructors')
 
   def test_instructor_should_have(self):
-    instructor = models.Instructor.objects.all()[0]
+    instructor = Instructor.objects.all()[0]
     result = self.get_result(instructor.get_absolute_url())
     self.assertTrue("id" in result)
     self.assertTrue("name" in result)
