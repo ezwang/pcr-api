@@ -4,7 +4,9 @@ Tests for the API views.
 These are run by `./manage.py test`.
 """
 import json
+import requests
 
+from django.conf import settings
 from django.test import TestCase
 from django.test.client import Client
 
@@ -17,8 +19,8 @@ class ViewTest(TestCase):
   """A test of the API views (i.e., the JSON served by the API).
 
   Attributes:
-      consumer: An APIConsumer object, for querying the API.
-      client: A Django test client, for making basic HTTP calls.
+    consumer: An APIConsumer object, for querying the API.
+    client: A Django test client, for making basic HTTP calls.
   """
 
   def setUp(self):
@@ -188,3 +190,104 @@ class DataTest(ViewTest):
     self.assertTrue(int(num_reviewers) > 0)
     self.assertTrue(int(num_students) > 0)
     self.assertTrue(section['sectionnum'] == '001')
+
+
+
+class LiveViewTest(TestCase):
+  """A test of the live API views.
+
+  Because Django creates an empty database for testing, we use an 
+  actualy HTTP request instead of Django's django.test.client.Client
+  so that we can see actual data.
+
+  Attributes:
+    root_path: The root path where this API is serving.
+    token: The access token used for testing. Should have permissions
+      set to 9001 and be defined in sandbox_config.
+  """
+  def setUp(self):
+    # TODO(kyleh): Factor this out
+    self.root_path = 'http://kyleh.pennapps.com/pcrapi'
+    self.token = settings.TEST_API_TOKEN
+
+
+  def get_result(self, path):
+    """Load a page of the live API and return the result."""
+    full_path = self.root_path + path
+    response = requests.get(full_path, params={'token': self.token})
+    content = response.json
+    self.assertEquals(
+      response.status_code, requests.codes.ok,
+      'Server response error to %s: %s' % (full_path, response.status_code))
+    self.assertTrue(content is not None, 'Response not parsable JSON')
+    self.assertTrue(content['valid'], 'Response is not valid')
+    return content['result']
+
+
+  def get_course_path(self, semester, course_code):
+    """Get a course's absolute path.
+
+    Args:
+      semester: The semester to search in the form '2011A' = Spring 2011
+      course_code: The target course in the form 'CIS-125'
+    """
+    # TODO(kyleh): We assume that there is only one course with the 
+    # course_code in the given semester. May not be a safe assumption.
+    search_path = '/semesters/%s/%s' % (semester.lower(), 
+                                        course_code.split('-')[0])
+    return [course['path'] 
+            for course in self.get_result(search_path)['courses']
+            if course_code in course['aliases']][0]
+
+
+
+class CrossListingTest(LiveViewTest):
+  """Test that courses are being properly crosslisted.
+
+  In many places, a course that shoud be counted once is being listed 
+  as several different courses. We test that this is not happening.
+  """
+
+  def setUp(self):
+    super(CrossListingTest, self).setUp()
+
+
+  def check_crosslist(self, semester, primary_listing, aliases):
+    """Test for proper cross-listing behavior.
+
+    Args:
+      semester: A semester in the form '2011A' = Spring 2011
+      primary_listing: The primary listing of the course in the form 'CIS-125'
+      aliases: A list of aliases in the form 'DEPT-123'
+    """
+    # TODO(kyleh): When we add a primary listing field to the API, 
+    # update this test accordingly.
+    main_path = self.get_course_path(semester, primary_listing)
+    main_data = self.get_result(main_path)
+    for alias in aliases:
+      alias_path = self.get_course_path(semester, alias)
+      self.assertEquals(
+        main_path, alias_path,
+        'Path for %s (%s) and alias %s (%s) differ.' % (
+          primary_listing, main_path, alias, alias_path
+          )
+        )
+      self.assertTrue(
+        alias in main_data['aliases'],
+        '%s does not contain %s as an alias.' % (primary_listing, alias)
+        )
+
+
+  def test_phil228_ppe228(self):
+    """Test that PHIL-228 is a cross-listing of PPE-228 in 2009A."""
+    self.check_crosslist('2009A', 'PHIL-228', ['PPE-228'])
+
+  def test_cis125_eas125(self):
+    """Test that EAS125 is a cross-listing of CIS-125 in 2011A."""
+    self.check_crosslist('2011A', 'CIS-125', ['EAS-125'])
+
+  def test_jarosinski(self):
+    """Test the many cross-listings of Jarosinski's COML-501 in 2009C."""
+    self.check_crosslist('2009C', 'COML-501', 
+                         ['CLST-511', 'ROML-512', 'GRMN-534', 'SLAG-500', 
+                          'ENGL-573'])

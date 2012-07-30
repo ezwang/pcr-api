@@ -30,3 +30,7 @@ DATABASE_PWD = None # fill in
 IMPORT_DATABASE_NAME = 'old_pcr_2011b'
 IMPORT_DATABASE_USER = 'pcr-daemon'
 IMPORT_DATABASE_PWD = None # fill in
+
+# This is an APIConsumer token - created in the database above - used to 
+# test data in the live API. See courses.tests for more info.
+TEST_API_TOKEN = ''
