@@ -291,3 +291,19 @@ class CrossListingTest(LiveViewTest):
     self.check_crosslist('2009C', 'COML-501', 
                          ['CLST-511', 'ROML-512', 'GRMN-534', 'SLAG-500', 
                           'ENGL-573'])
+
+
+
+class CourseHistoryTest(LiveViewTest):
+  """Test that courses are being properly aggregated into histories.
+
+  This is somewhat hard to be 100% on as it's not an entirely clear-
+  cut issue. But we at least have some examples.
+  """
+
+  def setUp(self):
+    super(CourseHistoryTest, self).setUp()
+
+  def test_cis160_cis260_cse260(self):
+    """Test that CIS-160, CIS-260, and CSE-260 are in the same history."""
+    pass
