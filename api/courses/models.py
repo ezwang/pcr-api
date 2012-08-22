@@ -115,6 +115,8 @@ class Course(models.Model):
   def toShortJSON(self):
     return {
       'id': self.id, 'name': self.name,
+      'primary_alias': '%s-%03d' % (self.primary_alias.department_id,
+                                    self.primary_alias.coursenum),
       'aliases': self.getAliases(), 'path': self.get_absolute_url(),
       'semester': self.semester.code()
     }
@@ -255,9 +257,12 @@ class Section(models.Model):
     return "%s-%03d" % (self.course_id, self.sectionnum)
   
   def toShortJSON(self):
+    pri_alias = self.course.primary_alias
     return {
       'id': self.api_id, 
       'aliases': self.getAliases(),
+      'primary_alias': '%s-%03d-%03d' % (
+        pri_alias.department_id, pri_alias.coursenum, self.sectionnum),
       'name': self.name,
       'sectionnum': "%03d" % self.sectionnum, 
       'path': self.get_absolute_url(),
