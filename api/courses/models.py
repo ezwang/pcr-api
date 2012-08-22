@@ -95,6 +95,13 @@ class Course(models.Model):
   history = models.ForeignKey(CourseHistory, null=True)
   oldpcr_id = models.IntegerField(null=True)
 
+  # This is the course's primary cross-listing. In fact, cross-listings are
+  # handled at the section level on ISC's side, but we abstract to the course
+  # level for simplicity. (This may change.) Should not be null, but must be
+  # nullable since it will point back to the Course and one must be
+  # inserted first.
+  primary_alias = models.ForeignKey('Alias', related_name='courses', null=True)
+
   def __unicode__(self):
     return "%s %s" % (self.id, self.name)
 
