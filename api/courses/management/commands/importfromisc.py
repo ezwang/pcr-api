@@ -103,8 +103,8 @@ class Command(BaseCommand):
       # Do the magic
       for sem in semesters:
         self.log('Importing %s' % sem)
-        self.import_reviews(sem)
-        self.import_aliases(sem)
+#        self.import_reviews(sem)
+#        self.import_aliases(sem)
         # self.alt_import_aliases(sem)
         self.log('--------------------------------------------------')
       self.import_descriptions() # Done in aggregate since not sem-specific
@@ -115,6 +115,59 @@ class Command(BaseCommand):
 
     # Some helpful info before we leave
     self.print_stats()
+
+
+  def import_descriptions(self):
+    """Import all the Course descriptions."""
+    courses_updated = 0
+
+    fields = ['course_id', 'paragraph_number', 'course_description']
+    tables = [self.DESC_TABLE]
+    order_by = ['course_id ASC', 'paragraph_number ASC']
+    descriptions = self.select(fields, tables, order_by=order_by)
+
+    def commit_courses(course_id, courses, desc):
+      self.log('--------------------')
+      self.log('Adding description for %s to %d courses.' % (
+          course_id, courses.count()))
+      for course in courses:
+        self.log('-> %s: %s...' % (course, desc), 2)
+        course.description = desc
+        try:
+          course.save()
+        except Exception:
+          self.handle_err('Error processing %s:' % course_id)
+      
+    full_desc = ''
+    courses = None
+    last_course_id = ''
+    for course_id, graph_num, desc in descriptions:
+      graph_num = int(graph_num) # Why is this a string? I don't know
+      dept_code, course_code, _ = self.parse_sect_str(course_id)
+      try:
+        dept = Department.objects.get(code=dept_code)
+      except Department.DoesNotExist:
+        continue
+
+      if graph_num == 1: # The beginning of a new sequence
+        if full_desc: # We have the full previous description; save:
+          commit_courses(last_course_id, courses, full_desc)
+          courses_updated += 1
+        # Start anew
+        full_desc = '%s\n\n' % desc
+        last_course_id = course_id
+        courses = Course.objects.filter(primary_alias__department=dept,
+                                        primary_alias__coursenum=course_code,
+                                        description='')
+      else:
+        # This is the second (or third or w/e) part of a description - go on
+        full_desc += '%s\n\n' % desc
+
+    # Add remaining courses
+    commit_courses(last_course_id, courses, full_desc)
+    courses_updated += 1
+
+    self.log('Updated %d course descriptions.' % courses_updated)
 
 
   def import_reviews(self, sem):
@@ -180,7 +233,7 @@ class Command(BaseCommand):
 
       try:
         # Fix types
-        subj_code, course_code, sect_code = self.parse_section_id(pri_sect)
+        subj_code, course_code, sect_code = self.parse_sect_str(pri_sect)
         prof_id = int(prof_id)
         # A rare few courses have NULL titles
         title = '' if title is None else title
@@ -276,8 +329,8 @@ class Command(BaseCommand):
       self.log('Crosslisting %s' % (full_row_str))
 
       try:
-        pri_dept_code, pri_coursenum, _ = self.parse_section_id(pri_sect)
-        xlist_dept_code, xlist_coursenum, _ = self.parse_section_id(sect_id)
+        pri_dept_code, pri_coursenum, _ = self.parse_sect_str(pri_sect)
+        xlist_dept_code, xlist_coursenum, _ = self.parse_sect_str(sect_id)
         pri_dept = self.get_or_create(Department, code=pri_dept_code)
         xlist_dept = self.get_or_create(Department, code=xlist_dept_code)
 
@@ -332,7 +385,7 @@ class Command(BaseCommand):
 
       try:
         # Fix types
-        pri_dept_code, pri_coursenum, _ = self.parse_section_id(sect_id)
+        pri_dept_code, pri_coursenum, _ = self.parse_sect_str(sect_id)
         pri_dept = self.get_or_create(Department, code=pri_dept_code)
 
         try: # Ignore courses that weren't in the main import
@@ -349,7 +402,7 @@ class Command(BaseCommand):
             break
           self.log('--> Aliasing %s' % xlist_id)
 
-          xlist_dept_code, xlist_coursenum, _ = self.parse_section_id(xlist_id)
+          xlist_dept_code, xlist_coursenum, _ = self.parse_sect_str(xlist_id)
           xlist_dept = self.get_or_create(Department, code=xlist_dept_code)
 
           alias = self.get_or_create(
@@ -376,11 +429,6 @@ class Command(BaseCommand):
       self.num_errors += 1
     else:
       raise
-
-
-  def import_descriptions(self):
-    """Import all the Course descriptions."""
-    pass # TODO
 
 
   def print_stats(self):
@@ -428,15 +476,18 @@ class Command(BaseCommand):
     return obj
 
 
-  def parse_section_id(self, section_str):
-    """Turn a DB section string ('CIS 120001') into a tuple like
-    ('CIS', 125, 1).
+  def parse_sect_str(self, section_str):
+    """Turn a DB section or course string into a nice tuple.
+    'CIS 120001' -> ('CIS', 125, 1). 'CIS 099' -> ('CIS', 99, None)
 
-    Note that the strings are always 7 characters, and padded with
-    spaces based on the length of the deparment code.
+    In the DB, the strings are always 10 characters (or 7 for courses),
+    and padded with spaces based on the length of the deparment code.
     """
-    return (section_str[0:4].strip(), int(section_str[4:7]),
-            int(section_str[7:10]))
+    try:
+      sect_code = int(section_str[7:10])
+    except ValueError:
+      sect_code = None
+    return (section_str[0:4].strip(), int(section_str[4:7]), sect_code)
 
 
   def query(self, query_str, args=None):
