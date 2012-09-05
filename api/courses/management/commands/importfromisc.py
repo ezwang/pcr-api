@@ -37,30 +37,55 @@ class Command(BaseCommand):
      Here we only add the Alias and nothing else - we expect the
      course to exist already.
        Since we were provided with a separate database of crosslistings,
-     we make a pass over that as well (`alt_import_aliases`). This one
-     tends to have a few cross-listings that weren't covered in the first.
+     we optionally make a pass over that as well (`alt_import_aliases`). This
+     one tends to have a few cross-listings that weren't covered in the first.
      Even MORE fun, it has DOZENS of crosslistings for courses that don't
      appear to exist. We ignore these. YAY!
   3. **Descriptions**. Because descriptions are stored by course ID ONLY,
      and in a different table, we dot these last. These are batch added to
      any Course that doesn't already
+
+  Alternatively, if the `--comments` flag is passed, we import the 
+  qualitative comments - and just those - from a dump of the old PCR.
+  This should not be used ever again, but it's there.
   """
   args = '[all | <semester semester ...>]'
   help = 'Imports the given semesters from the ISC database dumps to Django'
 
   option_list = (
+    make_option('-a', '--otheraliases', action='store_true',
+                help=('Also check the ISC crosslist table for aliases, not '
+                      'just the normal summary table. Note that this usually '
+                      'doesn\'t end up adding more aliases (and <10 when it '
+                      'does). It also generates a bunch (>20) errors '
+                      'in trying to crosslist courses that don\'t exit.')),
+    make_option('-c', '--comments', action='store_true',
+                help=('Import the comments from the old-PCR DB dump, '
+                      'not the full course data form ISC. Note that this '
+                      'should only have to be used, like, once. Comments are '
+                      'not part of the import otherwise.')),
     make_option('-e', '--catcherrors', action='store_true',
-                help='Log errors instead of interrupting the import'),
-    make_option('-d', '--db', help='Use an alternate database (uses ' \
-                  'the IMPORT_DATABASE in sandbox_config by default)'),
-    make_option('-u', '--user', help='Alternate database username'),
-    make_option('-p', '--passwd', help='Alternate database password'),
+                help='Log errors instead of interrupting the import.'),
+    make_option('-d', '--db',
+                help=('An alternate database (uses the IMPORT_DATABASE '
+                      'in sandbox_config by default).')),
+    make_option('-p', '--passwd',
+                help='Alternate database password.'),
+    make_option('-u', '--user',
+                help='Alternate database username.'),
     ) + BaseCommand.option_list
 
-  SUMMARY_TABLE = 'TEST_PCR_SUMMARY_V'
-  RATING_TABLE = 'TEST_PCR_RATING_V'
-  CROSSLIST_TABLE = 'TEST_PCR_CROSSLIST_SUMMARY_V'
-  DESC_TABLE = 'TEST_PCR_COURSE_DESC_V'
+  ISC_SUMMARY_TABLE = 'TEST_PCR_SUMMARY_V'
+  ISC_RATING_TABLE = 'TEST_PCR_RATING_V'
+  ISC_CROSSLIST_TABLE = 'TEST_PCR_CROSSLIST_SUMMARY_V'
+  ISC_DESC_TABLE = 'TEST_PCR_COURSE_DESC_V'
+
+  OLDPCR_COURSES = 'coursereview_tblcourses'
+  OLDPCR_DEPTS = 'coursereview_tbldepts'
+  OLDPCR_LECTURERS = 'coursereview_tbllecturers'
+  OLDPCR_REVIEWS = 'coursereview_tbllecturerreviews'
+
+  EARLIEST_TERM = '2002A'
 
   depts = {}
   num_created = {
@@ -81,33 +106,48 @@ class Command(BaseCommand):
     try:
       self.verbosity = int(opts['verbosity']) if opts['verbosity'] else 1
       self.catch_errors = opts['catcherrors']
+      self.just_comments = opts['comments']
+      self.import_other_aliases = opts['otheraliases']
 
       # Set database
       db_name = opts['db'] if opts['db'] else IMPORT_DATABASE_NAME
       db_user = opts['user'] if opts['user'] else IMPORT_DATABASE_USER
       db_pw = opts['passwd'] if opts['passwd'] else IMPORT_DATABASE_PWD
-      # TODO(kyleh): Prompt for password, don't accept at command line
       self.log('Using database %s and user %s' % (db_name, db_user))
       self.db = db.connect(db=db_name, user=db_user, passwd=db_pw)
 
       # Set the semesters; this also validates the input
       if not args or args == 'all':
         self.log('Importing all available semesters.')
-        terms = self.select(['term'], [self.SUMMARY_TABLE],
-                             conditions=['term > "2002A"'],
-                             group_by=['term'], order_by=['term'])
-        semesters = [Semester(term[0]) for term in terms]
+        if not self.just_comments:
+          # We use the semesters in the primary ISC table
+          terms = self.select(['term'], [self.ISC_SUMMARY_TABLE],
+                              conditions=['term > "%s"' % self.EARLIEST_TERM],
+                              group_by=['term'], order_by=['term ASC'])
+          semesters = [Semester(term[0]) for term in terms]
+        else:
+          # We use the semesters in the PCR comments table
+          terms = self.select(['year', 'semester'], [self.OLDPCR_REVIEWS],
+                              group_by=['year', 'semester'],
+                              order_by=['year ASC', 'semester ASC'])
+          semesters = [Semester(year, semester)
+                       for year, semester in terms]
       else:
         semesters = [Semester(sem_arg) for sem_arg in set(args)]
 
       # Do the magic
       for sem in semesters:
         self.log('Importing %s' % sem)
-        self.import_reviews(sem)
-        self.import_aliases(sem)
-        # self.alt_import_aliases(sem) # TODO: Decide on this
+        if self.just_comments:
+          self.import_comments(sem)
+        else:
+          self.import_reviews(sem)
+          self.import_aliases(sem)
+          if self.import_other_aliases:
+            self.alt_import_aliases(sem)
         self.log('--------------------------------------------------')
-      self.import_descriptions() # Done in aggregate since not sem-specific
+      if not self.just_comments:
+        self.import_descriptions() # Done in aggregate since not sem-specific
 
     except KeyboardInterrupt:
       self.err('Aborting...')
@@ -117,12 +157,41 @@ class Command(BaseCommand):
     self.print_stats()
 
 
+  def import_comments(self, sem):
+    """Import the comments from the old Penn Course Review dumps and
+    sync up with the rest of the data."""
+
+    # The select statement here is kept whole to keep the many joins clear.
+    # SQL doesn't care about whitespace, so the formatting issues of a
+    # multiline string are fine. Similarly, SQL indentation is for clarity,
+    # not semantics.
+    query_str = """
+      SELECT
+        depts.dept_code, courses.course_code, reviews.review
+        reviews.lecturer_id, lecturers.last_name, lecturers.first_name,
+      FROM %s AS reviews
+        INNER JOIN %s AS courses ON reviews.course_id = courses.course_id
+        INNER JOIN %s AS depts ON courses.dept_id = depts.dept_id
+        INNER JOIN %s AS lecturers
+          ON reviews.lecturer_id = lecturers.lecturer_id
+      WHERE reviews.year = %d AND reviews.semester = '%s'
+      ORDER BY depts.dept_code ASC, courses.course_code ASC
+      """ % (self.OLDPCR_REVIEWS, self.OLDPCR_COURSES, self.OLDPCR_DEPTS,
+             self.OLDPCR_LECTURERS, sem.year, sem.seasoncodeABC)
+
+    reviews = self.query(query_str)
+    for (dept_code, course_code, review,
+         prof_id, prof_lname, prof_fname) in reviews:
+      dept = Department.objects.get(code=dept_code)
+      
+
+
   def import_descriptions(self):
     """Import all the Course descriptions."""
     courses_updated = 0
 
     fields = ['course_id', 'paragraph_number', 'course_description']
-    tables = [self.DESC_TABLE]
+    tables = [self.ISC_DESC_TABLE]
     order_by = ['course_id ASC', 'paragraph_number ASC']
     descriptions = self.select(fields, tables, order_by=order_by)
 
@@ -137,7 +206,7 @@ class Command(BaseCommand):
           course.save()
         except Exception:
           self.handle_err('Error processing %s:' % course_id)
-      
+
     full_desc = ''
     courses = None
     last_course_id = ''
@@ -198,7 +267,7 @@ class Command(BaseCommand):
       'rInstructorAttitude', 'rInstructorEffective',
       'rGradeFairness', 'rNativeAbility', 'rTAQuality',
       ]
-    tables = [self.SUMMARY_TABLE]
+    tables = [self.ISC_SUMMARY_TABLE]
     # Prevents a few duplicates where the number of responses or from type
     # has changed.
     group_by = ['pri_section',  'instructor_penn_id']
@@ -317,7 +386,7 @@ class Command(BaseCommand):
         If `None`, imports all available semesters.
     """
     fields = ['section_id', 'pri_section']
-    tables = [self.SUMMARY_TABLE]
+    tables = [self.ISC_SUMMARY_TABLE]
     order_by = ['pri_section ASC']
     conditions = ['pri_section != section_id', 'term = "%s"' % sem.code()]
     aliases = self.select(fields, tables, conditions=conditions,
@@ -369,7 +438,7 @@ class Command(BaseCommand):
     """
     fields = ['section_id', 'xlist_section_id_1', 'xlist_section_id_2',
               'xlist_section_id_3', 'xlist_section_id_4', 'xlist_section_id_4']
-    tables = [self.CROSSLIST_TABLE] # Note the difference
+    tables = [self.ISC_CROSSLIST_TABLE] # Note the difference
     order_by = ['section_id']
     # Ignore sections without any crosslistings:
     conditions = ['xlist_section_id_1 is not null', 'term = "%s"' % sem.code()]
