@@ -57,7 +57,7 @@ class Command(BaseCommand):
     make_option('-p', '--passwd', help='Alternate database password'),
     ) + BaseCommand.option_list
 
-  SUMMARY_TABLE = 'TEST_PCR_SUMMARY_HIST_V'
+  SUMMARY_TABLE = 'TEST_PCR_SUMMARY_V'
   RATING_TABLE = 'TEST_PCR_RATING_V'
   CROSSLIST_TABLE = 'TEST_PCR_CROSSLIST_SUMMARY_V'
   DESC_TABLE = 'TEST_PCR_COURSE_DESC_V'
@@ -103,9 +103,9 @@ class Command(BaseCommand):
       # Do the magic
       for sem in semesters:
         self.log('Importing %s' % sem)
-#        self.import_reviews(sem)
-#        self.import_aliases(sem)
-        # self.alt_import_aliases(sem)
+        self.import_reviews(sem)
+        self.import_aliases(sem)
+        # self.alt_import_aliases(sem) # TODO: Decide on this
         self.log('--------------------------------------------------')
       self.import_descriptions() # Done in aggregate since not sem-specific
 
