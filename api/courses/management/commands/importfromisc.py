@@ -99,6 +99,7 @@ class Command(BaseCommand):
     'Section': 0,
     }
   num_errors = 0
+  total_updated_reviews = 0
 
 
   def handle(self, *args, **opts):
@@ -161,14 +162,16 @@ class Command(BaseCommand):
     """Import the comments from the old Penn Course Review dumps and
     sync up with the rest of the data."""
 
+    updated_reviews = 0
+
     # The select statement here is kept whole to keep the many joins clear.
     # SQL doesn't care about whitespace, so the formatting issues of a
     # multiline string are fine. Similarly, SQL indentation is for clarity,
     # not semantics.
     query_str = """
       SELECT
-        depts.dept_code, courses.course_code, reviews.review
-        reviews.lecturer_id, lecturers.last_name, lecturers.first_name,
+        depts.dept_code, courses.course_code, reviews.review,
+        reviews.lecturer_id, lecturers.last_name, lecturers.first_name
       FROM %s AS reviews
         INNER JOIN %s AS courses ON reviews.course_id = courses.course_id
         INNER JOIN %s AS depts ON courses.dept_id = depts.dept_id
@@ -179,15 +182,42 @@ class Command(BaseCommand):
       """ % (self.OLDPCR_REVIEWS, self.OLDPCR_COURSES, self.OLDPCR_DEPTS,
              self.OLDPCR_LECTURERS, sem.year, sem.seasoncodeABC)
 
-    reviews = self.query(query_str)
-    for (dept_code, course_code, review,
-         prof_id, prof_lname, prof_fname) in reviews:
+    review_rows = self.query(query_str)
+    for (dept_code, course_code, comments,
+         prof_id, prof_lname, prof_fname) in review_rows:
+      self.log('--------------------')
+      self.log('Loading review for %s-%s @ %s (%s, %s [%d])' % (
+          dept_code, course_code, sem.code(), prof_lname, prof_fname, prof_id))
+
+      # Fix types
+      course_code = int(course_code)
+      prof_id = int(prof_id)
+      comments = comments.decode('cp1252', 'ignore').encode('utf-8', 'ignore')
+
+
       dept = Department.objects.get(code=dept_code)
-      
+      # TODO: Fix professor nonsense
+      profs = Instructor.objects.filter(oldpcr_id=prof_id)
+      sections = Section.objects.filter(instructors__in=profs, 
+                                        course__semester=sem,
+                                        course__alias__department=dept,
+                                        course__alias__coursenum=course_code)
+      for sect in sections:
+        self.log('Processing review for section %s.' % sect, 2)
+        review = Review.objects.get(section=sect, instructor__in=profs)
+        if True: #not review.comments:
+          self.log('Updating comments.' % sect, 2)
+          updated_reviews += 1
+          review.comments = comments
+          review.save()
+
+    self.log('Updated %d reviews in %s.' % (updated_reviews, sem))
+    self.total_updated_reviews += updated_reviews
 
 
   def import_descriptions(self):
     """Import all the Course descriptions."""
+    # TODO: Better document this one.
     courses_updated = 0
 
     fields = ['course_id', 'paragraph_number', 'course_description']
@@ -340,9 +370,16 @@ class Command(BaseCommand):
 
         # Instructor, Section, Review.
         # These are all fairly self-explanatory.
-        prof = self.get_or_create(
-          Instructor, first_name=prof_fname, last_name=prof_lname,
-          oldpcr_id=prof_id)
+        prof = self.get_or_create(Instructor, oldpcr_id=prof_id)
+        if prof.first_name != prof_fname:
+          prof.first_name = prof_fname
+          prof_name_changed = True
+        if prof.last_name != prof_lname:
+          prof.last_name = prof_lname
+          prof_name_changed = True
+        if prof_name_changed:
+          prof.save()
+        
         sect = self.get_or_create(
           Section, course=course, name=title, sectionnum=sect_code)
         sect.instructors.add(prof) # Many-to-many field
@@ -506,6 +543,7 @@ class Command(BaseCommand):
     self.log('New objects: %s' % (
         ', '.join(['%d %s' % (num, model)
                    for model, num in self.num_created.iteritems()])))
+    self.log('Updated %d review comments.' % self.total_updated_reviews)
     self.log('Uncaught errors: %d' % self.num_errors)
 
 
