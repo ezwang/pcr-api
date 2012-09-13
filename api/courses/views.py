@@ -331,7 +331,7 @@ def building_main(request, path, (code,)):
 
 @dead_end
 def index(request, path, _):
-  return JSON("Welcome to the PennApps Courses API. For documentation, see %s."
+  return JSON("Welcome to the PennApps Courses API. For docs, see %s."
               % DOCS_HTML)
 
 def dispatcher(dispatchers):
