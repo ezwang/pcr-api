@@ -13,6 +13,27 @@ DOCS_HTML = "<a href='%s'> %s </a>" % (DOCS_URL, DOCS_URL)
 
 API_ROOT = '/' + sandbox_config.DISPLAY_NAME
 
+ACC_HEADERS = {'Access-Control-Allow-Origin': '*',
+               'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+               'Access-Control-Max-Age': 1000,
+               'Access-Control-Allow-Headers': '*'}
+
+
+# allows cross-domain AJAX calls
+# https://gist.github.com/1308865
+def cross_domain_ajax(func):
+  """ Sets Access Control request headers. """
+  def wrap(request, *args, **kwargs):
+    # Firefox sends 'OPTIONS' request for cross-domain javascript call.
+    if request.method != "OPTIONS":
+      response = func(request, *args, **kwargs)
+    else:
+      response = HttpResponse()
+    for k, v in ACC_HEADERS.iteritems():
+      response[k] = v
+    return response
+  return wrap
+
 def redirect(path, request, extras=[]):
   query = '?' + request.GET.urlencode() if request.GET else ''
   fullpath = "%s/%s/%s%s" % (API_ROOT, path, '/'.join(extras), query)
@@ -371,6 +392,7 @@ def annotate_dictionary(d, fn):
 
 dispatch_root = annotate_dictionary(dispatch_root, dispatcher)
 
+@cross_domain_ajax
 def dispatch(request, url):
   try:
     if not request.consumer.access_pcr and "review" in url:
