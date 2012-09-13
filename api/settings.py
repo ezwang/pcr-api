@@ -85,6 +85,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.middleware.cache.FetchFromCacheMiddleware',
     'api.apiconsumer.authenticate.Authenticate',
+    'cors.middleware.AllowOriginMiddleware',
 )
 
 ROOT_URLCONF = 'urls'
@@ -108,6 +109,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'api.static_content',
     'django_extensions', # used for debugging, remove if problematic
+    'cors',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
 )
