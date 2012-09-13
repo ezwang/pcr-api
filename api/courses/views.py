@@ -297,7 +297,7 @@ def alias_coursehistory(request, path, (historyalias,)):
                   request, path)
 
 def alias_misc(request, path, (alias,)):
-  return HttpResponse("I have no idea how you got here.  This isn't really a 'thing'." + alias)
+  return HttpResponse('"%s" is not a valid query.' % alias)
 
 @dead_end
 def depts(request, path, _):
