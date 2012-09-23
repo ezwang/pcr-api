@@ -8,7 +8,7 @@ from collections import defaultdict
 from django.http import HttpResponse, HttpResponseRedirect
 from json_helpers import JSON
 
-DOCS_URL = 'http://www.pennapps.com/console/docs.html'
+DOCS_URL = 'http://pennapps.com/console/docs.html'
 DOCS_HTML = "<a href='%s'>%s</a>" % (DOCS_URL, DOCS_URL)
 
 API_ROOT = '/' + sandbox_config.DISPLAY_NAME
@@ -331,7 +331,7 @@ def building_main(request, path, (code,)):
 
 @dead_end
 def index(request, path, _):
-  return JSON("Welcome to the PennApps Courses API. For documentation, see %s."
+  return JSON("Welcome to the PennApps Courses API. For docs, see %s."
               % DOCS_HTML)
 
 def dispatcher(dispatchers):
