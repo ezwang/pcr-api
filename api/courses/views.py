@@ -79,38 +79,10 @@ class API404(Exception):
 
 @dead_end
 def course_histories(request, path, _):
-  if not request.consumer.access_secret:
-    # This method is for the PCR site only.
-    raise API404("This is not the database dump you are looking for.")
-
-  #1. get and aggregate all course alias data
-  alias_fields = ['coursenum', 'department__code', 'course__history', 'course__name']
-  query_results = Alias.objects.select_related(*alias_fields).values(*alias_fields)
-
-  # Note: Some courses have no aliases (probably an import script bug).
-  # This function will not see those courses (we don't really want to anyway),
-  # so we have hist_to_name default to "" (if it defaulted to None, then
-  # name_override would not happen and it would fetch their real names and that
-  # would be slow)
-  hist_to_aliases = defaultdict(set)
-  hist_to_name = defaultdict(lambda: "")
-  for e in query_results:
-    hist_to_aliases[e['course__history']].add((e['department__code'], e['coursenum']))
-    hist_to_name[e['course__history']] = (e['course__name'])
-
-  #don't inclue course histories that are only offered this semester
-  old_course_history_ids = [x[0] for x in Course.objects \
-    .filter(semester__lt=current_semester()) \
-    .select_related('history') \
-    .values_list('history') \
-    .distinct()]
-
-  hists = CourseHistory.objects.filter(id__in=old_course_history_ids)
-  course_histories = [h.toShortJSON(name_override=hist_to_name[h.id],
-                                    aliases_override=hist_to_aliases[h.id])
-                      for h in hists]
-
-  return JSON({RSRCS: course_histories})
+  dept_code = request.GET['dept_code'].upper()
+  coursenum = request.GET['coursenum']
+  courses = Course.objects.filter(primary_alias__coursenum=coursenum, primary_alias__department__code=dept_code)
+  return JSON({RSRCS: [c.toShortJSON() for c in courses] })
 
 @dead_end
 def semesters(request, path, _):
@@ -353,6 +325,15 @@ def dispatcher(dispatchers):
       return dispatch_404("what is this i dont even")(request, path, variables)
   return dispatch_func
 
+
+"""
+This is the key to how the PCR API works.
+This maps URLs to request handlers. More clearly, if a user hits the root
+it will map them to `index` since that matches.
+Alternatively if the user hits '/instructors/<str>' they will get mapped to
+`instructor_main`.
+"*_TOKEN" is defined inside of links.py
+"""
 dispatch_root = {
   '': index,
   INSTRUCTOR_TOKEN: {'': instructors,
