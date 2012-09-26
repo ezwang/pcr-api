@@ -3,3 +3,4 @@ sandbox_config.py
 *~
 staticgenerator_output/*
 CACHES/*
+*.swp

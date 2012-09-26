@@ -79,10 +79,19 @@ class API404(Exception):
 
 @dead_end
 def course_histories(request, path, _):
-  dept_code = request.GET['dept_code'].upper()
+  """Get the history of a particular course.
+  Arguments
+  * dept should be a department code, e.g. "CIS" (Required)
+  * coursenum should be the number of the course, e.g "121" (Required)
+  """
+  dept_code = request.GET['dept'].upper()
   coursenum = request.GET['coursenum']
+  group_by_instructor = request.GET.get('group_by_instructor', False)
   courses = Course.objects.filter(primary_alias__coursenum=coursenum, primary_alias__department__code=dept_code)
-  return JSON({RSRCS: [c.toShortJSON() for c in courses] })
+  if group_by_instructor:
+      pass
+  else:
+      return JSON({RSRCS: [c.toLongJSON() for c in courses] })
 
 @dead_end
 def semesters(request, path, _):
