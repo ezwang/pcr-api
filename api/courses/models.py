@@ -36,6 +36,7 @@ class Department(models.Model):
 
     return result
 
+
 class CourseHistory(models.Model):
   """A course, as it has existed for many semesters. Various courses
      (several Courses each of CIS 160, CIS 260, CSE 260...) will all
@@ -121,6 +122,21 @@ class Course(models.Model):
       'semester': self.semester.code()
     }
 
+  def toLongJSON(self):
+    """Get the data for a CourseHistory request.
+    This will return all data about a course.
+    The custom function is needed to prevent duplication of data.
+    """
+    result = self.toShortJSON()
+    result.update({
+      'credits': self.credits,
+      'description': self.description,
+      SECTION_TOKEN: {
+        RSRCS: [x.toLongJSON() for x in self.section_set.all()],
+      },
+    })
+    return result
+
   def toJSON(self):
     result = self.toShortJSON()
     path = self.get_absolute_url()
@@ -138,6 +154,7 @@ class Course(models.Model):
     })
 
     return result
+
 
 class Instructor(models.Model):
   """ A course instructor or TA (or "STAFF")"""
@@ -183,6 +200,15 @@ class Instructor(models.Model):
     result[REVIEW_TOKEN] = {'path': "%s/%s" % (self.get_absolute_url(), REVIEW_TOKEN)}
     if 'reviews' in extra:
       result[REVIEW_TOKEN][RSRCS] = [x.toShortJSON() for x in self.review_set.all()]
+    return result
+
+  def toLongJSON(self, section_id, extra=[]):
+    result = self.toShortJSON()
+    result.update({
+      REVIEW_TOKEN: {
+        RSRCS: [self.review_set.get(section__id=section_id).toLongJSON()]
+      },
+    })
     return result
 
 class Alias(models.Model):
@@ -283,6 +309,16 @@ class Section(models.Model):
     })
     return result
 
+  def toLongJSON(self):
+    """Get the JSON used for a complete Course response."""
+    result = self.toShortJSON()
+    result.update({
+      'group': self.group,
+      INSTRUCTOR_TOKEN: [i.toLongJSON(self.id) for i in self.instructors.all()],
+      'meetingtimes': [x.toJSON() for x in self.meetingtime_set.all()],
+    })
+    return result
+
 class Review(models.Model):
   """ The aggregate review data for a class. """
   section = models.ForeignKey(Section) 
@@ -321,6 +357,20 @@ class Review(models.Model):
       'ratings': dict((bit.field, "%1.2f" % bit.score) for bit in bits),
       'comments': self.comments,
     })
+
+    return result
+
+  def toLongJSON(self):
+    bits = self.reviewbit_set.all()
+    result = {
+      'id': '%s-%s' % (self.section.api_id, self.instructor.temp_id),
+      'path': review_url(self.section.course_id, self.section.sectionnum,
+                         self.instructor.temp_id if self.instructor_id else "99999-JAIME-MUNDO"),
+      'num_reviewers': self.forms_returned,
+      'num_students': self.forms_produced,
+      'ratings': dict((bit.field, "%1.2f" % bit.score) for bit in bits),
+      'comments': self.comments,
+    }
 
     return result
 
