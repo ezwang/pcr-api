@@ -55,17 +55,6 @@ def dispatch_404(message=None, perhaps=None):
     raise API404(message)
   return view
 
-def dispatch_dead_end(str):
-  @dead_end
-  def view(request, path, _):
-    return HttpResponse("Useful information! " + str)
-  return view
-
-def optlist_map(func, l):
-  return None if l is None else [func(x) for x in l]
-
-def list_json(l):
-  return None if l is None else l if type(l) is list else list(l)
 
 # FNAR 337 Advanced Orange (Jaime Mundo)
 # Explore the majesty of the color Orange in its natural habitat,
