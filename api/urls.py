@@ -13,5 +13,5 @@ urlpatterns = patterns('',
     # Uncomment the next line to enable the admin:
     (r'^admin/', include(admin.site.urls)),
     (r'^pcrsite-static/(?P<page>.*)$', 'static_content.views.serve_page'),
-    (r'^(?P<url>.*)', 'courses.views.dispatch'),
+    (r'^(?P<url>.*)', 'courses.urls.dispatch'),
 )
