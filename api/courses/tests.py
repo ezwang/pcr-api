@@ -43,6 +43,8 @@ class DataTest(TestCase):
         course=cis110_1, department=cis, coursenum=1, semester='810')
     alias2 = models.Alias.objects.create(
         course=cis110_1, department=ese, coursenum=1, semester='810')
+    cis110_1.primary_alias = alias1
+    cis110_1.save()
     review1 = models.Review.objects.create(
         section=section1, instructor=instructor1,
         forms_returned=10, forms_produced=20, form_type=1,
