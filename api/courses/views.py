@@ -1,5 +1,4 @@
 from models import *
-from Semester import *
 from links import *
 import json
 import datetime
