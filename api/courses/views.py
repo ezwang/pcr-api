@@ -1,11 +1,15 @@
-from models import *
-from links import *
 import json
 import datetime
-import sandbox_config
 from collections import defaultdict
+
 from django.http import HttpResponse, HttpResponseRedirect
+
+from utils import current_semester
 from json_helpers import JSON
+import sandbox_config
+from models import *
+from links import *
+
 
 DOCS_URL = 'http://pennapps.com/console/docs.html'
 DOCS_HTML = "<a href='%s'>%s</a>" % (DOCS_URL, DOCS_URL)
