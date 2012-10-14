@@ -30,7 +30,7 @@ class Command(BaseCommand):
 
   1. **Main stage**. The main table has _almost_ everything we need.
      We go through each row that represents a PRIMARY LISTING of a section
-     and (or find) everything from that.
+     and create (or find) everything from that.
   2. **Aliasing**. After we have all the primary listings, we make another
      pass through the main table and look at every row where the
      PRI_SECTION and SECTION_ID key don't match - i.e., a crosslisting.
@@ -42,8 +42,8 @@ class Command(BaseCommand):
      Even MORE fun, it has DOZENS of crosslistings for courses that don't
      appear to exist. We ignore these. YAY!
   3. **Descriptions**. Because descriptions are stored by course ID ONLY,
-     and in a different table, we dot these last. These are batch added to
-     any Course that doesn't already
+     and in a different table, we do these last. These are batch-added to
+     any Course that doesn't already have a description.
 
   Alternatively, if the `--comments` flag is passed, we import the 
   qualitative comments - and just those - from a dump of the old PCR.
@@ -196,7 +196,6 @@ class Command(BaseCommand):
 
 
       dept = Department.objects.get(code=dept_code)
-      # TODO: Fix professor nonsense
       profs = Instructor.objects.filter(oldpcr_id=prof_id)
       sections = Section.objects.filter(instructors__in=profs, 
                                         course__semester=sem,
@@ -205,11 +204,10 @@ class Command(BaseCommand):
       for sect in sections:
         self.log('Processing review for section %s.' % sect, 2)
         review = Review.objects.get(section=sect, instructor__in=profs)
-        if True: #not review.comments:
-          self.log('Updating comments.' % sect, 2)
-          updated_reviews += 1
-          review.comments = comments
-          review.save()
+        self.log('Updating comments.' % sect, 2)
+        updated_reviews += 1
+        review.comments = comments
+        review.save()
 
     self.log('Updated %d reviews in %s.' % (updated_reviews, sem))
     self.total_updated_reviews += updated_reviews
@@ -217,7 +215,6 @@ class Command(BaseCommand):
 
   def import_descriptions(self):
     """Import all the Course descriptions."""
-    # TODO: Better document this one.
     courses_updated = 0
 
     fields = ['course_id', 'paragraph_number', 'course_description']
@@ -237,22 +234,25 @@ class Command(BaseCommand):
         except Exception:
           self.handle_err('Error processing %s:' % course_id)
 
+    # Because course descriptions are stored in separate rows by
+    # PARAGRAPH NUMBER, and I don't have the SQL-fu to join them,
+    # we have to do some weird logic with the pragraph number.
     full_desc = ''
     courses = None
     last_course_id = ''
-    for course_id, graph_num, desc in descriptions:
-      graph_num = int(graph_num) # Why is this a string? I don't know
+    for course_id, paragraph_num, desc in descriptions:
+      paragraph_num = int(paragraph_num) # Why is this a string? I don't know
       dept_code, course_code, _ = self.parse_sect_str(course_id)
-      try:
+      try: # Ignore nonexistant departments
         dept = Department.objects.get(code=dept_code)
       except Department.DoesNotExist:
         continue
 
-      if graph_num == 1: # The beginning of a new sequence
-        if full_desc: # We have the full previous description; save:
+      if paragraph_num == 1: # This is the beginning of a new sequence
+        if full_desc: # We have the full previous description; save
           commit_courses(last_course_id, courses, full_desc)
           courses_updated += 1
-        # Start anew
+        # Start fresh
         full_desc = '%s\n\n' % desc
         last_course_id = course_id
         courses = Course.objects.filter(primary_alias__department=dept,
