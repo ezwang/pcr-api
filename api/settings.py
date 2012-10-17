@@ -60,10 +60,13 @@ MEDIA_ROOT = ''
 # Examples: "http://media.lawrence.com", "http://example.com/media/"
 MEDIA_URL = ''
 
-# URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
-# trailing slash.
-# Examples: "http://foo.com/media/", "/media/".
-STATIC_ROOT = os.path.join(COURSESAPI_APP_ROOT, 'static')
+
+# The absolute path to the Unix folder where ./manage.py collectstatic will
+# deposit the symlinked static files
+STATIC_ROOT = os.path.join(COURSESAPI_APP_ROOT, 'api/static')
+
+# The actual URL from which static files are served.
+# Examples: "http://foo.com/static/"
 STATIC_URL = os.path.join(DISPLAY_NAME, 'static/')
 
 # Make this unique, and don't share it with anybody.
