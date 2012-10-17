@@ -60,10 +60,14 @@ MEDIA_ROOT = ''
 # Examples: "http://media.lawrence.com", "http://example.com/media/"
 MEDIA_URL = ''
 
-# URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
-# trailing slash.
-# Examples: "http://foo.com/media/", "/media/".
-STATIC_URL = '/pcradmin/media/'
+
+# The absolute path to the Unix folder where ./manage.py collectstatic will
+# deposit the symlinked static files
+STATIC_ROOT = os.path.join(COURSESAPI_APP_ROOT, 'api/static')
+
+# The actual URL from which static files are served.
+# Examples: "http://foo.com/static/"
+STATIC_URL = os.path.join(DISPLAY_NAME, 'static/')
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'F2g3XtfUb76T5g-PWNdIKYeD4ajuvz6tVLrDQLVddw5hVr7bnVGygYNUrYWGCNYs1'
@@ -108,6 +112,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'api.static_content',
     'django_extensions', # used for debugging, remove if problematic
+    'django.contrib.staticfiles',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
 )
