@@ -1,15 +1,20 @@
 from django.contrib import admin
 from django.http import HttpResponse
 from django.conf.urls.defaults import patterns
+from django.contrib.auth.models import User
+from django.contrib.sites.models import Site
+from django.contrib.auth.models import Group
+
+from courses.models import Instructor, Course, Section, Review
 
 
-from courses.models import *
+admin.site.unregister(User)
+admin.site.unregister(Group)
+admin.site.unregister(Site)
 
 
 class InstructorAdmin(admin.ModelAdmin):
   search_fields = ['first_name', 'last_name']
-
-admin.site.register(Instructor, InstructorAdmin)
 
 
 class CourseAdmin(admin.ModelAdmin):
@@ -21,10 +26,11 @@ class CourseAdmin(admin.ModelAdmin):
     )
     return my_urls + urls
 
-admin.site.register(Course,CourseAdmin)
 
-for model in [Section]:
-  admin.site.register(model)
+admin.site.register(Instructor, InstructorAdmin)
+admin.site.register(Course,CourseAdmin)
+admin.site.register(Section)
+admin.site.register(Review)
 
 """
 grab 'patterns' from django.conf.urls.defaults
