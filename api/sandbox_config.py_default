@@ -8,10 +8,13 @@ Updated for Courses API: MJC, May 12, 2011
 """
 import os
 
-DISPLAY_NAME = "courses-mjc"
+DISPLAY_NAME = "/courses-mjc"
+
+# If this is not true, then the DISPLAY_NAME will be treated as a relative path
+assert DISPLAY_NAME.startswith('/')
 
 DEV_ROOT = "/home/mcroop/mcroop_dev" # root of all apps you're working on
-COURSESAPI_APP_ROOT = os.path.join(DEV_ROOT, "Penn-Course-API")
+COURSESAPI_APP_ROOT = os.path.join(DEV_ROOT, "Penn-Course-api")
 
 # should be True only in production. unless you really like caching.
 DO_CACHING = False 
