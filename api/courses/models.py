@@ -131,8 +131,7 @@ class SemesterField(models.Field):
       return semesterFromID(id)
 
   def get_prep_value(self, value):
-    # TODO: Not sure at all what this does
-    return value
+    return value.id
 
 
 class Department(models.Model):
