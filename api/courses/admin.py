@@ -59,6 +59,7 @@ class ReviewAdmin(admin.ModelAdmin):
 
     def semester(self, obj):
         return obj.section.course.semester
+    semester.admin_order_field = 'section__course__semester'
 
     def course(self, obj):
         return obj.section.course.name
