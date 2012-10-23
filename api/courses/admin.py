@@ -50,7 +50,7 @@ class ReviewAdmin(admin.ModelAdmin):
     list_select_related = True
     list_display = ('primary_alias', 'sectionnum', 'instructor', 'section', 'semester')
     list_display_links = ('primary_alias', 'sectionnum', 'instructor',)
-    search_fields = ('section__course__name', 'section__name', '^instructor__first_name', '^instructor__last_name')
+    search_fields = ('section__course__primary_alias__department__code', 'section__course__primary_alias__coursenum', 'section__course__name', 'section__name', '^instructor__first_name', '^instructor__last_name')
     ordering = ('-section__course__semester', 'section')
     raw_id_fields = ('section', 'instructor')
 
