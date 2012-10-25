@@ -373,11 +373,9 @@ class Command(BaseCommand):
         prof = self.get_or_create(Instructor, oldpcr_id=prof_id)
         if prof.first_name != prof_fname:
           prof.first_name = prof_fname
-          prof_name_changed = True
+          prof.save()
         if prof.last_name != prof_lname:
           prof.last_name = prof_lname
-          prof_name_changed = True
-        if prof_name_changed:
           prof.save()
         
         sect = self.get_or_create(
