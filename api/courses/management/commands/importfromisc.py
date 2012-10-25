@@ -114,12 +114,12 @@ class Command(BaseCommand):
       db_name = opts['db'] if opts['db'] else IMPORT_DATABASE_NAME
       db_user = opts['user'] if opts['user'] else IMPORT_DATABASE_USER
       db_pw = opts['passwd'] if opts['passwd'] else IMPORT_DATABASE_PWD
-      self.log('Using database %s and user %s' % (db_name, db_user))
+      self._log('Using database %s and user %s' % (db_name, db_user))
       self.db = db.connect(db=db_name, user=db_user, passwd=db_pw)
 
       # Set the semesters; this also validates the input
       if not args or args == 'all':
-        self.log('Importing all available semesters.')
+        self._log('Importing all available semesters.')
         if not self.just_comments:
           # We use the semesters in the primary ISC table
           terms = self.select(['term'], [self.ISC_SUMMARY_TABLE],
@@ -138,7 +138,7 @@ class Command(BaseCommand):
 
       # Do the magic
       for sem in semesters:
-        self.log('Importing %s' % sem)
+        self._log('Importing %s' % sem)
         if self.just_comments:
           self.import_comments(sem)
         else:
@@ -146,12 +146,12 @@ class Command(BaseCommand):
           self.import_aliases(sem)
           if self.import_other_aliases:
             self.alt_import_aliases(sem)
-        self.log('--------------------------------------------------')
+        self._log('-'*79)
       if not self.just_comments:
         self.import_descriptions() # Done in aggregate since not sem-specific
 
     except KeyboardInterrupt:
-      self.err('Aborting...')
+      self._err('Aborting...')
       self.db.close()
 
     # Some helpful info before we leave
@@ -185,8 +185,8 @@ class Command(BaseCommand):
     review_rows = self.query(query_str)
     for (dept_code, course_code, comments,
          prof_id, prof_lname, prof_fname) in review_rows:
-      self.log('--------------------')
-      self.log('Loading review for %s-%s @ %s (%s, %s [%d])' % (
+      self._log('-'*20)
+      self._log('Loading review for %s-%s @ %s (%s, %s [%d])' % (
           dept_code, course_code, sem.code(), prof_lname, prof_fname, prof_id))
 
       # Fix types
@@ -202,14 +202,14 @@ class Command(BaseCommand):
                                         course__alias__department=dept,
                                         course__alias__coursenum=course_code)
       for sect in sections:
-        self.log('Processing review for section %s.' % sect, 2)
+        self._log('Processing review for section %s.' % sect, 2)
         review = Review.objects.get(section=sect, instructor__in=profs)
-        self.log('Updating comments.' % sect, 2)
+        self._log('Updating comments.' % sect, 2)
         updated_reviews += 1
         review.comments = comments
         review.save()
 
-    self.log('Updated %d reviews in %s.' % (updated_reviews, sem))
+    self._log('Updated %d reviews in %s.' % (updated_reviews, sem))
     self.total_updated_reviews += updated_reviews
 
 
@@ -223,20 +223,20 @@ class Command(BaseCommand):
     descriptions = self.select(fields, tables, order_by=order_by)
 
     def commit_courses(course_id, courses, desc):
-      self.log('--------------------')
-      self.log('Adding description for %s to %d courses.' % (
+      self._log('-'*20)
+      self._log('Adding description for %s to %d courses.' % (
           course_id, courses.count()))
       for course in courses:
-        self.log('-> %s: %s...' % (course, desc), 2)
+        self._log('-> %s: %s...' % (course, desc), 2)
         course.description = desc
         try:
           course.save()
         except Exception:
-          self.handle_err('Error processing %s:' % course_id)
+          self._handle_err('Error processing %s:' % course_id)
 
     # Because course descriptions are stored in separate rows by
     # PARAGRAPH NUMBER, and I don't have the SQL-fu to join them,
-    # we have to do some weird logic with the pragraph number.
+    # we have to do some weird logic with the paragraph number.
     full_desc = ''
     courses = None
     last_course_id = ''
@@ -266,7 +266,7 @@ class Command(BaseCommand):
     commit_courses(last_course_id, courses, full_desc)
     courses_updated += 1
 
-    self.log('Updated %d course descriptions.' % courses_updated)
+    self._log('Updated %d course descriptions.' % courses_updated)
 
 
   def import_reviews(self, sem):
@@ -327,15 +327,15 @@ class Command(BaseCommand):
 
       full_row_str = '%s @ %s (%s, %s)' % (pri_sect, sem.code(),
                                            prof_lname, prof_fname)
-      self.log('--------------------')
-      self.log('Loading %s' % full_row_str)
+      self._log('-'*20)
+      self._log('Loading %s' % full_row_str)
 
       try:
         # Fix types
         subj_code, course_code, sect_code = self.parse_sect_str(pri_sect)
         prof_id = int(prof_id)
         # A rare few courses have NULL titles
-        title = '' if title is None else title
+        title = title or ''
 
         # Departments.
         dept = self.get_or_create(Department, code=subj_code)
@@ -350,12 +350,12 @@ class Command(BaseCommand):
             course__primary_alias__department=dept,
             course__primary_alias__coursenum=course_code
             ).order_by('-course__semester')[0]
-          self.log('Reused CourseHistory: %s' % hist, 2)
+          self._log('Reused CourseHistory: %s' % hist, 2)
         except IndexError: # Returned empty QuerySet
           hist = CourseHistory(notes='Created from PCR Course %s-%3d: %s' % (
               subj_code, course_code, title))
           hist.save()
-          self.log('Created new CourseHistory: %s' % hist, 2)
+          self._log('Created new CourseHistory: %s' % hist, 2)
           self.num_created['CourseHistory'] += 1
 
         # Course + Primary Alias.
@@ -402,12 +402,12 @@ class Command(BaseCommand):
                 bits_added += 1
               else:
                 bits_existing += 1
-          self.log('Created %d new ReviewBits. Reused %d.' % (
+          self._log('Created %d new ReviewBits. Reused %d.' % (
               bits_added, bits_existing), 2)
           self.num_created['ReviewBit'] += bits_added
 
       except Exception:
-        self.handle_err('Error processing %s:' % full_row_str)
+        self._handle_err('Error processing %s:' % full_row_str)
 
     self.print_stats()
 
@@ -431,8 +431,8 @@ class Command(BaseCommand):
 
     for sect_id, pri_sect in aliases:
       full_row_str = '%s -> %s @ %s' % (pri_sect, sect_id, sem.code())
-      self.log('--------------------')
-      self.log('Crosslisting %s' % (full_row_str))
+      self._log('-'*20)
+      self._log('Crosslisting %s' % (full_row_str))
 
       try:
         pri_dept_code, pri_coursenum, _ = self.parse_sect_str(pri_sect)
@@ -449,7 +449,7 @@ class Command(BaseCommand):
           coursenum=xlist_coursenum, semester=sem)
 
       except Exception:
-        self.handle_err('Error cross-listing %s:' % full_row_str)
+        self._handle_err('Error cross-listing %s:' % full_row_str)
 
     self.print_stats()
 
@@ -486,8 +486,8 @@ class Command(BaseCommand):
     num_nonexist = 0
     for (sect_id, xlist_ids[1], xlist_ids[2], xlist_ids[3], xlist_ids[4],
          xlist_ids[5]) in aliases:
-      self.log('--------------------')
-      self.log('Crosslistng %s @ %s' % (sect_id, sem.code()))
+      self._log('-'*20)
+      self._log('Crosslistng %s @ %s' % (sect_id, sem.code()))
 
       try:
         # Fix types
@@ -499,14 +499,14 @@ class Command(BaseCommand):
             semester=sem, primary_alias__department=pri_dept,
             primary_alias__coursenum=pri_coursenum)
         except Course.DoesNotExist:
-          self.err('Tried to crosslist with a course that does not exist!')
+          self._err('Tried to crosslist with a course that does not exist!')
           num_nonexist += 1
           continue
 
         for xlist_id in xlist_ids.itervalues():
           if xlist_id is None: # Don't waste time when we run out of xlists
             break
-          self.log('--> Aliasing %s' % xlist_id)
+          self._log('--> Aliasing %s' % xlist_id)
 
           xlist_dept_code, xlist_coursenum, _ = self.parse_sect_str(xlist_id)
           xlist_dept = self.get_or_create(Department, code=xlist_dept_code)
@@ -516,22 +516,22 @@ class Command(BaseCommand):
             coursenum=xlist_coursenum, semester=sem)
 
       except Exception:
-        self.handle_err('Error cross-listing % @ %s:' % (sect_id, sem.code()))
+        self._handle_err('Error cross-listing % @ %s:' % (sect_id, sem.code()))
 
     if num_nonexist: # Report the number of nonexistant at the end.
-      self.err('Tried to crosslist with %d nonexist courses.' % num_nonexist)
+      self._err('Tried to crosslist with %d nonexist courses.' % num_nonexist)
     self.print_stats()
 
 
 
   # Helpers
-  def handle_err(self, msg):
+  def _handle_err(self, msg):
     """Log unknown errors and print stack trace. That way a random DB error
     won't ruin a long import."""
     if self.catch_errors:
-      self.err('--------------------------------------------------')
-      self.err(msg)
-      self.err(traceback.format_exc())
+      self._err('-'*50)
+      self._err(msg)
+      self._err(traceback.format_exc())
       self.num_errors += 1
     else:
       raise
@@ -539,12 +539,12 @@ class Command(BaseCommand):
 
   def print_stats(self):
     """Print the info on what we've done so far."""
-    self.log('--------------------------------------------------')
-    self.log('New objects: %s' % (
+    self._log('-'*50)
+    self._log('New objects: %s' % (
         ', '.join(['%d %s' % (num, model)
                    for model, num in self.num_created.iteritems()])))
-    self.log('Updated %d review comments.' % self.total_updated_reviews)
-    self.log('Uncaught errors: %d' % self.num_errors)
+    self._log('Updated %d review comments.' % self.total_updated_reviews)
+    self._log('Uncaught errors: %d' % self.num_errors)
 
 
   def get_or_create(self, model, **kwargs):
@@ -564,18 +564,20 @@ class Command(BaseCommand):
       dept_code = kwargs['code']
       try:
         dept = self.depts[dept_code]
-        self.log('Reused cached Department %s: %s' % (dept.code, dept.name), 2)
-        return dept
       except KeyError:
         pass
+      else:
+        self._log('Reused cached Department %s: %s' % (dept.code, dept.name), 2)
+        return dept
+
 
     name = model.__name__
     obj, created = model.objects.get_or_create(**kwargs)
     if created:
-      self.log('Created new %s: %s' % (name, obj), 2)
+      self._log('Created new %s: %s' % (name, obj), 2)
       self.num_created[name] += 1
     else:
-      self.log('Reused existing %s: %s' % (name, obj), 2)
+      self._log('Reused existing %s: %s' % (name, obj), 2)
 
     if is_dept: # Update Department cache
       self.depts[obj.code] = obj
@@ -600,12 +602,12 @@ class Command(BaseCommand):
   def query(self, query_str, args=None):
     """A simple wrapper for our MySQL queries."""
     start = time.time()
-    self.log('Executing query: "%s"' % query_str, 2)
+    self._log('Executing query: "%s"' % query_str, 2)
     cursor = self.db.cursor()
     cursor.execute(query_str, args)
     results = cursor.fetchall()
-    self.log('Took: %s' % (time.time() - start), 2)
-    self.log('Founds %s results.' % len(results), 2)
+    self._log('Took: %s' % (time.time() - start), 2)
+    self._log('Founds %s results.' % len(results), 2)
     return results
 
 
@@ -634,12 +636,12 @@ class Command(BaseCommand):
     return self.query(" ".join(query))
 
 
-  def log(self, msg, v=1):
+  def _log(self, msg, v=1):
     """Log messages to standard out, depending on the verbosity."""
     if self.verbosity >= v:
       self.stdout.write('%s\n' % msg)
 
 
-  def err(self, msg):
+  def _err(self, msg):
     """Log errors to stderr, regardless of verbosity."""
     self.stderr.write('ERR: %s\n' % msg)
