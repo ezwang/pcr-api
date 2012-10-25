@@ -12,9 +12,6 @@ from dispatcher import API404, dead_end, redirect
 DOCS_URL = 'http://pennapps.com/console/docs.html'
 DOCS_HTML = "<a href='%s'>%s</a>" % (DOCS_URL, DOCS_URL)
 
-DOCS_URL = 'http://pennapps.com/console/docs.html'
-DOCS_HTML = "<a href='%s'>%s</a>" % (DOCS_URL, DOCS_URL)
-
 
 @dead_end
 def course_histories(request, path, _):
