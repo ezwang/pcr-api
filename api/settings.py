@@ -88,7 +88,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.cache.UpdateCacheMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.cache.FetchFromCacheMiddleware',
-    'api.apiconsumer.authenticate.Authenticate',
+    'apiconsumer.authenticate.Authenticate',
 )
 
 ROOT_URLCONF = 'urls'
@@ -106,11 +106,11 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.messages',
-    'api.courses',
-    'api.apiconsumer',
+    'courses',
+    'apiconsumer',
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
-    'api.static_content',
+    'static_content',
     'django_extensions', # used for debugging, remove if problematic
     'django.contrib.staticfiles',
     # Uncomment the next line to enable admin documentation:
