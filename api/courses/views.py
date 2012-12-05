@@ -7,7 +7,8 @@ from json_helpers import JSON
 import sandbox_config
 from models import *
 from links import *
-from dispatcher import API404, dead_end, redirect
+import dispatcher
+from dispatcher import API404, dead_end
 
 DOCS_URL = 'http://pennapps.com/console/docs.html'
 DOCS_HTML = "<a href='%s'>%s</a>" % (DOCS_URL, DOCS_URL)
@@ -153,7 +154,7 @@ def course_sections(request, path, (courseid,)):
 
 def course_history(request, path, (courseid,)):
   course = Course.objects.get(id=int(courseid))
-  return redirect(coursehistory_url(course.history_id), request)
+  return dispatcher.redirect(coursehistory_url(course.history_id), request)
 
 @dead_end
 def section_main(request, path, (courseid, sectionnum)):
@@ -197,7 +198,7 @@ def alias_course(request, path, (coursealias,)):
   courseid = Alias.objects.get(semester=semester,
                                department=dept_code,
                                coursenum=coursenum).course_id
-  return redirect(course_url(courseid), request, path)
+  return dispatcher.redirect(course_url(courseid), request, path)
 
 def alias_section(request, path, (sectionalias,)):
   try:
@@ -213,7 +214,7 @@ def alias_section(request, path, (sectionalias,)):
   courseid = Alias.objects.get(semester=semester,
                                department=dept_code,
                                coursenum=coursenum).course_id
-  return redirect(section_url(courseid, sectionnum), request, path)
+  return dispatcher.redirect(section_url(courseid, sectionnum), request, path)
 
 def alias_currentsemester(request, path, _):
   return HttpResponse("(redirect) current semester, extra %s" % path)
@@ -229,7 +230,7 @@ def alias_coursehistory(request, path, (historyalias,)):
   latest_alias = Alias.objects.filter(
     department=dept_code, coursenum=coursenum).order_by('-semester')[0]
   
-  return redirect(coursehistory_url(latest_alias.course.history_id),
+  return dispatcher.redirect(coursehistory_url(latest_alias.course.history_id),
                   request, path)
 
 def alias_misc(request, path, (alias,)):
