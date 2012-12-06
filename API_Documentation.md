@@ -17,8 +17,6 @@ All queries should be of the form http://api.penncoursereview.com/v1/[query]?tok
 
 For the following examples, we'll be using the public token.  To make requests with the public access token, simply append the string "?token=public" to the end of each query.  For reference, a sample query might look like `http://api.penncoursereview.com/v1/coursehistories/CIS-120?token=public`.
 
-Note: All non-canonical links (i.e. redirects) are in blue. The most important canonical links are in red (common access points, or special information).
-
 ## Departments ##
 
 ### List all academic departments at Penn ###
