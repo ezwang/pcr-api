@@ -27,6 +27,7 @@
 # overloaded before will [hopefully] work this time, and [theoretically]
 # the only pages that fail on the second run are the ones with real errors)
 
+import os
 import urllib2
 import json
 from pprint import pformat
@@ -38,6 +39,7 @@ from twisted.web.client import Agent
 from twisted.web.http_headers import Headers
 
 URL_PREFIX = 'http://api.penncoursereview.com/cachegen__access/'
+AUTOCOMPLETE_PATH = "autocomplete_data.json/"
 N_CONCURRENT_ACCESSES = 15
 SUCCESS_DISPLAY_LEN = 80
 
@@ -83,7 +85,7 @@ def getPage(url, num, lenurls):
     return d
 
 
-d = urllib2.urlopen(URL_PREFIX + "autocomplete_data.json")
+d = urllib2.urlopen(URL_PREFIX + AUTOCOMPLETE_PATH)
 d_data = d.read()
 print '!'
 j = json.loads(d_data)
@@ -98,6 +100,10 @@ dl = list()
 print "Loading %d URLS..." % len(urls)
 for i, url in enumerate(urls):
     dl.append(semaphore.run(getPage, url, i, len(urls)))
+for i, chars in [c1 + c2 for c1 in string.letters[:26]
+               for c2 in string.letters[:26]]:
+    dl.append(semaphore.run(getPage, os.path.join(AUTOCOMPLETE_PATH, chars),
+                            i, len(26*26)))
 
 dl = twisted.internet.defer.DeferredList(dl)
 dl.addCallbacks(lambda x: reactor.stop(), handleError)
