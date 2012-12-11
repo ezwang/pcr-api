@@ -30,6 +30,7 @@
 import os
 import urllib2
 import json
+import string
 from pprint import pformat
 
 from twisted.internet import reactor
@@ -91,7 +92,9 @@ print '!'
 j = json.loads(d_data)
 print '!'
 #urls = ["course/AAMW-401"]*7 +["course/foo", "autocomplete_data.json"]
-urls = [str(it['url']) for bla in j.values() for it in bla] 
+urls = ([os.path.join(AUTOCOMPLETE_PATH, c1 + c2)
+         for c1 in string.letters[:26] for c2 in string.letters[:26]] +
+        [str(it['url']) for bla in j.values() for it in bla])
 
 
 semaphore = twisted.internet.defer.DeferredSemaphore(N_CONCURRENT_ACCESSES)
@@ -100,10 +103,6 @@ dl = list()
 print "Loading %d URLS..." % len(urls)
 for i, url in enumerate(urls):
     dl.append(semaphore.run(getPage, url, i, len(urls)))
-for i, chars in [c1 + c2 for c1 in string.letters[:26]
-               for c2 in string.letters[:26]]:
-    dl.append(semaphore.run(getPage, os.path.join(AUTOCOMPLETE_PATH, chars),
-                            i, len(26*26)))
 
 dl = twisted.internet.defer.DeferredList(dl)
 dl.addCallbacks(lambda x: reactor.stop(), handleError)
