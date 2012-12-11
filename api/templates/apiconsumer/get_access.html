@@ -1,0 +1,10 @@
+
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+Need access?
+<form action="" method="post">
+{% csrf_token %}
+    <label for="email">Email:</label>
+    <input type="text" name="email" id="choice{{ forloop.counter }}"  />
+<input type="submit" value="Submit" />
+</form>

@@ -1,6 +1,7 @@
 import json
 import datetime
 from collections import defaultdict
+from django.http import HttpResponse
 
 from utils import current_semester
 from json_helpers import JSON
