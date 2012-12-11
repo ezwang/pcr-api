@@ -14,5 +14,6 @@ urlpatterns = patterns('',
     (r'^admin/', include(admin.site.urls)),
     (r'^pcrsite-static/(?P<page>.*)$', 'static_content.views.serve_page'),
     (r'^getAccess/', 'apiconsumer.views.issue'),
+    (r'^confirmAccess/', 'apiconsumer.views.confirm'),
     (r'^(?P<url>.*)', 'courses.urls.dispatch'),
 )

@@ -5,6 +5,7 @@ from django.template import Context, loader
 from django.views.decorators.cache import never_cache
 from json_helpers import JSON
 from django.shortcuts import render_to_response
+from django.template.loader import render_to_string
 from django.template import RequestContext
 from hashlib import sha1
 from django.core.mail import EmailMultiAlternatives
@@ -23,14 +24,12 @@ def issue(request):
         email = None
     else:
         key = secret_key(email)
-        subject, from_email, to = 'hello', 'from@example.com', email 
-        text_content = 'This is an important message.'
+        subject, from_email, to = 'PennCourseReview API Token Confirmation', 'labs@pennapps.com', email 
+        text_content = 'Text content'
         html_content = render_to_string('apiconsumer/confirmation_email.html', {}) 
         msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
         msg.attach_alternative(html_content, "text/html")
         msg.send()
-
-
 
     return render_to_response('apiconsumer/access_requested.html', 
         { 'email': email, 'key': key })
@@ -39,6 +38,9 @@ def issue(request):
         context_instance=RequestContext(request))
   else:
     return HttpResponseNotAllowed(['GET'])
+
+def confirm(request):
+    return render_to_response('apiconsumer/access_requested.html', 
 
 
 
