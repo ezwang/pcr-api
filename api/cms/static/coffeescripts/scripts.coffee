@@ -1,1 +1,0 @@
-# Coffeescript yay!
