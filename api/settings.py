@@ -18,7 +18,7 @@ MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3' if 'test' in sys.argv else 'django.db.backends.mysql',
+        'ENGINE': 'django.db.backends.mysql', # 'django.db.backends.sqlite3' if 'test' in sys.argv else 'django.db.backends.mysql',
         # see sandbox_config.py
         'NAME': DATABASE_NAME,                      # Or path to database file if using sqlite3.
         'USER': DATABASE_USER,                      # Not used with sqlite3.
@@ -95,6 +95,7 @@ ROOT_URLCONF = 'urls'
 
 TEMPLATE_DIRS = (
     COURSESAPI_APP_ROOT + '/api/templates',
+    COURSESAPI_APP_ROOT + '/api/cms/templates',
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
