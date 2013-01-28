@@ -31,6 +31,12 @@
 - mysql_install_db --verbose --user=`whoami` --basedir="$(brew --prefix mysql)" --datadir=/usr/local/var/mysql --tmpdir=/tmp
 - mysql.server start
 
+- Copy `api/sandbox_config.py_default` to `api/sandbox_config.py`
+- Edit `DISPLAY_NAME`, `DEV_ROOT`, and `DATABASE_*` appropriately.
+    - **Note:** Ensure DISPLAY_NAME begins with a forward slash. (This ensure it is never used relatively.)
+    - **Note:** If you cloned the project into anything but `Penn-Course-Review-api`, you will need to change COURSESAPI_APP_ROOT to match.
+- Update your apache config file (in `/etc/apache2/sites-available/`:
+    - `WSGIScriptAlias /pcrapi /MYPROJECTPATH/api/django.wsgi`
 
 ## Static files
 - Update your apache config file:

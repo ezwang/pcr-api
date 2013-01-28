@@ -13,8 +13,10 @@ DISPLAY_NAME = "/courses-mjc"
 # If this is not true, then the DISPLAY_NAME will be treated as a relative path
 assert DISPLAY_NAME.startswith('/')
 
+assert DISPLAY_NAME.startswith("/")  # prevent any relative path bugs
+
 DEV_ROOT = "/home/mcroop/mcroop_dev" # root of all apps you're working on
-COURSESAPI_APP_ROOT = os.path.join(DEV_ROOT, "Penn-Course-api")
+COURSESAPI_APP_ROOT = os.path.join(DEV_ROOT, "Penn-Course-Review-api")
 
 # should be True only in production. unless you really like caching.
 DO_CACHING = False 
