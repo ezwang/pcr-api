@@ -101,6 +101,10 @@ TEMPLATE_DIRS = (
     # Don't forget to use absolute paths, not relative paths.
 )
 
+STATICFILES_DIRS = (
+    COURSESAPI_APP_ROOT + '/api/cms/static',
+)
+
 INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -115,6 +119,7 @@ INSTALLED_APPS = (
     'django_extensions', # used for debugging, remove if problematic
     # 'django.contrib.staticfiles',
     # Uncomment the next line to enable admin documentation:
+    'django.contrib.staticfiles',
     # 'django.contrib.admindocs',
 )
 
