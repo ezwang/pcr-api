@@ -113,11 +113,12 @@ INSTALLED_APPS = (
     'api.static_content',
     'django_extensions', # used for debugging, remove if problematic
     # 'django.contrib.staticfiles',
+
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
 )
 
-#AUTHENTICATION_BACKENDS = 'tokenapi.backends.TokenBackend' 
+#AUTHENTICATION_BACKENDS = 'tokenapi.backends.TokenBackend'
 
 # Caching
 if DO_CACHING:

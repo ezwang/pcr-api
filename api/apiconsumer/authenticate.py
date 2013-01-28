@@ -14,20 +14,20 @@ class Authenticate(object):
     # for errors in HTTP-standard authentication.
 
     old_path = request.path_info
-    
-    if old_path.startswith("/admin/") or old_path.startswith("/__debug__/"):
+
+    if old_path.startswith("/admin/") or old_path.startswith("/__debug__/") or old_path.startswith("/cms/"):
       return None
-    
+
     try:
       token = request.GET['token']
     except:
       return HttpResponse("No token provided.", status=404)
-    
+
     try:
       consumer = APIConsumer.objects.get(token=token)
     except APIConsumer.DoesNotExist:
       consumer = None
-      
+
     if consumer is not None and consumer.valid:
       # The found consumer is added to the request object, in request.consumer.
       request.consumer = consumer
