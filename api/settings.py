@@ -18,7 +18,7 @@ MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3' if 'test' in sys.argv else 'django.db.backends.mysql',
+        'ENGINE': 'django.db.backends.%s' % DATABASE_ENGINE, # if 'test' in sys.argv else 'django.db.backends.mysql',
         # see sandbox_config.py
         'NAME': DATABASE_NAME,                      # Or path to database file if using sqlite3.
         'USER': DATABASE_USER,                      # Not used with sqlite3.
@@ -112,7 +112,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'api.static_content',
     'django_extensions', # used for debugging, remove if problematic
-    'django.contrib.staticfiles',
+    # 'django.contrib.staticfiles',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
 )
