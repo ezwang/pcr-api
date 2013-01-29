@@ -1,14 +1,68 @@
 <html>
   <head>
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/lib/bootstrap.min.css">    
     <link rel="stylesheet" href="{{ STATIC_URL }}css/styles.css">    
-    
-
   </head>
 
   <body>
 
-    hihi
+    <div class="navbar">
+      <div class="navbar-inner">
+        <a class="brand" href="index.html">PCR CMS</a>
+        <ul class="nav">
+        </ul>
+      </div>
+    </div>
+    <div class="cms-view container-fluid">  
+      <div class="row-fluid">
+        <div class="span8 review-list">
+          <table class="table table-striped ">
+            <thead>
+              <tr>
+                <th>?</th>
+                <th>Course</th>
+                <th>Section</th>
+                <th>Text</th>
+                <th>Editor</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr> 
+              </tr>
+            </tbody>
+          </table>
+
+        </div>
+        <ul class="span4 editor-list">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Editor Name</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr> 
+                <td> John </td>
+              </tr>
+              <tr> 
+                <td> Hello </td>
+              </tr>
+              <tr> 
+                <td> Hai </td>
+              </tr>
+            </tbody>
+          </table>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="text/javascript" src="{{ STATIC_URL }}scripts/lib/jquery.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}scripts/lib/underscore.min.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}scripts/scripts.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}scripts/lib/backbone.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}scripts/models/user.js"></script>
   </body>
 
 </html>
