@@ -4,7 +4,9 @@ sandbox_config.py
 *.swp
 staticgenerator_output/*
 CACHES/*
-/static
-coffeescripts/*/*.js
+/api/static
+coffeescripts/**/*.js
+coffeescripts/*.js
 .sass-cache
+sass/*.css
 
