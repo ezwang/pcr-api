@@ -5,7 +5,9 @@ sandbox_config.py
 staticgenerator_output/*
 CACHES/*
 venv
-/static
-coffeescripts/*/*.js
+/api/static
+coffeescripts/**/*.js
+coffeescripts/*.js
 .sass-cache
+sass/*.css
 
