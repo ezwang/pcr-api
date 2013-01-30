@@ -5,3 +5,6 @@ sandbox_config.py
 staticgenerator_output/*
 CACHES/*
 /static
+coffeescripts/*/*.js
+.sass-cache
+
