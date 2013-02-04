@@ -1,6 +1,7 @@
-class UserView extends Backbone.View
+class app.views.UserView extends Backbone.View
   template: app.templates.user
-  render: function(){
+  events: ""
+  render: () ->
+    @$el.html _.template @template  @model.toJSON()
 
-  }
 

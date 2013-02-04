@@ -5,12 +5,16 @@
   root = typeof exports !== "undefined" && exports !== null ? exports : this;
 
   root.app = {
-    Models: {},
-    Collections: {},
-    Views: {},
-    Templates: {}
+    models: {},
+    collections: {},
+    views: {},
+    templates: {}
   };
 
   console.log('hi');
+
+  $(function() {
+    return window.Right = new app.views.RightView();
+  });
 
 }).call(this);

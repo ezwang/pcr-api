@@ -3,4 +3,6 @@
 
   app.templates.user = "<tr>\n  <td> <%= name %> </td>\n</tr>";
 
+  app.templates.right = "<ul class=\"span4 editor-list\">\n  <table class=\"table table-striped\">\n    <thead>\n      <tr>\n        <th>Editor Name</th>\n      </tr>\n    </thead>\n    <tbody>\n      <tr>\n        <td> John </td>\n      </tr>\n      <tr>\n        <td> Hello </td>\n      </tr>\n      <tr>\n        <td> Hai </td>\n      </tr>\n    </tbody>\n  </table>\n</ul>";
+
 }).call(this);
