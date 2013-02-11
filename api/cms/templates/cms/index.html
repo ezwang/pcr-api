@@ -1,1 +1,49 @@
-hihi
+<html>
+  <head>
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/lib/bootstrap.min.css">    
+    <link rel="stylesheet" href="{{ STATIC_URL }}sass/styles.css">    
+  </head>
+
+  <body>
+
+    <div class="navbar">
+      <div class="navbar-inner">
+        <a class="brand" href="index.html">PCR CMS</a>
+        <ul class="nav">
+        </ul>
+      </div>
+    </div>
+
+    <div class="cms-view container-fluid">  
+
+      <form class="form-inline">
+        <input type="text" class="input-medium" placeholder="Search Courses">
+        <label class="checkbox">
+          <input type="checkbox"> Show Assigned 
+        </label>
+      </form>
+
+      <div class="row-fluid">
+        <div id='courses-table-wrapper'class="span8 review-list">
+        </div>
+        <div id="users-table-wrapper"class="span4 editor-list">
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="text/javascript" src="{{ STATIC_URL }}javascripts/lib/jquery.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}javascripts/lib/underscore.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}javascripts/lib/backbone.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}coffeescripts/scripts.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}coffeescripts/templates/templates.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}coffeescripts/models/user.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}coffeescripts/models/course.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}coffeescripts/views/user_view.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}coffeescripts/views/right_view.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}coffeescripts/views/course_list_view.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}coffeescripts/views/course_view.js"></script>
+  </body>
+
+</html>
+

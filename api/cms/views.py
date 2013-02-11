@@ -14,3 +14,8 @@ def users(request):
   #return JSON(something)
 
 #def courses(request):
+
+def course(request): 
+    if request.method == 'GET':
+	return render_to_response('cms/course.html', {}, context_instance=RequestContext(request))
+
