@@ -13,56 +13,36 @@
         </ul>
       </div>
     </div>
-    <div class="cms-view container-fluid">  
-      <div class="row-fluid">
-        <div class="span8 review-list">
-          <table class="table table-striped ">
-            <thead>
-              <tr>
-                <th>?</th>
-                <th>Course</th>
-                <th>Section</th>
-                <th>Text</th>
-                <th>Editor</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr> 
-              </tr>
-            </tbody>
-          </table>
 
+    <div class="cms-view container-fluid">  
+
+      <form class="form-inline">
+        <input type="text" class="input-medium" placeholder="Search Courses">
+        <label class="checkbox">
+          <input type="checkbox"> Show Assigned 
+        </label>
+      </form>
+
+      <div class="row-fluid">
+        <div id='courses-table-wrapper'class="span8 review-list">
         </div>
-        <ul class="span4 editor-list">
-          <table class="table table-striped">
-            <thead>
-              <tr>
-                <th>Editor Name</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr> 
-                <td> John </td>
-              </tr>
-              <tr> 
-                <td> Hello </td>
-              </tr>
-              <tr> 
-                <td> Hai </td>
-              </tr>
-            </tbody>
-          </table>
-        </ul>
+        <div id="users-table-wrapper"class="span4 editor-list">
+        </div>
       </div>
     </div>
 
     <!-- Scripts -->
     <script type="text/javascript" src="{{ STATIC_URL }}javascripts/lib/jquery.min.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}javascripts/lib/underscore.min.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}coffeescripts/scripts.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}javascripts/lib/backbone.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}coffeescripts/scripts.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}coffeescripts/templates/templates.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}coffeescripts/models/user.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}coffeescripts/models/course.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}coffeescripts/views/user_view.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}coffeescripts/views/right_view.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}coffeescripts/views/course_list_view.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}coffeescripts/views/course_view.js"></script>
   </body>
 
 </html>
