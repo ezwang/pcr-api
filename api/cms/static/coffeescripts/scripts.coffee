@@ -17,13 +17,16 @@ $ ->
   ])
 
   root.courses = new app.collections.Courses([
-    {user: 'geoff'},
-    {user: 'david'},
-    {user: 'ceasar'},
-    {user: 'nop'}
+    {user: 'geoff', name: 'course1'},
+    {user: 'david', name: 'course3'},
+    {user: 'ceasar', name: 'course2'},
+    {user: 'nop', name: 'course4'}
   ])
 
   root.Right = new app.views.RightView(collection: users)
   root.CourseList = new app.views.CourseListView(collection: courses)
   $("#users-table-wrapper").html Right.render().el
   $("#courses-table-wrapper").html CourseList.render().el
+
+
+
