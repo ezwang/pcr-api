@@ -4,4 +4,5 @@ from views import *
 
 urlpatterns = patterns('',
     (r'^hello', home),
+    (r'^users', users),
 )

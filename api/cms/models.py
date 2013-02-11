@@ -4,10 +4,10 @@ from django.contrib.auth.models import User
 # Create your models here.
 
 SUMMARY_STATUSES = (
-  (0, 'Not started'),
-  (1, 'In progress'),
-  (2, 'Submitted'),
-  (3, 'Published')
+  ('N', 'Not started'),
+  ('I', 'In progress'),
+  ('S', 'Submitted'),
+  ('P', 'Published')
 )
 
 class Summary(models.Model):
