@@ -1,5 +1,4 @@
-class window.User extends Backbone.Model
-
+class app.models.User extends Backbone.Model
   defaults:
     name: 'Default Name',
     permission: '0',
@@ -15,8 +14,8 @@ class window.User extends Backbone.Model
     @destroy()
     @view.remove()
 
-class Users extends Backbone.Collection
-  model: User
+class app.collections.Users extends Backbone.Collection
+  model: app.models.User
 
 
 
