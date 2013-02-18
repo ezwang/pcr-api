@@ -1,4 +1,4 @@
-class app.views.RightView extends Backbone.View
+class app.views.UserListView extends Backbone.View
   #  template: app.templates.right
   # el: $('#editor-table')
   template: app.templates.user_table
@@ -18,9 +18,11 @@ class app.views.RightView extends Backbone.View
 
   events:
     "submit form" : "addOne"
+    "click th": "sort_reviews"
 
   initialize: ->
     @listenTo @collection, 'add', @render
+    @listenTo @collection, 'sort', @render
 
   addOne: (e) ->
     e.preventDefault()
@@ -30,4 +32,10 @@ class app.views.RightView extends Backbone.View
     # user.save()
     @collection.add user
     return @
+
+  sort_reviews: (e) ->
+    e.preventDefault()
+    @collection.by = $(e.target).attr 'data-by'
+    console.log(@collection.by)
+    @collection.sort()
 

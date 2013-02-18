@@ -26,5 +26,3 @@ class app.views.CourseListView extends Backbone.View
     @collection.by = $(e.target).attr 'data-by'
     @collection.sort()
 
-
-

@@ -23,9 +23,9 @@ $ ->
     {user: 'nop', name: 'course4'}
   ])
 
-  root.Right = new app.views.RightView(collection: users)
+  root.UserList = new app.views.UserListView(collection: users)
   root.CourseList = new app.views.CourseListView(collection: courses)
-  $("#users-table-wrapper").html Right.render().el
+  $("#users-table-wrapper").html UserList.render().el
   $("#courses-table-wrapper").html CourseList.render().el
 
 
