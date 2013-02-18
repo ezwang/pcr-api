@@ -23,3 +23,8 @@ class app.collections.Courses extends Backbone.Collection
     model.get @by
   initialize: ->
     @by = "name"
+  search_by_name: (search_term) ->
+    return @filter((course) ->
+      course.attributes.name.indexOf(search_term) != -1
+    )
+

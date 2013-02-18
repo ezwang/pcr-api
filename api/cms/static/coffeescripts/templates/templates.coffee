@@ -29,7 +29,7 @@ app.templates.course_sort_form = """
 
       <form class="form-inline">
 
-        <input type="text" class="input-medium" placeholder="Search Courses">
+        <input id="search" type="text" class="input-medium" placeholder="Search Courses">
         <label class="checkbox">
           <input type="checkbox"> Show Assigned
         </label>
