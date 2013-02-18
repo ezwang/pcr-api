@@ -16,7 +16,10 @@ class app.models.User extends Backbone.Model
 
 class app.collections.Users extends Backbone.Collection
   model: app.models.User
-
+  comparator: (model) ->
+    model.get @by
+  initialize: ->
+    @by = "name"
 
 
 

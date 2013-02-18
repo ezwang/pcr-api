@@ -20,7 +20,6 @@ class app.models.Course extends Backbone.Model
 class app.collections.Courses extends Backbone.Collection
   model: app.models.Course
   comparator: (model) ->
-    console.log @by
     model.get @by
   initialize: ->
     @by = "name"

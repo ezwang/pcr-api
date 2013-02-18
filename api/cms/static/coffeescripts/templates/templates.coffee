@@ -2,8 +2,8 @@ app.templates.user_table = """
           <table class="table table-striped" id="user-table">
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Email</th>
+                <th data-by='name' >Name</th>
+                <th data-by='email' >Email</th>
               </tr>
             </thead>
             <tbody id="editor-table">
@@ -28,13 +28,6 @@ app.templates.user_new = """
 app.templates.course_sort_form = """
 
       <form class="form-inline">
-
-        <label> Sort by: </label>
-        <div class="btn-group">
-          <button class="btn" id="sort-reviews">Review Count</button>
-          <button class="btn">Middle</button>
-          <button class="btn">Right</button>
-        </div>
 
         <input type="text" class="input-medium" placeholder="Search Courses">
         <label class="checkbox">
