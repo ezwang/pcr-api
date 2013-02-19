@@ -1,10 +1,11 @@
 class app.models.Course extends Backbone.Model
-  defaults:
-    user: 11235424,  # id
+
+  defaults: ->
+    user: 11235424  # id
     name: 'Default Course Name'
-    department: 'default department',
-    professor: 'professory dude',
-    section: 's139',
+    department: 'default department'
+    professor: 'professory dude'
+    section: 's139'
 
   initialize: ->
     @set 'reviews', Math.random() * 100
@@ -15,8 +16,8 @@ class app.models.Course extends Backbone.Model
     @destroy()
     @view.remove()
 
-  matches: (search_query) ->
-    @get('name').indexOf(search_query) != -1
+  matches_at: (search_query) ->
+    @get('name').indexOf search_query
 
 class app.collections.Courses extends Backbone.Collection
   model: app.models.Course
@@ -24,8 +25,10 @@ class app.collections.Courses extends Backbone.Collection
     model.get @by
   initialize: ->
     @by = "name"
+    @headers =
+      ['name','department', 'professor', 'section', 'user', 'reviews']
   search_by_name: (search_term='') ->
     return _(@filter (course) =>
-      course.matches search_term)
+      course.matches_at(search_term) != -1)
 
 

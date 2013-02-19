@@ -3,7 +3,8 @@ class app.views.CourseView extends Backbone.View
   tagName: 'tr'
   events: ""
   render: () ->
-    @$el.html _.template @template, @model.toJSON()
+    @$el.html _.template @template,
+      {headers: @model.collection.headers, attributes: @model.attributes}
     return @
 
 

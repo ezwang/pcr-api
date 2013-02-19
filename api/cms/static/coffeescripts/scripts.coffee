@@ -21,6 +21,8 @@ $ ->
     {user: 'nop', name: 'middle'}
   ])
 
+  String::capitalize = ->
+    @charAt(0).toUpperCase() + @[1..]
 
   root.search_vent = _.extend {}, Backbone.Events
   root.UserList = new app.views.UserListView collection: users
