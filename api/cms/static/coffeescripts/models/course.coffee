@@ -8,8 +8,6 @@ class app.models.Course extends Backbone.Model
 
   initialize: ->
     @set 'reviews', Math.random() * 100
-    _.map @defaults, (val, key) =>
-      @set key, @defaults.key if not @get key
 
   activate: ->
 
@@ -17,14 +15,17 @@ class app.models.Course extends Backbone.Model
     @destroy()
     @view.remove()
 
+  matches: (search_query) ->
+    @get('name').indexOf(search_query) != -1
+
 class app.collections.Courses extends Backbone.Collection
   model: app.models.Course
   comparator: (model) ->
     model.get @by
   initialize: ->
     @by = "name"
-  search_by_name: (search_term) ->
-    return @filter((course) ->
-      course.attributes.name.indexOf(search_term) != -1
-    )
+  search_by_name: (search_term='') ->
+    return _(@filter (course) =>
+      course.matches search_term)
+
 

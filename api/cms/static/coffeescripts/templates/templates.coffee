@@ -25,7 +25,7 @@ app.templates.user_new = """
     </form>
     """
 
-app.templates.course_sort_form = """
+app.templates.search_form = """
 
       <form class="form-inline">
 
