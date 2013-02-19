@@ -8,13 +8,14 @@ class app.views.CourseListView extends Backbone.View
     "click th": "sort_reviews"
 
   render: ->
-    @$el.html _.template @template
+    @$el.html _.template @template,
+      {headers: @collection.headers, selected: @collection.by}
+
     course_list = []
     # if a search query exists, filter the collection results
     push_courses = (course) ->
       course_view = new app.views.CourseView(model: course)
       course_list.push course_view.render()
-
 
     search_query = $('#search').val()
     @collection.search_by_name(search_query).each push_courses
