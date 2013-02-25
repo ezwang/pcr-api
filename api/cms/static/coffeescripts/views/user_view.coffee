@@ -7,7 +7,7 @@ class app.views.UserView extends Backbone.View
     @$el.html _.template @template, @model.toJSON()
     return @
 
-  events: 'click' : 'select'
+#  events: 'click' : 'select'
 
   select: ->
     @$el.addClass 'selected'
