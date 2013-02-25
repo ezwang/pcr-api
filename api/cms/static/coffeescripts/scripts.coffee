@@ -8,10 +8,10 @@ root.app =
 
 $ ->
   root.users = new app.collections.Users([
-    {name: 'geoff'},
-    {name: 'david'},
-    {name: 'ceasar'},
-    {name: 'nop'}
+    {name: 'geoff', email:'1@gmail.com'},
+    {name: 'david', email:'2@gmail.com'},
+    {name: 'ceasar', email:'3@gmail.com'},
+    {name: 'nop', email:'4@gmail.com'}
   ])
 
   root.courses = new app.collections.Courses([
