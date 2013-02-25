@@ -1,4 +1,5 @@
 root = exports ? this
+
 class app.views.CourseListView extends Backbone.View
   template: app.templates.course_table
   tagName: 'div'

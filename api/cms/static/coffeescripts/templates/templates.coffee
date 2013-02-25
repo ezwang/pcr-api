@@ -19,11 +19,9 @@ app.templates.user = """
   """
 
 app.templates.user_new = """
-    <form class="form-inline">
       <input class="input-small" type="text" id="add-name"/>
       <input class="input-medium" type="email" id="add-email"/>
       <input type="submit" id="add-user" />
-    </form>
     """
 
 app.templates.search_form = """
