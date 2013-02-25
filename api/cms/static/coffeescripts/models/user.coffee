@@ -20,6 +20,8 @@ class app.collections.Users extends Backbone.Collection
     model.get @by
   initialize: ->
     @by = "name"
+    @headers =
+      ['name','email']
 
 
 

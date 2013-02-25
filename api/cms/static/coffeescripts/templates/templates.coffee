@@ -2,8 +2,9 @@ app.templates.user_table = """
           <table class="table table-striped" id="user-table">
             <thead>
               <tr>
-                <th data-by='name' >Name</th>
-                <th data-by='email' >Email</th>
+                <% _.each(headers, function(header) { %>
+                <th <% if (selected === header) { %>class='selected'<% } %> data-by='<%= header %>'><%= header.capitalize() %></th>
+                <% }) %>
               </tr>
             </thead>
             <tbody id="editor-table">

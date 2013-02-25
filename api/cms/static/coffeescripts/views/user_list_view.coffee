@@ -6,7 +6,8 @@ class app.views.UserListView extends Backbone.View
   className: 'user-list'
 
   render: ->
-    @$el.html _.template @template
+    @$el.html _.template @template,
+      {headers: @collection.headers, selected: @collection.by}
     user_views = []
     @collection.each (user) ->
       user_view = new app.views.UserView(model: user)
