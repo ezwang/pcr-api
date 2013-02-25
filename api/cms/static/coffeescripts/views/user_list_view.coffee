@@ -1,3 +1,5 @@
+root = exports ? this
+
 class app.views.UserListView extends Backbone.View
   #  template: app.templates.right
   # el: $('#editor-table')
@@ -14,23 +16,23 @@ class app.views.UserListView extends Backbone.View
       user_views.push user_view.render()
     user_view_els = _.pluck user_views, 'el'
     @$el.find('tbody').html user_view_els
-    @$el.prepend app.templates.user_new
     return @
 
   events:
-    "submit form" : "addOne"
     "click th": "sort_reviews"
 
   initialize: ->
     @listenTo @collection, 'add', @render
     @listenTo @collection, 'sort', @render
+    @listenTo root.search_vent, 'user:add', @add_one
 
-  addOne: (e) ->
-    e.preventDefault()
+  add_one: () ->
+    new_name = $('#add-name').val()
+    new_email = $('#add-email').val()
+    if not (new_name and new_email) then return
     user = new app.models.User
-      name: @$el.find('#add-name').val()
-      email: @$el.find('#add-email').val()
-    # user.save()
+      name: new_name
+      email: new_email
     @collection.add user
     return @
 

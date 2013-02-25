@@ -28,6 +28,8 @@ $ ->
   root.UserList = new app.views.UserListView collection: users
   root.CourseList = new app.views.CourseListView collection: courses
   root.SearchCourses = new app.views.SearchView
+  root.UserNew = new app.views.UserNewView
   $("#users-table-wrapper").html UserList.render().el
+  $("#users-table-wrapper").append UserNew.render().el
   $("#courses-table-wrapper").html CourseList.render().el
   $("#search-wrapper").html SearchCourses.render().el
