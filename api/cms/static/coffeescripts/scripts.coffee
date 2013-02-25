@@ -18,6 +18,11 @@ $ ->
     {user: 'geoff', name: 'course1'},
     {user: 'david', name: 'new'},
     {user: 'ceasar', name: 'old'},
+    {user: 'ceasar', name: 'oldf'},
+    {user: 'david', name: 'old34'},
+    {user: 'geoff', name: 'oldr4'},
+    {user: 'nop', name: 'old23'},
+    {user: 'ceasar', name: 'ol2 '},
     {user: 'nop', name: 'middle'}
   ])
 
@@ -25,6 +30,7 @@ $ ->
     @charAt(0).toUpperCase() + @[1..]
 
   root.search_vent = _.extend {}, Backbone.Events
+  root.match_vent = _.extend {}, Backbone.Events
   root.UserList = new app.views.UserListView collection: users
   root.CourseList = new app.views.CourseListView collection: courses
   root.SearchCourses = new app.views.SearchView

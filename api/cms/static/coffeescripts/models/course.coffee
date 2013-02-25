@@ -27,8 +27,22 @@ class app.collections.Courses extends Backbone.Collection
     @by = "name"
     @headers =
       ['name','department', 'professor', 'section', 'user', 'reviews']
+      
   search_by_name: (search_term='') ->
     return _(@filter (course) =>
       course.matches_at(search_term) != -1)
+
+    x = _(_.difference (@filter (course) =>
+      course.matches_at(search_term) != -1), data)
+    console.log @filter (course) =>
+      course.matches_at(search_term) != -1
+
+    window.newww = @filter (course) =>
+      course.matches_at(search_term) != -1
+
+    console.log 'hi'
+    console.log data
+    window.olddd = data
+    return x
 
 
