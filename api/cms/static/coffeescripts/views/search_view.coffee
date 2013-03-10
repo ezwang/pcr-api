@@ -4,16 +4,20 @@ class app.views.SearchView extends Backbone.View
   # used to do keypress search
   template: app.templates.search_form
   tagName: 'div'
-  className:'course-search'
-
+  className:'course-search-form'
+  options: ['name', 'department', 'professor', 'section', 'user']
   events:
-    "keyup #search": "search_by_name"
+    "keyup #course-search": "search"
 
   render: ->
-    @$el.html _.template @template
+    console.log @options
+    @$el.html _.template @template,
+      {
+        options: @options
+      }
     return @
 
   initialize: ->
 
-  search_by_name: (e) ->
-    root.search_vent.trigger('search:by_name')
+  search: (e) ->
+    root.search_vent.trigger('course:search_by_name')

@@ -8,7 +8,7 @@ class app.views.UserNewView extends Backbone.View
   id: 'user-new'
 
   events:
-    "submit #user-new" : "add_one"
+    "submit" : "add_one"
 
   render: ->
     @$el.html _.template @template
@@ -18,5 +18,5 @@ class app.views.UserNewView extends Backbone.View
 
   add_one: (e) ->
     e.preventDefault()
-    root.search_vent.trigger('user:add')
-    return false
+    root.create_vent.trigger('user:create', {name: @$el.find('#add-name').val(), email: @$el.find('#add-email').val()})
+
