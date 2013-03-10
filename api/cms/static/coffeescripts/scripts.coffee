@@ -29,6 +29,7 @@ $ ->
   String::capitalize = ->
     @charAt(0).toUpperCase() + @[1..]
 
+  root.create_vent = _.extend {}, Backbone.Events
   root.search_vent = _.extend {}, Backbone.Events
   root.match_vent = _.extend {}, Backbone.Events
   root.UserList = new app.views.UserListView collection: users

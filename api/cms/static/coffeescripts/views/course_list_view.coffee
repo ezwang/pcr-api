@@ -1,4 +1,4 @@
-root = exports ? this
+root = exports ? @
 
 class app.views.CourseListView extends Backbone.View
   template: app.templates.course_table
@@ -16,29 +16,36 @@ class app.views.CourseListView extends Backbone.View
     course_list = []
 
     # if a search query exists, filter the collection results
-    push_courses = (course) ->
-      console.log course
-      course_view = new app.views.CourseView(model: course)
+    # extra class to be added (selected)
+    push_courses = (course, is_sel) ->
+      course_view = new app.views.CourseView(model: course, is_selected: is_sel)
       course_list.push course_view.render()
 
-    search_query = $('#search').val()
+    search_query = $('#course-search').val()
     search_results = @collection.search_by_name(search_query)
-    console.log(search_results)
-    _(_.intersection(data, search_results)).each push_courses
-    console.log(_.difference(search_results, data))
-    _(_.difference(search_results, data)).each push_courses
-    # _(data).each push_courses 
+    # everything searched in the data
+    _(_.intersection(data, search_results)).each (item) -> push_courses item, true
+    # everything that's left
+    _(_.difference(search_results, data)).each (item) -> push_courses item, false
+
+    console.log course_list
+    # _(data).each push_courses
     # @collection.search_by_name(search_query, data).each push_courses
     # _(_.difference(@collection.models, data)).each push_courses
+    #search_query = $('#course-search').val()
+    #@collection.search_by_name(search_query).each push_courses
+
     course_list_els = _.pluck course_list, 'el'
+    console.log 'here bro'
+    console.log @$el.find('tbody')
     @$el.find('tbody').html course_list_els
     return @
 
   initialize: ->
     @listenTo @collection, 'add', @render
     @listenTo @collection, 'sort', @render
-    @listenTo root.search_vent, 'search:by_name', @render
     @listenTo root.match_vent, 'select_user', @filter_by_user
+    @listenTo root.search_vent, 'course:search_by_name', @render
 
   sort_reviews: (e) ->
     e.preventDefault()
@@ -46,6 +53,6 @@ class app.views.CourseListView extends Backbone.View
     @collection.sort()
 
   filter_by_user: (data) ->
-    result = @collection.where({user:data.name});
+    result = @collection.where({user:data.name})
     @render result
 

@@ -27,8 +27,13 @@ app.templates.user_new = """
 app.templates.search_form = """
 
       <form class="form-inline">
+        <select id="course-search-by">
+          <% _.each(options, function(option) { console.log(options)%>
+            <option><% option.capitalize() %></option>
+          <% }) %>
+        </select>
 
-        <input id="search" type="text" class="input-medium" placeholder="Search Courses">
+        <input id="course-search" type="text" class="input-medium" placeholder="Search Courses">
         <label class="checkbox">
           <input type="checkbox"> Show Assigned
         </label>
