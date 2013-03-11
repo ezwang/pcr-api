@@ -1,21 +1,43 @@
 class app.views.CourseView extends Backbone.View
-  selected: false
   template: app.templates.course
   tagName: 'tr'
-  events: ""
+  selected: false
+  selected_user: undefined
+  current_user: undefined
+  events:
+    "click": "assign_course"
   render: () ->
     @$el.html _.template @template,
       {headers: @model.collection.headers, attributes: @model.attributes}
-    if @selected
-      @$el.addClass('selected')
-      @$el.find('input[type=checkbox]').prop('checked', true)
+    @select_course()
     return @
 
   initialize: (options) ->
-    @selected = options.is_selected
-      # check it
+    # if there's a selection, set selected equal to true
+    @current_user = @model.attributes.user
+    @selected_user = options.selected_user
+    if options.selected_user
+      @selected = @selected_user == @model.attributes.user
+    # check it
 
-    @render
+    @render()
+
+  assign_course: (e) ->
+    if @selected_user
+      @selected = not @selected
+    @select_course()
+    @render()
+
+  select_course: ->
+    if not @selected
+      @model.attributes.user = @current_user
+      @$el.removeClass('selected')
+      return
+    @model.attributes.user = @selected_user
+    @$el.addClass('selected')
+    @$el.find('input[type=checkbox]').prop('checked', true)
+    @model.attributes.user = if @selected_user then @selected_user else @$el.find('td[data-category="user"]').html()
+
 
 
 
