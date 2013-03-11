@@ -19,4 +19,4 @@ class app.views.SearchView extends Backbone.View
   initialize: ->
 
   search: (e) ->
-    root.search_vent.trigger('course:search_by_name')
+    root.search_vent.trigger 'course:search_by', search_type: $('select option:selected').html()

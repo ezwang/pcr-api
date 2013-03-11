@@ -10,8 +10,8 @@ class app.views.CourseListView extends Backbone.View
     "click th": "sort_reviews"
 
   # data resulting from user selection
-  render: ->
-
+  render: (search_data = {}) ->
+    console.log search_data
     data = if @selectedUser then @collection.where({user:@selectedUser}) else []
 
     @$el.html _.template @template,
@@ -26,7 +26,7 @@ class app.views.CourseListView extends Backbone.View
       course_list.push course_view.render()
 
     search_query = $('#course-search').val()
-    search_results = @collection.search_by_name(search_query)
+    search_results = @collection.search_by_type(search_query, search_data.search_type)
     # everything searched in the data
     _(_.intersection(data, search_results)).each (item) -> push_courses item
     # everything that's left
@@ -46,7 +46,7 @@ class app.views.CourseListView extends Backbone.View
     @listenTo @collection, 'add', @render
     @listenTo @collection, 'sort', @render
     @listenTo root.match_vent, 'select_user', @filter_by_user
-    @listenTo root.search_vent, 'course:search_by_name', @render
+    @listenTo root.search_vent, 'course:search_by', @render
 
   sort_reviews: (e) ->
     e.preventDefault()

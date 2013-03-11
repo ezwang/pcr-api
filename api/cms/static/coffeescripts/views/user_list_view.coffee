@@ -44,6 +44,6 @@ class app.views.UserListView extends Backbone.View
     $("tr").removeClass 'selected'
     $(e.target).parent("tr").addClass 'selected'
     user_name = $("tr.selected td:first").text().trim()
-    root.match_vent.trigger("select_user", {name:user_name})
+    root.match_vent.trigger "select_user", name:user_name
 
 
