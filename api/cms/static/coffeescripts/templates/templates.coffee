@@ -28,8 +28,8 @@ app.templates.search_form = """
 
       <form class="form-inline">
         <select id="course-search-by">
-          <% _.each(options, function(option) { console.log(options)%>
-            <option><% option.capitalize() %></option>
+          <% _.each(options, function(option) { %>
+            <option><%= option %></option>
           <% }) %>
         </select>
 
