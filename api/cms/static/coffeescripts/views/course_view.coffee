@@ -30,7 +30,11 @@ class app.views.CourseView extends Backbone.View
 
   select_course: ->
     if not @selected
-      @model.attributes.user = @current_user
+      # if current user and search user is the same, set the model attribute to undefined (unassign this guy)
+      if @current_user == @selected_user
+        @model.attributes.user = undefined
+      else
+        @model.attributes.user = @current_user
       @$el.removeClass('selected')
       return
     @model.attributes.user = @selected_user
