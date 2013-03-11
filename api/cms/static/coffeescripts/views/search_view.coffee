@@ -10,7 +10,6 @@ class app.views.SearchView extends Backbone.View
     "keyup #course-search": "search"
 
   render: ->
-    console.log @options
     @$el.html _.template @template,
       {
         options: @options

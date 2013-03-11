@@ -4,11 +4,15 @@ class app.views.CourseListView extends Backbone.View
   template: app.templates.course_table
   tagName: 'div'
   className:'course-list'
+  selectedUser: undefined
 
   events:
     "click th": "sort_reviews"
 
-  render: (data) ->
+  # data resulting from user selection
+  render: ->
+
+    data = if @selectedUser then @collection.where({user:@selectedUser}) else []
 
     @$el.html _.template @template,
       {headers: @collection.headers, selected: @collection.by}
@@ -17,18 +21,17 @@ class app.views.CourseListView extends Backbone.View
 
     # if a search query exists, filter the collection results
     # extra class to be added (selected)
-    push_courses = (course, is_sel) ->
-      course_view = new app.views.CourseView(model: course, is_selected: is_sel)
+    push_courses = (course) =>
+      course_view = new app.views.CourseView(model: course, selected_user: @selectedUser)
       course_list.push course_view.render()
 
     search_query = $('#course-search').val()
     search_results = @collection.search_by_name(search_query)
     # everything searched in the data
-    _(_.intersection(data, search_results)).each (item) -> push_courses item, true
+    _(_.intersection(data, search_results)).each (item) -> push_courses item
     # everything that's left
-    _(_.difference(search_results, data)).each (item) -> push_courses item, false
+    _(_.difference(search_results, data)).each (item) -> push_courses item
 
-    console.log course_list
     # _(data).each push_courses
     # @collection.search_by_name(search_query, data).each push_courses
     # _(_.difference(@collection.models, data)).each push_courses
@@ -36,8 +39,6 @@ class app.views.CourseListView extends Backbone.View
     #@collection.search_by_name(search_query).each push_courses
 
     course_list_els = _.pluck course_list, 'el'
-    console.log 'here bro'
-    console.log @$el.find('tbody')
     @$el.find('tbody').html course_list_els
     return @
 
@@ -53,6 +54,6 @@ class app.views.CourseListView extends Backbone.View
     @collection.sort()
 
   filter_by_user: (data) ->
-    result = @collection.where({user:data.name})
-    @render result
+    @selectedUser = data.name
+    @render()
 
