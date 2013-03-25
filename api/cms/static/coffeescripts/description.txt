@@ -1,0 +1,14 @@
+URLS
+
+initial load:
+
+
+/courses/*, *=user_id
+  get (self-explanatory)
+  put request 
+    [{name, department, professor, section}, {}....}]
+/reviews/*
+/user/*
+
+editing pane
+  1. 

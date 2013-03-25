@@ -2,11 +2,11 @@ class app.models.Course extends Backbone.Model
 
   defaults: ->
     user: 11235424  # id
-    # course_id:
+    course_id: 'Default Course Id'
     name: 'Default Course Name'
     department: 'default department'
     professor: 'professory dude'
-    section: 's139'
+    section: '110'
 
   initialize: ->
     @set 'reviews', Math.random() * 100

@@ -70,7 +70,7 @@ app.templates.course = """
 ##########################################
 
 app.templates.review = """
-  <p> this is a review </p>
+  <p>s <%= review_text %> </p>
   """
 
 
@@ -87,10 +87,11 @@ app.templates.review_summary = """
   """
 
 app.templates.review_filter = """
-  <select>
-    <option> hi </option>
-    <option> hi </option>
-    <option> hi </option>
-    <option> hi </option>
+  <select id="review_filter">
+    <% collection.each(function(model) { %>
+      <option data-id="<%= model.attributes.course_id %>">
+        <%= model.attributes.department + ' ' + model.attributes.section + ' ' + model.attributes.name %>
+      </option>
+    <% }) %>
   </select>
   """
