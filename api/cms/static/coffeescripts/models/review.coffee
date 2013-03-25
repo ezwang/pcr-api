@@ -13,6 +13,8 @@ class app.models.Review extends Backbone.Model
 
 class app.collections.Reviews extends Backbone.Collection
   model: app.models.Review
+  filter_by_course: (course_id) ->
+    if course_id then _(@.where(course: course_id)) else @
 
 
 

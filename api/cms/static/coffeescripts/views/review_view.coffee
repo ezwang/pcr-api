@@ -6,7 +6,10 @@ class app.views.ReviewView extends Backbone.View
   className:'review'
 
   render: ->
-    @$el.html _.template @template
+    # @model
+    @$el.html _.template(@template,
+      { course: @model.attributes.course
+      review_text: @model.attributes.review } )
     return @
 
   initialize: ->
