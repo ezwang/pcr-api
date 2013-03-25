@@ -2,6 +2,7 @@ class app.models.Course extends Backbone.Model
 
   defaults: ->
     user: 11235424  # id
+    # course_id:
     name: 'Default Course Name'
     department: 'default department'
     professor: 'professory dude'

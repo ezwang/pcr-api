@@ -63,3 +63,34 @@ app.templates.course = """
   <% }) %>
   """
 
+
+
+##########################################
+# Edit View
+##########################################
+
+app.templates.review = """
+  <p> this is a review </p>
+  """
+
+
+app.templates.review_table = """
+  <table class="table table-striped" id="review-table">
+    <tbody>
+    </tbody>
+  </table>
+  """
+
+app.templates.review_summary = """
+  <p>this is the review summary</p>
+  <textarea></textarea>
+  """
+
+app.templates.review_filter = """
+  <select>
+    <option> hi </option>
+    <option> hi </option>
+    <option> hi </option>
+    <option> hi </option>
+  </select>
+  """
