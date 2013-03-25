@@ -1,26 +1,26 @@
 root = exports ? @
 
-class app.views.CourseListView extends Backbone.View
-  template: app.templates.review_table
+class app.views.ReviewSummaryView extends Backbone.View
+  template: app.templates.review_summary
   tagName: 'div'
-  className:'course-list'
-  selectedUser: undefined
+  className:'review-summary'
+  # selectedUser: undefined
 
-  events:
+  # events:
     # "click th": "sort_reviews"
 
   # data resulting from user selection
-  render: (search_data = {}) ->
-    console.log search_data
-    data = if @selectedUser then @collection.where({user:@selectedUser}) else []
+  render: ->
+    # console.log search_data
+    # data = if @selectedUser then @collection.where({user:@selectedUser}) else []
 
     @$el.html _.template @template
       # {headers: @collection.headers, selected: @collection.by}
 
     # course_list = []
 
-    # # if a search query exists, filter the collection results
-    # # extra class to be added (selected)
+    # if a search query exists, filter the collection results
+    # extra class to be added (selected)
     # push_courses = (course) =>
     #   course_view = new app.views.CourseView(model: course, selected_user: @selectedUser)
     #   course_list.push course_view.render()
@@ -48,12 +48,12 @@ class app.views.CourseListView extends Backbone.View
     # @listenTo root.match_vent, 'select_user', @filter_by_user
     # @listenTo root.search_vent, 'course:search_by', @render
 
-  sort_reviews: (e) ->
+  # sort_reviews: (e) ->
     # e.preventDefault()
     # @collection.by = $(e.target).attr 'data-by'
     # @collection.sort()
 
-  filter_by_user: (data) ->
+  # filter_by_user: (data) ->
     # @selectedUser = data.name
     # @render()
 

@@ -1,21 +1,26 @@
 root = exports ? @
 
-class app.views.CourseListView extends Backbone.View
+class app.views.ReviewTableView extends Backbone.View
   template: app.templates.review_table
-  tagName: 'div'
-  className:'course-list'
-  selectedUser: undefined
+  tagName: 'table'
+  className:'review-table'
 
-  events:
+  # events:
     # "click th": "sort_reviews"
 
   # data resulting from user selection
-  render: (search_data = {}) ->
-    console.log search_data
-    data = if @selectedUser then @collection.where({user:@selectedUser}) else []
+  render: () ->
+    # console.log search_data
+    # data = if @selectedUser then @collection.where({user:@selectedUser}) else []
 
     @$el.html _.template @template
-      # {headers: @collection.headers, selected: @collection.by}
+    #   {headers: @collection.headers, selected: @collection.by}
+
+    review_list = []
+    @collection.each (data, i) ->
+      review_list.push new app.views.ReviewView(model: data).render()
+
+    @$el.find('tbody').html _.pluck review_list, 'el'
 
     # course_list = []
 
@@ -32,11 +37,11 @@ class app.views.CourseListView extends Backbone.View
     # # everything that's left
     # _(_.difference(search_results, data)).each (item) -> push_courses item
 
-    # # _(data).each push_courses
-    # # @collection.search_by_name(search_query, data).each push_courses
-    # # _(_.difference(@collection.models, data)).each push_courses
-    # #search_query = $('#course-search').val()
-    # #@collection.search_by_name(search_query).each push_courses
+    # _(data).each push_courses
+    # @collection.search_by_name(search_query, data).each push_courses
+    # _(_.difference(@collection.models, data)).each push_courses
+    #search_query = $('#course-search').val()
+    #@collection.search_by_name(search_query).each push_courses
 
     # course_list_els = _.pluck course_list, 'el'
     # @$el.find('tbody').html course_list_els
@@ -48,12 +53,12 @@ class app.views.CourseListView extends Backbone.View
     # @listenTo root.match_vent, 'select_user', @filter_by_user
     # @listenTo root.search_vent, 'course:search_by', @render
 
-  sort_reviews: (e) ->
+  # sort_reviews: (e) ->
     # e.preventDefault()
     # @collection.by = $(e.target).attr 'data-by'
     # @collection.sort()
 
-  filter_by_user: (data) ->
-    # @selectedUser = data.name
-    # @render()
+  # filter_by_user: (data) ->
+  #   @selectedUser = data.name
+  #   @render()
 
