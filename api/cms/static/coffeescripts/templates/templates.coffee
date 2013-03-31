@@ -47,7 +47,7 @@ app.templates.course_table = """
     <thead>
       <tr>
         <th>?</th>
-        <% _.each(headers, function(header) { %>
+        <% _.each(headers, function(header) {  %>
         <th <% if (selected === header) { %>class='selected'<% } %> data-by='<%= header %>'><%= header.capitalize() %></th>
         <% }) %>
       </tr>

@@ -9,7 +9,7 @@ class app.models.Course extends Backbone.Model
     section: '110'
 
   initialize: ->
-    @set 'reviews', Math.random() * 100
+    @set 'reviews', Math.round(Math.random() * 100)
 
   activate: ->
 
