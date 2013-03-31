@@ -42,7 +42,3 @@ class app.views.CourseView extends Backbone.View
     @$el.find('input[type=checkbox]').prop('checked', true)
     @model.attributes.user = if @selected_user then @selected_user else @$el.find('td[data-category="user"]').html()
 
-
-
-
-

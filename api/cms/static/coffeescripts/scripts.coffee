@@ -8,22 +8,22 @@ root.app =
 
 $ ->
   root.users = new app.collections.Users([
-    {name: 'geoff', email:'1@gmail.com'},
-    {name: 'david', email:'2@gmail.com'},
-    {name: 'ceasar', email:'3@gmail.com'},
-    {name: 'nop', email:'4@gmail.com'}
+    {name: 'Geoffrey Verdernikoff', email:'geoff@gmail.com'},
+    {name: 'David Xu', email:'david@gmail.com'},
+    {name: 'Ceasar Bautista', email:'ceasar@gmail.com'},
+    {name: 'Kyle Hardgrave', email:'nop@gmail.com'}
+    {name: 'Nop Jia', email:'nop@gmail.com'}
   ])
 
   root.courses = new app.collections.Courses([
-    {user: 'geoff', name: 'course1'},
-    {user: 'david', name: 'new'},
-    {user: 'ceasar', name: 'old'},
-    {user: 'ceasar', name: 'oldf'},
-    {user: 'david', name: 'old34'},
-    {user: 'geoff', name: 'oldr4'},
-    {user: 'nop', name: 'old23'},
-    {user: 'ceasar', name: 'ol2 '},
-    {user: 'nop', name: 'middle'}
+    {user: 'geoff', name: 'Introduction to Computer Programming', department: 'CIS', section: '110', professor: 'Benedict Brown' },
+    {user: 'geoff', name: 'Programming Languages and Techniques I', department: 'CIS', section: '120', professor: 'Steve Zdancewic' },
+    {user: 'geoff', name: 'Data Structures and Algorithms with Java', department: 'CIS', section: '121', professor: 'Val Tannen' },
+    {user: 'david', name: 'Introduction to Computer Architecture', department: 'CIS', section: '240', professor: 'CJ Taylor'},
+    {user: 'ceasar', name: 'Automata, Computability, and Complexity', department: 'CIS', section: '262', professor: 'Aaron Roth'},
+    {user: 'ceasar', name: 'Introduction to Algorithms', department: 'CIS', section: '320', professor: 'Sanjeev Khanna'},
+    {user: 'david', name: 'Operating Systems', department: 'CIS', section: '380', professor: 'Boon Thau Loo'},
+    {user: 'geoff', name: 'Computer Organization and Design', department: 'CIS', section: '371', professor: 'Milo K. Martin'},
   ])
 
   String::capitalize = ->
