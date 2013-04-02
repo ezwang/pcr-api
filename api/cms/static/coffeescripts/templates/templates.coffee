@@ -10,7 +10,6 @@ app.templates.user_table = """
             <tbody id="editor-table">
             </tbody>
           </table>
-
   """
 
 app.templates.user = """

@@ -7,23 +7,49 @@ root.app =
   templates: {}
 
 $ ->
-  root.users = new app.collections.Users([
-    {name: 'Geoffrey Verdernikoff', email:'geoff@gmail.com'},
-    {name: 'David Xu', email:'david@gmail.com'},
-    {name: 'Ceasar Bautista', email:'ceasar@gmail.com'},
-    {name: 'Kyle Hardgrave', email:'nop@gmail.com'}
-    {name: 'Nop Jia', email:'nop@gmail.com'}
-  ])
 
   root.courses = new app.collections.Courses([
-    {user: 'geoff', name: 'Introduction to Computer Programming', department: 'CIS', section: '110', professor: 'Benedict Brown' },
-    {user: 'geoff', name: 'Programming Languages and Techniques I', department: 'CIS', section: '120', professor: 'Steve Zdancewic' },
-    {user: 'geoff', name: 'Data Structures and Algorithms with Java', department: 'CIS', section: '121', professor: 'Val Tannen' },
-    {user: 'david', name: 'Introduction to Computer Architecture', department: 'CIS', section: '240', professor: 'CJ Taylor'},
-    {user: 'ceasar', name: 'Automata, Computability, and Complexity', department: 'CIS', section: '262', professor: 'Aaron Roth'},
-    {user: 'ceasar', name: 'Introduction to Algorithms', department: 'CIS', section: '320', professor: 'Sanjeev Khanna'},
-    {user: 'david', name: 'Operating Systems', department: 'CIS', section: '380', professor: 'Boon Thau Loo'},
-    {user: 'geoff', name: 'Computer Organization and Design', department: 'CIS', section: '371', professor: 'Milo K. Martin'},
+    # {user: 'Geoffrey Verdernikoff', name: 'Introduction to Computer Programming', department: 'CIS', section: '110', professor: 'Benedict Brown' },
+    # {user: 'Geoffrey Verdernikoff', name: 'Programming Languages and Techniques I', department: 'CIS', section: '120', professor: 'Steve Zdancewic' },
+    # {user: 'Geoffrey Verdernikoff', name: 'Data Structures and Algorithms with Java', department: 'CIS', section: '121', professor: 'Val Tannen' },
+    # {user: 'David Xu', name: 'Introduction to Computer Architecture', department: 'CIS', section: '240', professor: 'CJ Taylor'},
+    # {user: 'Ceasar Bautista', name: 'Automata, Computability, and Complexity', department: 'CIS', section: '262', professor: 'Aaron Roth'},
+    # {user: 'Ceasar Bautista', name: 'Introduction to Algorithms', department: 'CIS', section: '320', professor: 'Sanjeev Khanna'},
+    # {user: 'David Xu', name: 'Operating Systems', department: 'CIS', section: '380', professor: 'Boon Thau Loo'},
+    # {user: 'Geoffrey Vedernikoff', name: 'Computer Organization and Design', department: 'CIS', section: '371', professor: 'Milo K. Martin'},
+  ])
+
+
+  root.users = new app.collections.Users([
+    {
+      name: 'Geoffrey Verdernikoff', email:'geoff@gmail.com'
+      courses: [
+        {user: 'Geoffrey Verdernikoff', name: 'Introduction to Computer Programming', department: 'CIS', section: '110', professor: 'Benedict Brown' },
+        {user: 'Geoffrey Verdernikoff', name: 'Programming Languages and Techniques I', department: 'CIS', section: '120', professor: 'Steve Zdancewic' },
+        {user: 'Geoffrey Verdernikoff', name: 'Data Structures and Algorithms with Java', department: 'CIS', section: '121', professor: 'Val Tannen' },
+        {user: 'Geoffrey Vedernikoff', name: 'Computer Organization and Design', department: 'CIS', section: '371', professor: 'Milo K. Martin'},
+      ]
+    },
+    {
+      name: 'David Xu', email:'david@gmail.com'
+      courses: [
+        {user: 'David Xu', name: 'Introduction to Computer Architecture', department: 'CIS', section: '240', professor: 'CJ Taylor'},
+        {user: 'David Xu', name: 'Operating Systems', department: 'CIS', section: '380', professor: 'Boon Thau Loo'},
+      ]
+    },
+    {
+      name: 'Ceasar Bautista', email:'ceasar@gmail.com'
+      courses: [
+        {user: 'Ceasar Bautista', name: 'Automata, Computability, and Complexity', department: 'CIS', section: '262', professor: 'Aaron Roth'},
+        {user: 'Ceasar Bautista', name: 'Introduction to Algorithms', department: 'CIS', section: '320', professor: 'Sanjeev Khanna'},
+      ]
+    },
+    {
+      name: 'Kyle Hardgrave', email:'nop@gmail.com'
+    }
+    {
+      name: 'Nop Jia', email:'nop@gmail.com'
+    }
   ])
 
   String::capitalize = ->

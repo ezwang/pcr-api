@@ -19,7 +19,6 @@ class app.views.UserListView extends Backbone.View
 
   events:
     "click th": "sort_reviews"
-    "click tr" : "select_user"
 
   initialize: ->
     @listenTo @collection, 'add', @render
@@ -38,12 +37,4 @@ class app.views.UserListView extends Backbone.View
     e.preventDefault()
     @collection.by = $(e.target).attr 'data-by'
     @collection.sort()
-
-  select_user: (e) ->
-    e.preventDefault()
-    $("tr").removeClass 'selected'
-    $(e.target).parent("tr").addClass 'selected'
-    user_name = $("tr.selected td:first").text().trim()
-    root.match_vent.trigger "select_user", name:user_name
-
 
