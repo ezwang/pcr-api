@@ -14,6 +14,7 @@ class app.views.CourseListView extends Backbone.View
     console.log search_data
     data = if @selectedUser then @collection.where({user:@selectedUser}) else []
     console.log(@collection.headers)
+    console.log(data)
 
     @$el.html _.template @template,
       {headers: @collection.headers, selected: @collection.by}
@@ -55,6 +56,8 @@ class app.views.CourseListView extends Backbone.View
     @collection.sort()
 
   filter_by_user: (data) ->
-    @selectedUser = data.id
+    @selectedUser = data.user
+    # console.log('hier')
+    # console.log(@selectedUser)
     @render()
 

@@ -3,7 +3,7 @@ class app.models.Course extends Backbone.RelationalModel
 
 
   defaults: ->
-    # user: 11235424  # id
+    user: undefined # model
     course_id: 'Default Course Id'
     name: 'Default Course Name'
     department: 'default department'
@@ -30,11 +30,15 @@ app.models.Course.setup() # required for coffeescript
 class app.collections.Courses extends Backbone.Collection
   model: app.models.Course
   comparator: (model) ->
-    model.get @by
+    sort_by = model.get @by
+    if sort_by == 'user' # return custom comparator
+
+    else return sort_by
   initialize: ->
     @by = "name"
     @headers =
       ['name','department', 'professor', 'section', 'user', 'reviews']
+  # sort_by_type
 
   search_by_type: (search_term='', search_type='name') ->
     return (@filter (course) =>

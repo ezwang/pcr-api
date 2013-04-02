@@ -22,10 +22,9 @@ class app.views.UserView extends Backbone.View
     $("tr").removeClass 'selected'
     # $(e.target).parent("tr").addClass 'selected'
     @$el.addClass 'selected'
-    user_id = @model.id
+    user_model = @model
     console.log 'triggering select_user'
-    console.log(user_id)
-    root.match_vent.trigger "select_user", name:user_id
+    root.match_vent.trigger "select_user", user:user_model
 
 
 

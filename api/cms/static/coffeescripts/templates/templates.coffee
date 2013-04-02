@@ -58,7 +58,14 @@ app.templates.course_table = """
 app.templates.course = """
   <td><input type='checkbox'></td>
   <% _.each(headers, function(key) { %>
-  <td data-category='<%= key %>'><%= attributes[key] %></td>
+
+  <td data-category='<%= key %>'>
+    <% // if equal to user, read it from the model %>
+    <% if (key === 'user') { %>
+    <%= attributes[key].get('name') %>
+    <% } else %>
+    <%= attributes[key] %>
+  </td>
   <% }) %>
   """
 
