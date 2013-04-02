@@ -22,8 +22,10 @@ class app.models.Course extends Backbone.RelationalModel
     @view.remove()
 
   matches_at: (search_query, search_type) ->
-    console.log search_type
-    @get(search_type).indexOf search_query
+    if search_type == 'user'
+      console.log('searching by user')
+      return @get(search_type).get('name').indexOf search_query
+    else return @get(search_type).indexOf search_query
 
 app.models.Course.setup() # required for coffeescript
 
@@ -31,8 +33,8 @@ class app.collections.Courses extends Backbone.Collection
   model: app.models.Course
   comparator: (model) ->
     sort_by = model.get @by
-    if sort_by == 'user' # return custom comparator
-
+    if @by == 'user' # return custom comparator
+      sort_by = model.get(@by).id
     else return sort_by
   initialize: ->
     @by = "name"

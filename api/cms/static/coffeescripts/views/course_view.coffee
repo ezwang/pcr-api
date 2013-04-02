@@ -15,8 +15,8 @@ class app.views.CourseView extends Backbone.View
 
   initialize: (options) ->
     # if there's a selection, set selected equal to true
-    console.log 'hi'
-    console.log @model.get('user')
+    # console.log 'hi'
+    # console.log @model.get('user')
     @current_user = @model.get('user')
     @selected_user = options.selected_user
     if options.selected_user
