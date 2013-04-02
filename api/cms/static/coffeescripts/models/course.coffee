@@ -1,7 +1,9 @@
-class app.models.Course extends Backbone.Model
+root = exports ? this
+class app.models.Course extends Backbone.RelationalModel
+
 
   defaults: ->
-    user: 11235424  # id
+    # user: 11235424  # id
     course_id: 'Default Course Id'
     name: 'Default Course Name'
     department: 'default department'
@@ -10,6 +12,8 @@ class app.models.Course extends Backbone.Model
 
   initialize: ->
     @set 'reviews', Math.round(Math.random() * 100)
+    console.log('hi there')
+    root.courses.add(@) # add it to the root collection
 
   activate: ->
 
@@ -20,6 +24,8 @@ class app.models.Course extends Backbone.Model
   matches_at: (search_query, search_type) ->
     console.log search_type
     @get(search_type).indexOf search_query
+
+app.models.Course.setup() # required for coffeescript
 
 class app.collections.Courses extends Backbone.Collection
   model: app.models.Course

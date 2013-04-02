@@ -55,6 +55,6 @@ class app.views.CourseListView extends Backbone.View
     @collection.sort()
 
   filter_by_user: (data) ->
-    @selectedUser = data.name
+    @selectedUser = data.id
     @render()
 
