@@ -1,24 +1,6 @@
 # Coffeescript yay!
 root = exports ? this
-root.app =
-  models: {}
-  collections: {}
-  views: {}
-  templates: {}
-
 $ ->
-  root.reviews = new app.collections.Reviews([
-    {course:'1', review:'This is a samply review Ojw ohago wjeoia orugha oewijfa oweifoawu hgoai jfowa iuwhg oaiewjfoauwhge lauhl aij lawiue liuahg irj aowiejf o'},
-    {course:'123434324', review:'This is a samply review Ojw ohago wjeoia orugha oewijfa oweifoawu hgoai jfowa iuwhg oaiewjfoauwhge lauhl aij lawiue liuahg irj aowiejf o'},
-    {course:'12343', review:'This is a samply review Ojw ohago wjeoia orugha oewijfa oweifoawu hgoai jfowa iuwhg oaiewjfoauwhge lauhl aij lawiue liuahg irj aowiejf o'},
-    {course:'12343', review:'This is a samply review Ojw ohago wjeoia orugha oewijfa oweifoawu hgoai jfowa iuwhg oaiewjfoauwhge lauhl aij lawiue liuahg irj aowiejf o'},
-    {course:'12343', review:'This is a samply review Ojw ohago wjeoia orugha oewijfa oweifoawu hgoai jfowa iuwhg oaiewjfoauwhge lauhl aij lawiue liuahg irj aowiejf o'},
-    {course:'12343', review:'This is a samply review Ojw ohago wjeoia orugha oewijfa oweifoawu hgoai jfowa iuwhg oaiewjfoauwhge lauhl aij lawiue liuahg irj aowiejf o'},
-    {course:'12343', review:'This is a samply review Ojw ohago wjeoia orugha oewijfa oweifoawu hgoai jfowa iuwhg oaiewjfoauwhge lauhl aij lawiue liuahg irj aowiejf o'},
-    {course:'12343', review:'This is a samply review Ojw ohago wjeoia orugha oewijfa oweifoawu hgoai jfowa iuwhg oaiewjfoauwhge lauhl aij lawiue liuahg irj aowiejf o'},
-    {course:'12343', review:'This is a samply review Ojw ohago wjeoia orugha oewijfa oweifoawu hgoai jfowa iuwhg oaiewjfoauwhge lauhl aij lawiue liuahg irj aowiejf o'},
-  ])
-
   temp_data = []
   _.each [1..20], (item) ->
     temp_data.push
