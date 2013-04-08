@@ -1,0 +1,101 @@
+# 1-while.sh
+#!/bin/sh
+
+# download secret html file from my website AND check if there is a "secret" in it
+while [ ! $(wget www.seas.upenn.edu/~ericob/secrets.html && grep secret secrets.html) ]
+do
+    # if there are no secrets, just echo and wait 10 seconds before you try again
+    echo "No secrets..."
+    rm secrets.html
+    sleep 10
+done
+# if there is a secret, then send an ubuntu desktop notification!
+notify-send -t 1000 "SECRET ALERT" "$(grep secret secrets.html)"
+rm secrets.html 
+# deleting the secrets.html file every time 
+# because wget refuses to overwrite something it downloads.
+# instead, it renames the new one to secrets.html.2 etc
+
+--------------------------------------------------------------------------------
+# 2-read.sh
+#!/bin/sh
+
+# the simplest use of read, just prints out whatever you give it
+echo "Please enter your name:"
+read name
+echo "Hello $name!"
+
+--------------------------------------------------------------------------------
+# 3.5-loopfile.sh
+#!/bin/sh
+
+# this seems like it should work, but it doesn't exactly loop over every line
+# if you don't have cupcake_flavors, make one with these line in it:
+# chocolate
+# vanilla
+# red velvet
+# banana
+
+# the kicker here is that red velvet gets split into two, which isn't what we want
+for var in $(cat cupcake_flavors)
+do
+    echo "Eating $var cupcakes"
+done
+
+--------------------------------------------------------------------------------
+# 3.6-loopfile.sh
+#!/bin/sh
+
+# this does what we'd hope - it loops over every line and properly groups red velvet cupcakes
+while read line
+do
+    echo "Eating $line cupcakes"
+done < cupcake_flavors
+
+--------------------------------------------------------------------------------
+# 3-whileread.sh
+#!/bin/sh
+
+# continually prompts for input and says hello
+echo "Enter a name:"
+while read name
+do
+    echo "Hello $name!"
+    # the only way out of here is if you type Ctrl-D
+done
+
+# if you ever jump out of the loop, you get here
+echo "GOODBYE $name"
+
+--------------------------------------------------------------------------------
+# 4-seq.sh
+#!/bin/sh
+
+# easy way to print 10 numbers
+echo $(seq 10)
+
+# this doesn't work, and the easiest way to check why
+# is to print out what i is at every iteration
+for i in seq 10
+do
+    echo GO!
+done
+
+# here's the correct version
+# for loops don't inherently run the command you put after "in"
+# so you need to explicitly tell the shell to do so
+for i in $(seq 10)
+do
+    echo GO!
+done
+
+--------------------------------------------------------------------------------
+# 5-OR.sh
+#!/bin/sh
+
+# this will open vim or compliment you if vim produces an error when you try to run it
+# (ie if vim isn't installed)
+vim || echo "It doesn't look like you have vim installed. Nice!"
+
+# this will only print the message if you have python installed
+python --version && echo "HEY, YOU HAVE PYTHON INSTALLED. SICK DUDE"
