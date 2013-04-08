@@ -1,4 +1,11 @@
 # Coffeescript yay!
+root = exports ? this
+root.app = if root.app then root.app else
+  models: {}
+  collections: {}
+  views: {}
+  templates: {}
+
 $ ->
 
   root.courses = new app.collections.Courses([
