@@ -1,3 +1,11 @@
+root = exports ? this
+root.app = if root.app then root.app else
+  models: {}
+  collections: {}
+  views: {}
+  templates: {}
+
+
 app.templates.user_table = """
           <table class="table table-striped" id="user-table">
             <thead>

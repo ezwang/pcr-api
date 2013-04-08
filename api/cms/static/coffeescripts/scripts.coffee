@@ -1,11 +1,4 @@
 # Coffeescript yay!
-root = exports ? this
-root.app =
-  models: {}
-  collections: {}
-  views: {}
-  templates: {}
-
 $ ->
 
   root.courses = new app.collections.Courses([

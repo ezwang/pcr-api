@@ -1,6 +1,12 @@
 root = exports ? this
-class app.models.Course extends Backbone.RelationalModel
 
+root.app = if root.app then root.app else
+  models: {}
+  collections: {}
+  views: {}
+  templates: {}
+
+class root.app.models.Course extends Backbone.RelationalModel
 
   defaults: ->
     user: undefined # model
@@ -13,7 +19,8 @@ class app.models.Course extends Backbone.RelationalModel
   initialize: ->
     @set 'reviews', Math.round(Math.random() * 100)
     console.log('hi there')
-    root.courses.add(@) # add it to the root collection
+    if root.courses
+      root.courses.add(@) # add it to the root collection
 
   activate: ->
 
@@ -27,10 +34,10 @@ class app.models.Course extends Backbone.RelationalModel
       return @get(search_type).get('name').indexOf search_query
     else return @get(search_type).indexOf search_query
 
-app.models.Course.setup() # required for coffeescript
+root.app.models.Course.setup() # required for coffeescript
 
-class app.collections.Courses extends Backbone.Collection
-  model: app.models.Course
+class root.app.collections.Courses extends Backbone.Collection
+  model: root.app.models.Course
   comparator: (model) ->
     sort_by = model.get @by
     if @by == 'user' # return custom comparator
