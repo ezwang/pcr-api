@@ -98,6 +98,7 @@ app.templates.review_table = """
 app.templates.review_summary = """
   <p>this is the review summary</p>
   <textarea></textarea>
+  <button class="btn" type="button">Submit</button>
   """
 
 app.templates.review_filter = """
