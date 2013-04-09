@@ -1,0 +1,115 @@
+// sass yay!
+body{
+}
+
+.selected {
+  color: #D14;
+  background: #eee;
+}
+
+.course { 
+  border: 1px solid black;
+  height:50px;
+  width: 600px;
+  overflow:hidden;
+
+  input {
+    float: left;
+    margin: 20px 0px 0px 5px
+  }
+
+  h2 {
+   margin: 1px 0px 0px 40px;
+  }
+
+ table {
+  margin-left:150px;
+  float:left;
+  }
+
+    td {
+      padding-right: 3px;
+    }
+
+  .assign {
+    border: 1px solid red;
+    float:right;
+    border-radius: 15px;
+    height: 100px;
+    min-width:150px;
+    margin-right: -26px;
+    padding: 2px 28px 0px 5px;
+  }
+}
+
+ul, li {
+  list-style: none;
+}
+
+.editor-list, .review-list {
+  height: 100%;
+//  border: 1px solid gray;
+}
+
+#review-summary-wrapper {
+  .review-summary {
+    #border: 1px solid grey;
+    -moz-box-shadow: 0 0 5px #888;
+    -webkit-box-shadow: 0 0 5px#888;
+    box-shadow: 0 0 5px #888;
+    border-radius: 8px;
+    padding: 2em 3em 2em 2em;
+    background-color: #f9f9f9;
+    textarea:focus {
+      outline: none;
+      -webkit-appearance: none;
+    }
+    textarea {
+      outline: none;
+      margin-top: -11px;
+      color: grey;
+      width: 100%;
+      height: 15em;
+      border: 1px solid #D9D9D9;
+      padding: 0.5em;
+      -webkit-border-top-right-radius: 0px;
+      -webkit-border-top-left-radius: 0px;
+      -moz-border-radius-topright: 0px;
+      -moz-border-radius-topleft: 0px;
+      border-top-right-radius: 0px;
+      border-top-left-radius: 0px;
+      -webkit-border-bottom-right-radius: 4px;
+      -webkit-border-bottom-left-radius: 4px;
+      -moz-border-radius-bottomright: 4px;
+      -moz-border-radius-bottomleft: 4px;
+      border-bottom-right-radius: 4px;
+      border-bottom-left-radius: 4px;
+    }
+    p {
+      background-color: white;
+      border: 1px solid #D9D9D9;
+      padding: 0.5em;
+      width: 100%;
+      color: grey;
+      -webkit-border-top-left-radius: 4px;
+      -webkit-border-top-right-radius: 4px;
+      -moz-border-radius-topleft: 4px;
+      -moz-border-radius-topright: 4px;
+      border-top-left-radius: 4px;
+      border-top-right-radius: 4px;
+    }
+  }
+}
+
+#review-table-wrapper {
+  .review {
+    width: 100%;
+    p {
+      padding: 1em;
+      border-radius: 8px;
+      -moz-box-shadow: 0 0 5px #888;
+      -webkit-box-shadow: 0 0 5px#888;
+      box-shadow: 0 0 5px #888;
+    }
+  }
+}
