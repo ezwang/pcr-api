@@ -84,7 +84,7 @@ app.templates.course = """
 ##########################################
 
 app.templates.review = """
-  <p>s <%= review_text %> </p>
+  <p><%= review_text %> </p>
   """
 
 
@@ -99,10 +99,14 @@ app.templates.review_summary = """
   <p>this is the review summary</p>
   <textarea></textarea>
   <button class="btn" type="button">Submit</button>
+  <button class="btn" type="button">Save</button>
   """
 
 app.templates.review_filter = """
   <select id="review_filter">
+    <option data-id="">
+      All Reviews
+    </option>
     <% collection.each(function(model) { %>
       <option data-id="<%= model.attributes.course_id %>">
         <%= model.attributes.department + ' ' + model.attributes.section + ' ' + model.attributes.name %>
