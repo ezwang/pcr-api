@@ -1,6 +1,5 @@
 from django.template import RequestContext
 from django.shortcuts import redirect, render_to_response
-
 from json_helpers import JSON
 
 # Create your views here.
@@ -15,7 +14,11 @@ def users(request):
 
 #def courses(request):
 
-def course(request): 
+def course(request):
     if request.method == 'GET':
-	return render_to_response('cms/course.html', {}, context_instance=RequestContext(request))
+        return render_to_response('cms/course.html', {}, context_instance=RequestContext(request))
 
+
+def edit(request):
+    if request.method == 'GET':
+        return render_to_response('cms/edit.html', {}, context_instance=RequestContext(request))

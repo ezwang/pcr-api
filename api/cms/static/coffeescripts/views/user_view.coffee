@@ -1,3 +1,4 @@
+root = exports ? @
 class app.views.UserView extends Backbone.View
   template: app.templates.user
 
@@ -5,12 +6,25 @@ class app.views.UserView extends Backbone.View
 
   render: () ->
     @$el.html _.template @template, @model.toJSON()
+    @$el.css 'color', @model.get 'color'
     return @
 
-  events: 'click' : 'select'
+  events:
+    "click" : "select_user"
 
   select: ->
     @$el.addClass 'selected'
+
+
+  select_user: (e) ->
+    console.log('here')
+    e.preventDefault()
+    $("tr").removeClass 'selected'
+    # $(e.target).parent("tr").addClass 'selected'
+    @$el.addClass 'selected'
+    user_model = @model
+    console.log 'triggering select_user'
+    root.match_vent.trigger "select_user", user:user_model
 
 
 

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/lib/bootstrap.min.css">    
+    <link rel="stylesheet" href="{{ STATIC_URL }}sass/styles.css">    
+  </head>
+
+  <body>
+
+    <div class="navbar">
+      <div class="navbar-inner">
+        <a class="brand" href="index.html">PCR CMS</a>
+        <ul class="nav">
+        </ul>
+      </div>
+    </div>
+
+    <div class="cms-view container-fluid">  
+      <div id='review-filter-wrapper'class="review-list">
+      </div>
+      <div class="row-fluid">
+        <div id='review-table-wrapper'class="span6 review-list">
+        </div>
+        <div id="review-summary-wrapper"class="span6 editor-list">
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="text/javascript" src="{{ STATIC_URL }}javascripts/lib/jquery.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}javascripts/lib/underscore-min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}javascripts/lib/backbone-min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}javascripts/lib/backbone-relational.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}coffeescripts/edit.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}coffeescripts/models/course.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}coffeescripts/templates/templates.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}coffeescripts/views/review_table_view.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}coffeescripts/views/review_filter_view.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}coffeescripts/views/review_summary_view.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}coffeescripts/views/review_view.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}coffeescripts/models/review.js"></script>
+    <!-- <script type="text/javascript" src="{{ STATIC_URL }}coffeescripts/edit.js"></script>-->
+    <!-- <script type="text/javascript" src="{{ STATIC_URL }}coffeescripts/scripts.js"></script>-->
+    <!-- <script type="text/javascript" src="{{ STATIC_URL }}coffeescripts/templates/templates.js"></script>-->
+    <!-- <script type="text/javascript" src="{{ STATIC_URL }}coffeescripts/models/user.js"></script>-->
+    <!-- <script type="text/javascript" src="{{ STATIC_URL }}coffeescripts/views/user_view.js"></script>-->
+    <!-- <script type="text/javascript" src="{{ STATIC_URL }}coffeescripts/views/user_list_view.js"></script>-->
+    <!-- <script type="text/javascript" src="{{ STATIC_URL }}coffeescripts/views/course_list_view.js"></script>-->
+    <!-- <script type="text/javascript" src="{{ STATIC_URL }}coffeescripts/views/course_view.js"></script>-->
+    <!-- <script type="text/javascript" src="{{ STATIC_URL }}coffeescripts/views/search_view.js"></script>-->
+    <!-- <script type="text/javascript" src="{{ STATIC_URL }}coffeescripts/views/user_new_view.js"></script>-->
+  </body>
+
+</html>
+

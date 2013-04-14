@@ -1,15 +1,23 @@
+root = exports ? this
+root.app = if root.app then root.app else
+  models: {}
+  collections: {}
+  views: {}
+  templates: {}
+
+
 app.templates.user_table = """
           <table class="table table-striped" id="user-table">
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Email</th>
+                <% _.each(headers, function(header) { %>
+                <th <% if (selected === header) { %>class='selected'<% } %> data-by='<%= header %>'><%= header.capitalize() %></th>
+                <% }) %>
               </tr>
             </thead>
             <tbody id="editor-table">
             </tbody>
           </table>
-
   """
 
 app.templates.user = """
@@ -18,25 +26,21 @@ app.templates.user = """
   """
 
 app.templates.user_new = """
-    <form class="form-inline">
       <input class="input-small" type="text" id="add-name"/>
       <input class="input-medium" type="email" id="add-email"/>
       <input type="submit" id="add-user" />
-    </form>
     """
 
-app.templates.course_sort_form = """
+app.templates.search_form = """
 
       <form class="form-inline">
+        <select id="course-search-by">
+          <% _.each(options, function(option) { %>
+            <option><%= option %></option>
+          <% }) %>
+        </select>
 
-        <label> Sort by: </label>
-        <div class="btn-group">
-          <button class="btn" id="sort-reviews">Review Count</button>
-          <button class="btn">Middle</button>
-          <button class="btn">Right</button>
-        </div>
-
-        <input type="text" class="input-medium" placeholder="Search Courses">
+        <input id="course-search" type="text" class="input-medium" placeholder="Search Courses">
         <label class="checkbox">
           <input type="checkbox"> Show Assigned
         </label>
@@ -49,13 +53,10 @@ app.templates.course_table = """
   <table class="table table-striped" id="course-table">
     <thead>
       <tr>
-        <th data-by='reviews' >?</th>
-        <th data-by='name' >Course</th>
-        <th data-by='department' >Section</th>
-        <th data-by='professor' >Professor</th>
-        <th data-by='section' >Section</th>
-        <th data-by='user' >Editor</th>
-        <th data-by='reviews' >Reviews</th>
+        <th>?</th>
+        <% _.each(headers, function(header) {  %>
+        <th <% if (selected === header) { %>class='selected'<% } %> data-by='<%= header %>'><%= header.capitalize() %></th>
+        <% }) %>
       </tr>
     </thead>
     <tbody>
@@ -64,11 +65,48 @@ app.templates.course_table = """
   """
 app.templates.course = """
   <td><input type='checkbox'></td>
-  <td><%= name %></td>
-  <td><%= department %></td>
-  <td><%= professor %></td>
-  <td><%= section %></td>
-  <td><%= user %></td>
-  <td><%= reviews %></td>
+  <% _.each(headers, function(key) { %>
+
+  <td data-category='<%= key %>'>
+    <% // if equal to user, read it from the model %>
+    <% if (key === 'user') { %>
+    <%= attributes[key].get('name') %>
+    <% } else %>
+    <%= attributes[key] %>
+  </td>
+  <% }) %>
   """
 
+
+
+##########################################
+# Edit View
+##########################################
+
+app.templates.review = """
+  <p>s <%= review_text %> </p>
+  """
+
+
+app.templates.review_table = """
+  <table class="table table-striped" id="review-table">
+    <tbody>
+    </tbody>
+  </table>
+  """
+
+app.templates.review_summary = """
+  <p>this is the review summary</p>
+  <textarea></textarea>
+  <button class="btn" type="button">Submit</button>
+  """
+
+app.templates.review_filter = """
+  <select id="review_filter">
+    <% collection.each(function(model) { %>
+      <option data-id="<%= model.attributes.course_id %>">
+        <%= model.attributes.department + ' ' + model.attributes.section + ' ' + model.attributes.name %>
+      </option>
+    <% }) %>
+  </select>
+  """

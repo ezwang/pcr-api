@@ -1,4 +1,5 @@
-class app.views.RightView extends Backbone.View
+root = exports ? @
+class app.views.UserListView extends Backbone.View
   #  template: app.templates.right
   # el: $('#editor-table')
   template: app.templates.user_table
@@ -6,28 +7,34 @@ class app.views.RightView extends Backbone.View
   className: 'user-list'
 
   render: ->
-    @$el.html _.template @template
+    @$el.html _.template @template,
+      {headers: @collection.headers, selected: @collection.by}
     user_views = []
     @collection.each (user) ->
       user_view = new app.views.UserView(model: user)
       user_views.push user_view.render()
     user_view_els = _.pluck user_views, 'el'
     @$el.find('tbody').html user_view_els
-    @$el.prepend app.templates.user_new
     return @
 
   events:
-    "submit form" : "addOne"
+    "click th": "sort_reviews"
 
   initialize: ->
     @listenTo @collection, 'add', @render
+    @listenTo @collection, 'sort', @render
+    @listenTo root.create_vent, 'user:create', @addOne
 
-  addOne: (e) ->
-    e.preventDefault()
+  # event given by user_new_view
+  addOne: (data) ->
     user = new app.models.User
-      name: @$el.find('#add-name').val()
-      email: @$el.find('#add-email').val()
-    # user.save()
+      name: data.name
+      email: data.email
     @collection.add user
     return @
+
+  sort_reviews: (e) ->
+    e.preventDefault()
+    @collection.by = $(e.target).attr 'data-by'
+    @collection.sort()
 
