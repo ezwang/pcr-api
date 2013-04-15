@@ -21,10 +21,18 @@ app.templates.user_table = """
   """
 
 app.templates.user = """
-    <td> <%= name %> </td>
-    <td> <%= email %> </td>
-    <td> <%= reviews %> </td>
-    <td> <button onclick="window.location = '/user/<%= id %>'"> <i class="icon-share-alt"></i> </button> </td>
+
+    <% _.each(headers, function(key) { %>
+
+    <td data-category='<%= key %>'>
+      <% // if equal to user, read it from the model %>
+      <% if (key === 'profile' && attributes[key] !== undefined) { %>
+
+        <button onclick="window.location = '<%= attributes[key] %>'"> <i class="icon-share-alt"></i> </button>
+      <% } else %>
+      <%= attributes[key] %>
+    </td>
+    <% }) %>
 
   """
 
@@ -102,6 +110,7 @@ app.templates.review_summary = """
   <textarea id="review-summary-text"></textarea>
   <button class="btn" type="button">Submit</button>
   <button class="btn" type="button">Save</button>
+  <button class="btn" type="button">Approve</button>
   """
 
 app.templates.review_filter = """
