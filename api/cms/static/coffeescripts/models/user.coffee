@@ -50,6 +50,6 @@ class app.collections.Users extends Backbone.Collection
   initialize: ->
     @by = "name"
     @headers =
-      ['name','email', 'reviews']
+      ['name','email', 'reviews', 'profile']
 
 
