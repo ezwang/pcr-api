@@ -63,3 +63,6 @@ $ ->
   $("#review-summary-wrapper").html ReviewSummaryView.render().el
   $("#review-filter-wrapper").html ReviewFilterView.render().el
 
+  $('#review-summary-text').wysihtml5()
+
+

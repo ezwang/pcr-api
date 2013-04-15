@@ -98,7 +98,7 @@ app.templates.review_table = """
   """
 
 app.templates.review_summary = """
-  <textarea></textarea>
+  <textarea id="review-summary-text"></textarea>
   <button class="btn" type="button">Submit</button>
   <button class="btn" type="button">Save</button>
   """
