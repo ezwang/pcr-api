@@ -2,8 +2,10 @@
 
 <html>
   <head>
-    <link rel="stylesheet" href="{{ STATIC_URL }}css/lib/bootstrap.min.css">    
-    <link rel="stylesheet" href="{{ STATIC_URL }}sass/styles.css">    
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/lib/bootstrap.min.css">    
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}sass/styles.css">    
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/lib/bootstrap-wysihtml5-0.0.2.css"></link>
+
   </head>
 
   <body>
@@ -32,8 +34,6 @@
     <script type="text/javascript" src="{{ STATIC_URL }}javascripts/lib/underscore-min.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}javascripts/lib/backbone-min.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}javascripts/lib/backbone-relational.js"></script>
-    <script src="http://js.nicedit.com/nicEdit-latest.js" type="text/javascript"></script>
-    <script type="text/javascript">bkLib.onDomLoaded(nicEditors.allTextAreas);</script>
     <script type="text/javascript" src="{{ STATIC_URL }}coffeescripts/edit.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}coffeescripts/models/course.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}coffeescripts/templates/templates.js"></script>
@@ -42,6 +42,8 @@
     <script type="text/javascript" src="{{ STATIC_URL }}coffeescripts/views/review_summary_view.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}coffeescripts/views/review_view.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}coffeescripts/models/review.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}javascripts/lib/wysihtml5-0.3.0_rc2.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}javascripts/lib/bootstrap-wysihtml5-0.0.2.min.js"></script>
     <!-- <script type="text/javascript" src="{{ STATIC_URL }}coffeescripts/edit.js"></script>-->
     <!-- <script type="text/javascript" src="{{ STATIC_URL }}coffeescripts/scripts.js"></script>-->
     <!-- <script type="text/javascript" src="{{ STATIC_URL }}coffeescripts/templates/templates.js"></script>-->
