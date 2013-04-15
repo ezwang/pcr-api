@@ -8,6 +8,12 @@ class app.views.CourseView extends Backbone.View
   render: () ->
     @$el.html _.template @template,
       {headers: @model.collection.headers, attributes: @model.attributes}
+
+    if @model.get('user') && @model.get('user') == @selected_user
+      @$el.addClass('selected')
+    else
+      @$el.removeClass('selected')
+
     if @model.get('user')
       @$el.css('color', @model.get('user').get('color'))
     return @
