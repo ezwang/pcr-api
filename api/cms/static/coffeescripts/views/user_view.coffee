@@ -6,7 +6,8 @@ class app.views.UserView extends Backbone.View
 
   render: () ->
     console.log @model.toJSON()
-    @$el.html _.template @template, @model.toJSON()
+    @$el.html _.template @template,
+      {headers: @model.collection.headers, attributes: @model.attributes}
     @$el.css 'color', @model.get 'color'
     return @
 

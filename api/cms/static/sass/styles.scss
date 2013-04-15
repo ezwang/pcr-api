@@ -73,12 +73,13 @@ ul, li {
     position: relative;
     margin: auto;
     #border: 1px solid grey;
-    -moz-box-shadow: 0 0 5px #888;
-    -webkit-box-shadow: 0 0 5px#888;
-    box-shadow: 0 0 5px #888;
+    // -moz-box-shadow: 0 0 5px #888;
+    // -webkit-box-shadow: 0 0 5px#888;
+    // box-shadow: 0 0 5px #888;
+    border: 1px solid rgba(233,233,233,1.0);
     border-radius: 3px;
     padding: 2em 3em 2em 2em;
-    background-color: #f9f9f9;
+    // background-color: #f9f9f9;
     textarea:focus {
       outline: none;
       -webkit-appearance: none;
@@ -130,8 +131,7 @@ ul, li {
       p {
         padding: 1em;
         margin: 0px;
-        border-radius: 3px;
-        border-top: 1px solid #eee;
+        border-top: 1px solid rgba(233,233,233,1.0);
       }
     }
   }
