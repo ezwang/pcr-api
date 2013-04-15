@@ -14,7 +14,7 @@ SUMMARY_STATUSES = (
 TAGS = (
     ('WHA', 'Wharton'),
     ('SOC', 'Social Sciences'),
-    ('NAT', 'Natural Sciences'),
+    ('MTS', 'Math/Science'),
     ('HUM', 'Humanities'),
     ('ENG', 'Engineering'),
     ('NUR', 'Nursing'),
