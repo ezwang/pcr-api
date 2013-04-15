@@ -20,8 +20,11 @@ def users(request):
         tag_list= [t.category for t in tags]
         i['tags'] = tag_list
         writers.append(i)
-    data  = json.dumps(writers)
-    return HttpResponse(data)
+    if request.method == 'POST':
+        data  = json.dumps(writers)
+        return HttpResponse(data)
+    else:
+        return render_to_response('cms/users.html', {writers : writers}, context_instance = RequestContext(request))
 
 
 def course(request):
