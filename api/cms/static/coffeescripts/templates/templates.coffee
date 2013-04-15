@@ -21,9 +21,10 @@ app.templates.user_table = """
   """
 
 app.templates.user = """
-    <td> <a href="/user/<%= id %>"> <%= name %> </a> </td>
+    <td> <%= name %> </td>
     <td> <%= email %> </td>
     <td> <%= reviews %> </td>
+    <td> <button onclick="window.location = '/user/<%= id %>'"> <i class="icon-share-alt"></i> </button> </td>
 
   """
 
