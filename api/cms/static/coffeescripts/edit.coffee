@@ -62,3 +62,19 @@ $ ->
   $("#review-table-wrapper").html ReviewTableView.render().el
   $("#review-summary-wrapper").html ReviewSummaryView.render().el
   $("#review-filter-wrapper").html ReviewFilterView.render().el
+
+
+
+  arr = $('.rte1').rte(
+    css: ['default.css']
+    controls_rte: rte_toolbar
+    controls_html: html_toolbar
+  )
+
+  $('.rte2').rte(
+    css: ['default.css']
+    width: 450
+    height: 200
+    controls_rte: rte_toolbar
+    controls_html: html_toolbar
+  , arr)
