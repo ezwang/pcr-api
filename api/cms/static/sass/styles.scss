@@ -46,13 +46,32 @@ ul, li {
   list-style: none;
 }
 
-.editor-list, .review-list {
+.editor-list{
   height: 100%;
 //  border: 1px solid gray;
 }
 
+#user-table {
+  tr:hover {
+    background-color: rgba(245,245,245, 1.0);
+  }
+  a {
+    color: inherit;
+    &:hover {
+      color: #08c;
+    }
+  }
+}
+
+.review-list {
+  height:100%;
+}
+
 #review-summary-wrapper {
   .review-summary {
+    width: 90%;
+    position: relative;
+    margin: auto;
     #border: 1px solid grey;
     -moz-box-shadow: 0 0 5px #888;
     -webkit-box-shadow: 0 0 5px#888;
@@ -102,14 +121,22 @@ ul, li {
 }
 
 #review-table-wrapper {
-  .review {
+  .review-table {
     width: 100%;
-    p {
-      padding: 1em;
-      border-radius: 8px;
-      -moz-box-shadow: 0 0 5px #888;
-      -webkit-box-shadow: 0 0 5px#888;
-      box-shadow: 0 0 5px #888;
+    margin: auto;
+
+    .review {
+      width: 100%;
+      p {
+        padding: 1em;
+        border-radius: 3px;
+        -moz-box-shadow: 0 0 5px #888;
+        -webkit-box-shadow: 0 0 5px#888;
+        box-shadow: 0 0 5px #888;
+      }
     }
   }
 }
+
+
+
