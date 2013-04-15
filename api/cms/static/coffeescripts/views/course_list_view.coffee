@@ -11,10 +11,7 @@ class app.views.CourseListView extends Backbone.View
 
   # data resulting from user selection
   render: (search_data = {}) ->
-    console.log search_data
     data = if @selectedUser then @collection.where({user:@selectedUser}) else []
-    console.log(@collection.headers)
-    console.log(data)
 
     @$el.html _.template @template,
       {headers: @collection.headers, selected: @collection.by}
