@@ -10,3 +10,5 @@ api/cms/static/coffeescripts/*.js
 .sass-cache
 api/cms/static/sass/*.css
 
+venv/
+

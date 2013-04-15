@@ -1,6 +1,9 @@
+from cms.models import *
 from django.template import RequestContext
 from django.shortcuts import redirect, render_to_response
-from json_helpers import JSON
+from django.core import serializers
+from django.http import HttpResponse
+import json
 
 # Create your views here.
 def home(request):
@@ -9,10 +12,17 @@ def home(request):
 
 
 def users(request):
-  return 'placeholder'
-  #return JSON(something)
+    writers = []
+    full_users = UserProfile.objects.filter(user_type='WR')
+    for u in full_users:
+        i = {'email' : u.email, 'name': u.first_name + u.last_name}
+        tags = u.get_profile().tags.all()
+        tag_list= [t.category for t in tags]
+        i['tags'] = tag_list
+        writers.append(i)
+    data  = json.dumps(writers)
+    return HttpResponse(data)
 
-#def courses(request):
 
 def course(request):
     if request.method == 'GET':

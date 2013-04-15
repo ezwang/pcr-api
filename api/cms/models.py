@@ -1,42 +1,79 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+
 # Create your models here.
 
 SUMMARY_STATUSES = (
-  ('N', 'Not started'),
-  ('I', 'In progress'),
-  ('S', 'Submitted'),
-  ('P', 'Published')
+    ('N', 'Not started'),
+    ('I', 'In progress'),
+    ('S', 'Submitted'),
+    ('P', 'Published')
 )
 
-class Summary(models.Model):
-  course = models.ForeignKey(Course)
-  status = models.CharField(max_length=1, choices=SUMMARY_STATUSES)
-  text = models.TextField()
+TAGS = (
+    ('WHA', 'Wharton'),
+    ('SOC', 'Social Sciences'),
+    ('NAT', 'Natural Sciences'),
+    ('HUM', 'Humanities'),
+    ('ENG', 'Engineering'),
+    ('NUR', 'Nursing'),
+)
 
-  def toJSON(self):
-    pass
-  def __unicode__(self):
-    pass
+USER_TYPE = (
+    ('WR', 'Writer'),
+    ('ED', 'Editor'),
+    ('EC', 'Editor-in-Chief'),
+)
+
+
+class Tag(models.Model):
+    category = models.CharField(max_length=3, choices=TAGS)
+    def __unicode__(self):
+        return self.category
+
+    class Meta:
+        ordering = ('category',)
+
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, related_name="profile")
+    user_type = models.CharField(max_length=3, choices=USER_TYPE)
+    tags = models.ManyToManyField(Tag, blank=True, null=True)
+
 
 class Course(models.Model):
-  user = models.ForeignKey(User, null=True)
-  name = models.CharField(max_length=200)
-  department = models.CharField(max_length=200)
-  professor = models.CharField(max_length=200)
-  section = models.IntegerField()
+    user = models.ForeignKey(User, null=True)
+    name = models.CharField(max_length=200)
+    department = models.CharField(max_length=200)
+    professor = models.CharField(max_length=200)
+    section = models.IntegerField()
 
-  def toJSON(self):
-    pass
-  def __unicode__(self):
-    pass
+    def toJSON(self):
+        pass
+
+    def __unicode__(self):
+        pass
+
+
+class Summary(models.Model):
+    course = models.ForeignKey(Course)
+    status = models.CharField(max_length=1, choices=SUMMARY_STATUSES)
+    text = models.TextField()
+
+    def toJSON(self):
+        pass
+
+    def __unicode__(self):
+        pass
+
 
 class Review(models.Model):
-  course = models.ForeignKey(Course)
-  text = models.TextField()
+    course = models.ForeignKey(Course)
+    text = models.TextField()
 
-  def toJSON(self):
-    pass
-  def __unicode__(self):
-    pass
+    def toJSON(self):
+        pass
+
+    def __unicode__(self):
+        pass
