@@ -18,5 +18,9 @@ class app.views.UserNewView extends Backbone.View
 
   add_one: (e) ->
     e.preventDefault()
-    root.create_vent.trigger('user:create', {name: @$el.find('#add-name').val(), email: @$el.find('#add-email').val()})
+    root.create_vent.trigger 'user:create',
+      name: @$el.find('#add-name').val()
+      email: @$el.find('#add-email').val()
+      specialty: @$el.find('#add-specialty').val()
+
 

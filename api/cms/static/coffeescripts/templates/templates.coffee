@@ -5,6 +5,19 @@ root.app = if root.app then root.app else
   views: {}
   templates: {}
 
+app.templates.user_table = """
+          <table class="table" id="user-table">
+            <thead>
+              <tr>
+                <% _.each(headers, function(header) { %>
+                <th <% if (selected === header) { %>class='selected'<% } %> data-by='<%= header %>'><%= header.capitalize() %></th>
+                <% }) %>
+              </tr>
+            </thead>
+            <tbody id="editor-table">
+            </tbody>
+          </table>
+  """
 
 app.templates.user_table = """
           <table class="table" id="user-table">
@@ -37,9 +50,10 @@ app.templates.user = """
   """
 
 app.templates.user_new = """
-      <input class="input-small" type="text" id="add-name"/>
-      <input class="input-medium" type="email" id="add-email"/>
-      <input type="submit" id="add-user" />
+      <input class="input-small" placeholder="Name" type="text" id="add-name"/>
+      <input class="input-small" placeholder="Email" type="email" id="add-email"/>
+      <input class="input-small" placeholder="Specialty" type="text" id="add-specialty"/>
+      <input type="submit" id="add-user" value="Add Writer"/>
     """
 
 app.templates.search_form = """
