@@ -37,8 +37,8 @@ class root.app.models.Course extends Backbone.RelationalModel
   matches_at: (search_query, search_type) ->
     if search_type == 'user'
       console.log('searching by user')
-      return @get(search_type).get('name').indexOf search_query
-    else return @get(search_type).indexOf search_query
+      return @get(search_type).get('name').toLowerCase().indexOf search_query.toLowerCase()
+    else return @get(search_type).toLowerCase().indexOf search_query.toLowerCase()
 
 root.app.models.Course.setup() # required for coffeescript
 

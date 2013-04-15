@@ -3,23 +3,17 @@ class app.views.CourseView extends Backbone.View
   tagName: 'tr'
   selected: false
   selected_user: undefined
-  current_user: undefined
   events:
     "click": "assign_course"
   render: () ->
-    console.log('start')
-    console.log(@model)
-    console.log(@model.collection.headers)
-    console.log(@model.attributes)
-
     @$el.html _.template @template,
       {headers: @model.collection.headers, attributes: @model.attributes}
-    @$el.css('color', @model.get('user').get('color'))
+    if @model.get('user')
+      @$el.css('color', @model.get('user').get('color'))
     return @
 
   initialize: (options) ->
     # if there's a selection, set selected equal to true
-    @current_user = @model.get('user')
     @selected_user = options.selected_user
     if options.selected_user
       @selected = @selected_user == @model.attributes.user
@@ -35,10 +29,9 @@ class app.views.CourseView extends Backbone.View
   select_course: ->
     if not @selected
       # if current user and search user is the same, set the model attribute to undefined (unassign this guy)
-      if @current_user.id == @selected_user
-        @model.attributes.user = undefined
-      else
-        @model.attributes.user = undefined
+      @model.attributes.user = undefined
+      @$el.css('color', 'black')
+
       @$el.removeClass('selected')
       return
     @model.attributes.user = @selected_user

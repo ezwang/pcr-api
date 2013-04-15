@@ -23,6 +23,8 @@ app.templates.user_table = """
 app.templates.user = """
     <td> <%= name %> </td>
     <td> <%= email %> </td>
+    <td> <%= reviews %> </td>
+
   """
 
 app.templates.user_new = """
