@@ -15,6 +15,7 @@ course_attrs =
     user: undefined  # model
     professor: 'professory dude'
     status: 'In Progress'  # in progress, Finished, Approved
+    category: 'Wharton'
 
 class root.app.models.Course extends Backbone.RelationalModel
 
@@ -46,7 +47,7 @@ class root.app.collections.Courses extends Backbone.Collection
   model: root.app.models.Course
   comparator: (model) ->
     sort_by = model.get @by
-    if @by == 'user' # return custom comparator
+    if @by == 'user' and model.get(@by)# return custom comparator
       sort_by = model.get(@by).id
     else return sort_by
   initialize: ->

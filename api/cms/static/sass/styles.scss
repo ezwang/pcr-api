@@ -7,38 +7,43 @@ body{
   background: #eee;
 }
 
-.course { 
-  border: 1px solid black;
-  height:50px;
-  width: 600px;
-  overflow:hidden;
-
-  input {
-    float: left;
-    margin: 20px 0px 0px 5px
+.course-list {
+  tr:hover {
+    background-color: rgba(245,245,245, 1.0);
   }
+  .course { 
+    border: 1px solid black;
+    height:50px;
+    width: 600px;
+    overflow:hidden;
 
-  h2 {
-   margin: 1px 0px 0px 40px;
-  }
-
- table {
-  margin-left:150px;
-  float:left;
-  }
-
-    td {
-      padding-right: 3px;
+    input {
+      float: left;
+      margin: 20px 0px 0px 5px
     }
 
-  .assign {
-    border: 1px solid red;
-    float:right;
-    border-radius: 15px;
-    height: 100px;
-    min-width:150px;
-    margin-right: -26px;
-    padding: 2px 28px 0px 5px;
+    h2 {
+     margin: 1px 0px 0px 40px;
+    }
+
+   table {
+    margin-left:150px;
+    float:left;
+    }
+
+      td {
+        padding-right: 3px;
+      }
+
+    .assign {
+      border: 1px solid red;
+      float:right;
+      border-radius: 15px;
+      height: 100px;
+      min-width:150px;
+      margin-right: -26px;
+      padding: 2px 28px 0px 5px;
+    }
   }
 }
 
