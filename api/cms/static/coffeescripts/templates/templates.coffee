@@ -7,7 +7,7 @@ root.app = if root.app then root.app else
 
 
 app.templates.user_table = """
-          <table class="table table-striped" id="user-table">
+          <table class="table" id="user-table">
             <thead>
               <tr>
                 <% _.each(headers, function(header) { %>
@@ -52,7 +52,7 @@ app.templates.search_form = """
 """
 
 app.templates.course_table = """
-  <table class="table table-striped" id="course-table">
+  <table class="table " id="course-table">
     <thead>
       <tr>
         <th>?</th>
@@ -91,7 +91,7 @@ app.templates.review = """
 
 
 app.templates.review_table = """
-  <table class="table table-striped" id="review-table">
+  <table class="table" id="review-table">
     <tbody>
     </tbody>
   </table>
