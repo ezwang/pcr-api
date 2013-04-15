@@ -6,19 +6,25 @@ root.app = if root.app then root.app else
   views: {}
   templates: {}
 
+
+course_attrs =
+    course_id: 'Default Course Id'
+    department: 'default department'
+    section: '110'
+    name: 'Default Course Name'
+    user: undefined  # model
+    professor: 'professory dude'
+    status: 'In Progress'  # in progress, Finished, Approved
+
 class root.app.models.Course extends Backbone.RelationalModel
 
+  STATUSES: ['In Progress', 'Finished', 'Approved']
+
   defaults: ->
-    user: undefined # model
-    course_id: 'Default Course Id'
-    name: 'Default Course Name'
-    department: 'default department'
-    professor: 'professory dude'
-    section: '110'
+    course_attrs
 
   initialize: ->
     @set 'reviews', Math.round(Math.random() * 100)
-    console.log('hi there')
     if root.courses
       root.courses.add(@) # add it to the root collection
 
@@ -45,25 +51,13 @@ class root.app.collections.Courses extends Backbone.Collection
     else return sort_by
   initialize: ->
     @by = "name"
-    @headers =
-      ['name','department', 'professor', 'section', 'user', 'reviews']
-  # sort_by_type
 
+    # set it to all keys except those that contain "id"
+    @headers = _.filter(_.keys(course_attrs), (input) ->
+      input.indexOf('id') == -1
+    )
+
+  # sort_by_type
   search_by_type: (search_term='', search_type='name') ->
     return (@filter (course) =>
       course.matches_at(search_term, search_type) != -1)
-
-    # x = _(_.difference (@filter (course) =>
-    #   course.matches_at(search_term) != -1), data)
-    # console.log @filter (course) =>
-    #   course.matches_at(search_term) != -1
-
-    # window.newww = @filter (course) =>
-    #   course.matches_at(search_term) != -1
-
-    # console.log 'hi'
-    # console.log data
-    # window.olddd = data
-    # return x
-
-
