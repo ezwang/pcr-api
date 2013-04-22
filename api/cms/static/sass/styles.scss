@@ -7,6 +7,41 @@ body{
   background: #eee;
 }
 
+#stats {
+  width: 100%;
+  height: auto;
+  margin: 0 0 10px 0;
+  padding: 5px;
+  overflow:hidden;
+
+  border-bottom: 1px solid #eee;
+  border-left: 1px solid #eee;
+  border-right: 1px solid #eee;
+  position:relative;
+  #stats-courses {
+    width: 40%;
+  }
+  #stats-users {
+    width: 40%;
+  }
+  #stats-summary {
+    width: 20%;
+  }
+  li {
+    float:left;
+  }
+  i {
+    position: absolute;
+    right: 0px;
+    bottom: 0px;
+  }
+}
+
+#search-wrapper {
+  margin-left: 0px;
+
+}
+
 .course-list {
   tr:hover {
     background-color: rgba(245,245,245, 1.0);

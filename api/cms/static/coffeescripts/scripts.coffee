@@ -22,11 +22,11 @@ $ ->
 
   root.users = new app.collections.Users([
     {
-      name: 'Geoffrey Verdernikoff', email:'geoff@gmail.com'
+      name: 'Geoffrey Verdernikoff', email: 'geoff@gmail.com', specialty: 'SEAS'
       courses: [
-        {user: 'Geoffrey Verdernikoff', name: 'Introduction to Computer Programming', department: 'CIS', section: '110', professor: 'Benedict Brown' },
-        {user: 'Geoffrey Verdernikoff', name: 'Programming Languages and Techniques I', department: 'CIS', section: '120', professor: 'Steve Zdancewic' },
-        {user: 'Geoffrey Verdernikoff', name: 'Data Structures and Algorithms with Java', department: 'CIS', section: '121', professor: 'Val Tannen' },
+        {user: 'Geoffrey Verdernikoff', name: 'Introduction to Computer Programming', department: 'CIS', section: '110', professor: 'Benedict Brown', category: 'SEAS'},
+        {user: 'Geoffrey Verdernikoff', name: 'Programming Languages and Techniques I', department: 'CIS', section: '120', professor: 'Steve Zdancewic', category: 'SEAS'},
+        {user: 'Geoffrey Verdernikoff', name: 'Data Structures and Algorithms with Java', department: 'CIS', section: '121', professor: 'Val Tannen'},
         {user: 'Geoffrey Vedernikoff', name: 'Computer Organization and Design', department: 'CIS', section: '371', professor: 'Milo K. Martin'},
       ]
     },
@@ -67,3 +67,4 @@ $ ->
   $("#users-table-wrapper").append UserNew.render().el
   $("#courses-table-wrapper").html CourseList.render().el
   $("#search-wrapper").html SearchCourses.render().el
+  $("#stat-wrapper").html Stat.render().el
