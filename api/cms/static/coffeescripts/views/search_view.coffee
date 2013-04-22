@@ -11,9 +11,7 @@ class app.views.SearchView extends Backbone.View
 
   render: ->
     @$el.html _.template @template,
-      {
         options: @options
-      }
     return @
 
   initialize: ->

@@ -26,7 +26,10 @@ class app.models.User extends Backbone.RelationalModel
     name: 'Default Name',
     permission: '0',
     email: 'default@default.com',
-    color: '#000000'
+    color: '#000000',
+    reviews: '0',
+    profile: '/user/<%= id %>',
+    specialty: 'Wharton'
 
   initialize: ->
     @.set 'color', random_color()
@@ -48,7 +51,12 @@ class app.collections.Users extends Backbone.Collection
     model.get @by
   initialize: ->
     @by = "name"
+    a = new @model
+
     @headers =
-      ['name','email']
+      _.filter(_.keys(a.attributes), (item)->
+        item != 'id' and item != 'color' and item != 'permission' and item != 'courses'
+      )
+      # ['name','email', 'reviews', 'profile', 'specialty']
 
 

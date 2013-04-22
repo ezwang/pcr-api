@@ -5,9 +5,22 @@ root.app = if root.app then root.app else
   views: {}
   templates: {}
 
+app.templates.user_table = """
+          <table class="table" id="user-table">
+            <thead>
+              <tr>
+                <% _.each(headers, function(header) { %>
+                <th <% if (selected === header) { %>class='selected'<% } %> data-by='<%= header %>'><%= header.capitalize() %></th>
+                <% }) %>
+              </tr>
+            </thead>
+            <tbody id="editor-table">
+            </tbody>
+          </table>
+  """
 
 app.templates.user_table = """
-          <table class="table table-striped" id="user-table">
+          <table class="table" id="user-table">
             <thead>
               <tr>
                 <% _.each(headers, function(header) { %>
@@ -21,14 +34,26 @@ app.templates.user_table = """
   """
 
 app.templates.user = """
-    <td> <%= name %> </td>
-    <td> <%= email %> </td>
+
+    <% _.each(headers, function(key) { %>
+
+    <td data-category='<%= key %>'>
+      <% // if equal to user, read it from the model %>
+      <% if (key === 'profile' && attributes[key] !== undefined) { %>
+
+        <button onclick="window.location = '<%= attributes[key] %>'"> <i class="icon-share-alt"></i> </button>
+      <% } else %>
+      <%= attributes[key] %>
+    </td>
+    <% }) %>
+
   """
 
 app.templates.user_new = """
-      <input class="input-small" type="text" id="add-name"/>
-      <input class="input-medium" type="email" id="add-email"/>
-      <input type="submit" id="add-user" />
+      <input class="input-small" placeholder="Name" type="text" id="add-name"/>
+      <input class="input-small" placeholder="Email" type="email" id="add-email"/>
+      <input class="input-small" placeholder="Specialty" type="text" id="add-specialty"/>
+      <input type="submit" id="add-user" value="Add Writer"/>
     """
 
 app.templates.search_form = """
@@ -50,7 +75,7 @@ app.templates.search_form = """
 """
 
 app.templates.course_table = """
-  <table class="table table-striped" id="course-table">
+  <table class="table " id="course-table">
     <thead>
       <tr>
         <th>?</th>
@@ -69,7 +94,7 @@ app.templates.course = """
 
   <td data-category='<%= key %>'>
     <% // if equal to user, read it from the model %>
-    <% if (key === 'user') { %>
+    <% if (key === 'user' && attributes[key] !== undefined) { %>
     <%= attributes[key].get('name') %>
     <% } else %>
     <%= attributes[key] %>
@@ -89,17 +114,17 @@ app.templates.review = """
 
 
 app.templates.review_table = """
-  <table class="table table-striped" id="review-table">
+  <table class="table" id="review-table">
     <tbody>
     </tbody>
   </table>
   """
 
 app.templates.review_summary = """
-  <p>this is the review summary</p>
-  <textarea></textarea>
+  <textarea id="review-summary-text"></textarea>
   <button class="btn" type="button">Submit</button>
   <button class="btn" type="button">Save</button>
+  <button class="btn" type="button">Approve</button>
   """
 
 app.templates.review_filter = """
@@ -114,3 +139,74 @@ app.templates.review_filter = """
     <% }) %>
   </select>
   """
+
+
+app.templates.stat_view = """
+  <p> Statistics </p>
+
+  <ul>
+    <li id="stats-courses">
+      <table class="table">
+        <thead>
+          <td>Statistic</td>
+          <td>Number of Courses</td>
+        </thead>
+        <% _.each(course_stats.categories, function(value, key) { %>
+        <tr>
+          <td><%= key %> courses</td>
+          <td><%= value %></td>
+        </tr>
+        <% })%>
+        <% _.each(course_stats.statuses, function(value, key) { %>
+        <tr>
+          <td><%= key %> courses</td>
+          <td><%= value %></td>
+        </tr>
+        <% })%>
+
+
+      </table>
+    </li>
+    <li id="stats-users">
+      <table class="table">
+        <thead>
+          <td>Statistic</td>
+          <td>Number of Users</td>
+        </thead>
+        <% _.each(user_stats, function(value, key) { %>
+        <tr>
+          <td><%= key %> writers</td>
+          <td><%= value %></td>
+        </tr>
+        <% })%>
+
+      </table>
+    </li>
+    <li id="stats-summary">
+      <table class="table">
+        <thead>
+          <td>Statistic</td>
+          <td>Number of Users</td>
+        </thead>
+
+        <!-- ratios -->
+        <% _.each(course_stats.categories, function(value, key) { %>
+        <tr>
+          <td><%= key %> W:C</td>
+          <td><%= user_stats[key] / value || 0 %></td>
+        </tr>
+        <% })%>
+
+
+
+      </table>
+    </li>
+  </ul>
+
+      <p>Total number of reviews: </p>
+      percent completion
+      </p>
+
+      <i class="toggle-stats icon-chevron-down"></i>
+  """
+

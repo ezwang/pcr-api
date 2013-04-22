@@ -49,8 +49,6 @@ $ ->
   root.reviews = new app.collections.Reviews(temp_data)
   root.courses = new app.collections.Courses(temp_course_data)
 
-  console.log root.reviews
-
   String::capitalize = ->
     @charAt(0).toUpperCase() + @[1..]
 
@@ -62,3 +60,7 @@ $ ->
   $("#review-table-wrapper").html ReviewTableView.render().el
   $("#review-summary-wrapper").html ReviewSummaryView.render().el
   $("#review-filter-wrapper").html ReviewFilterView.render().el
+
+  $('#review-summary-text').wysihtml5()
+
+

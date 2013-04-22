@@ -7,38 +7,84 @@ body{
   background: #eee;
 }
 
-.course { 
-  border: 1px solid black;
-  height:50px;
-  width: 600px;
+#stats {
+  width: 100%;
+  height: auto;
+  margin: 0 0 10px 0;
+  padding: 5px;
   overflow:hidden;
+  background-color: rgba(248, 248, 248, 1.0);
 
-  input {
-    float: left;
-    margin: 20px 0px 0px 5px
+  border-bottom: 1px solid #eee;
+  border-left: 1px solid #eee;
+  border-right: 1px solid #eee;
+  position:relative;
+  p {
+    // font-weight: bold;
+    font-size: 20px;
   }
-
-  h2 {
-   margin: 1px 0px 0px 40px;
+  #stats-courses {
+    width: 40%;
   }
-
- table {
-  margin-left:150px;
-  float:left;
+  #stats-users {
+    width: 40%;
   }
+  #stats-summary {
+    width: 20%;
+  }
+  li {
+    float:left;
+  }
+  i {
+    position: absolute;
+    right: 0px;
+    bottom: 0px;
+    margin: 3px;
+  }
+}
 
-    td {
-      padding-right: 3px;
+#search-wrapper {
+  margin-left: 0px;
+
+}
+
+.course-list {
+  tr:hover {
+    background-color: rgba(245,245,245, 1.0);
+  }
+  .course { 
+    border: 1px solid black;
+    height:50px;
+    width: 600px;
+    overflow:hidden;
+
+    input {
+      float: left;
+      margin: 20px 0px 0px 5px
     }
 
-  .assign {
-    border: 1px solid red;
-    float:right;
-    border-radius: 15px;
-    height: 100px;
-    min-width:150px;
-    margin-right: -26px;
-    padding: 2px 28px 0px 5px;
+    h2 {
+     margin: 1px 0px 0px 40px;
+    }
+
+   table {
+    margin-left:150px;
+    float:left;
+    }
+
+      td {
+        padding-right: 3px;
+      }
+
+    .assign {
+      border: 1px solid red;
+      float:right;
+      border-radius: 15px;
+      height: 100px;
+      min-width:150px;
+      margin-right: -26px;
+      padding: 2px 28px 0px 5px;
+    }
   }
 }
 
@@ -46,20 +92,40 @@ ul, li {
   list-style: none;
 }
 
-.editor-list, .review-list {
+.editor-list{
   height: 100%;
 //  border: 1px solid gray;
 }
 
+#user-table {
+  tr:hover {
+    background-color: rgba(245,245,245, 1.0);
+  }
+  a {
+    color: inherit;
+    &:hover {
+      color: #08c;
+    }
+  }
+}
+
+.review-list {
+  height:100%;
+}
+
 #review-summary-wrapper {
   .review-summary {
+    width: 90%;
+    position: relative;
+    margin: auto;
     #border: 1px solid grey;
-    -moz-box-shadow: 0 0 5px #888;
-    -webkit-box-shadow: 0 0 5px#888;
-    box-shadow: 0 0 5px #888;
-    border-radius: 8px;
+    // -moz-box-shadow: 0 0 5px #888;
+    // -webkit-box-shadow: 0 0 5px#888;
+    // box-shadow: 0 0 5px #888;
+    border: 1px solid rgba(233,233,233,1.0);
+    border-radius: 3px;
     padding: 2em 3em 2em 2em;
-    background-color: #f9f9f9;
+    // background-color: #f9f9f9;
     textarea:focus {
       outline: none;
       -webkit-appearance: none;
@@ -102,14 +168,20 @@ ul, li {
 }
 
 #review-table-wrapper {
-  .review {
+  .review-table {
     width: 100%;
-    p {
-      padding: 1em;
-      border-radius: 8px;
-      -moz-box-shadow: 0 0 5px #888;
-      -webkit-box-shadow: 0 0 5px#888;
-      box-shadow: 0 0 5px #888;
+    margin: auto;
+
+    .review {
+      width: 100%;
+      p {
+        padding: 1em;
+        margin: 0px;
+        border-top: 1px solid rgba(233,233,233,1.0);
+      }
     }
   }
 }
+
+
+

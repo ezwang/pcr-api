@@ -27,9 +27,7 @@ class app.views.UserListView extends Backbone.View
 
   # event given by user_new_view
   addOne: (data) ->
-    user = new app.models.User
-      name: data.name
-      email: data.email
+    user = new app.models.User data
     @collection.add user
     return @
 
