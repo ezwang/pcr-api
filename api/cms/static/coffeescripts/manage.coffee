@@ -1,4 +1,3 @@
-# Coffeescript yay!
 root = exports ? this
 root.app = if root.app then root.app else
   models: {}

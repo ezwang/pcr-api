@@ -5,8 +5,8 @@ class app.views.CourseView extends Backbone.View
   selected_user: undefined
   events:
     "click": "assign_course"
+
   render: () ->
-    console.log @model
     @$el.html _.template @template,
       {headers: @model.collection.headers, attributes: @model.attributes}
 
