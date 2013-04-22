@@ -1,26 +1,18 @@
 root = exports ? @
-
-class app.views.StatUserView extends Backbone.View
-
-class app.views.StatCourseView extends Backbone.View
-
-class app.views.StatSummaryView extends Backbone.View
-
 class app.views.StatView extends Backbone.View
   # used to do keypress search
   template: app.templates.stat_view
   tagName: 'div'
   id: 'stats'
-  options: ['name', 'department', 'professor', 'section', 'user']
   expanded: false
   auto_height: '0px'
   contract_height: '20px'
+
   events:
     "keyup #course-search": "search"
     "click" : "toggle"
 
   render: ->
-
     course_categories = _.unique(root.courses.pluck('category'))
     course_statuses = _.unique(root.courses.pluck('status'))
     user_specialties = _.unique(root.users.pluck('specialty'))
@@ -36,12 +28,6 @@ class app.views.StatView extends Backbone.View
     _.each user_specialties, (item) =>
       @user_stats[item] = root.users.where({specialty: item}).length
     @user_stats['Total'] = root.users.length
-    console.log('here')
-    # console.log(@course_stats)
-
-    @statistics = {
-
-    }
 
     @$el.html _.template @template,
       course_stats: @course_stats

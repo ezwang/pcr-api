@@ -49,8 +49,6 @@ $ ->
   root.reviews = new app.collections.Reviews(temp_data)
   root.courses = new app.collections.Courses(temp_course_data)
 
-  console.log root.reviews
-
   String::capitalize = ->
     @charAt(0).toUpperCase() + @[1..]
 
