@@ -139,3 +139,74 @@ app.templates.review_filter = """
     <% }) %>
   </select>
   """
+
+
+app.templates.stat_view = """
+  <p> Statistics </p>
+
+  <ul>
+    <li id="stats-courses">
+      <table class="table">
+        <thead>
+          <td>Statistic</td>
+          <td>Number of Courses</td>
+        </thead>
+        <% _.each(course_stats.categories, function(value, key) { %>
+        <tr>
+          <td><%= key %> courses</td>
+          <td><%= value %></td>
+        </tr>
+        <% })%>
+        <% _.each(course_stats.statuses, function(value, key) { %>
+        <tr>
+          <td><%= key %> courses</td>
+          <td><%= value %></td>
+        </tr>
+        <% })%>
+
+
+      </table>
+    </li>
+    <li id="stats-users">
+      <table class="table">
+        <thead>
+          <td>Statistic</td>
+          <td>Number of Users</td>
+        </thead>
+        <% _.each(user_stats, function(value, key) { %>
+        <tr>
+          <td><%= key %> writers</td>
+          <td><%= value %></td>
+        </tr>
+        <% })%>
+
+      </table>
+    </li>
+    <li id="stats-summary">
+      <table class="table">
+        <thead>
+          <td>Statistic</td>
+          <td>Number of Users</td>
+        </thead>
+
+        <!-- ratios -->
+        <% _.each(course_stats.categories, function(value, key) { %>
+        <tr>
+          <td><%= key %> W:C</td>
+          <td><%= user_stats[key] / value || 0 %></td>
+        </tr>
+        <% })%>
+
+
+
+      </table>
+    </li>
+  </ul>
+
+      <p>Total number of reviews: </p>
+      percent completion
+      </p>
+
+      <i class="toggle-stats icon-chevron-down"></i>
+  """
+
