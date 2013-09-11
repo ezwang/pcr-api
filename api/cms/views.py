@@ -33,6 +33,13 @@ def users(request, userid):
         return HttpResponse(data)
 
 
+def courses(request, courseid):
+    if request.method == 'GET':
+        course = Course.objects.get(id=courseid)
+        data = json.dumps(course)
+        return HttpResponse(data)
+
+
 def initial(request):
     all_info = {}
     writers = []
