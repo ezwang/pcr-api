@@ -1,0 +1,37 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" type="text/css">
+    </head>
+    <body>
+        <h1>PennCourseReview Typeahead</h1>
+        <div>
+            <input id="courses"></input>
+        </div>
+    </body>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="http://twitter.github.io/typeahead.js/releases/latest/typeahead.js"></script>
+    <script src="http://twitter.github.com/hogan.js/builds/2.0.0/hogan-2.0.0.js"></script>
+    <script>
+        console.log("Hey!");
+        $('#courses').typeahead([
+        {
+            name: 'h',
+            prefetch: {
+                url: 'courses.json',
+                filter: function(response) {
+                    return response.courses
+                    .concat(response.departments)
+                    .concat(response.instructors);
+                }
+            },
+            template: [
+            '<p class="path">{{path}}</p>',
+            '<p class="name">{{name}}</p>',
+            '<p class="description">{{description}}</p>'
+            ].join(''),
+            engine: Hogan
+        }
+        ]);
+        console.log("HI!");
+    </script>
+</html>
