@@ -9,12 +9,6 @@ def hello_world():
         return f.read()
 
 
-@app.route('/countries.json')
-def countries():
-    with open("countries.json") as f:
-        return f.read()
-
-
 @app.route('/courses.json')
 def countries():
     with open("courses.json") as f:
