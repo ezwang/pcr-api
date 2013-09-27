@@ -43,17 +43,19 @@ class UserProfile(models.Model):
 
 
 class Course(models.Model):
-    user = models.ForeignKey(User, null=True)
+    user = models.ForeignKey(User, null=True, blank=True)
     name = models.CharField(max_length=200)
     department = models.CharField(max_length=200)
     professor = models.CharField(max_length=200)
-    section = models.IntegerField()
+    section = models.CharField(max_length=200)
+    semester = models.DateField(auto_now_add=True)
 
     def toJSON(self):
         pass
 
     def __unicode__(self):
         pass
+        return "hello"
 
 
 class Summary(models.Model):
