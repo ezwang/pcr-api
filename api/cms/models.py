@@ -54,8 +54,7 @@ class Course(models.Model):
         pass
 
     def __unicode__(self):
-        pass
-        return "hello"
+        return u'%s %s' % (self.name, self.professor)
 
 
 class Summary(models.Model):
@@ -67,7 +66,7 @@ class Summary(models.Model):
         pass
 
     def __unicode__(self):
-        pass
+        return u'%s' % (self.course.name)
 
 
 class Review(models.Model):
@@ -78,4 +77,4 @@ class Review(models.Model):
         pass
 
     def __unicode__(self):
-        pass
+        return u'%s' % (self.course.name)
