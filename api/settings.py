@@ -116,12 +116,14 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
     'api.static_content',
+    'api.cms',
     'django_extensions', # used for debugging, remove if problematic
     # 'django.contrib.staticfiles',
     # Uncomment the next line to enable admin documentation:
     'django.contrib.staticfiles',
     'api.cms',
     # 'django.contrib.admindocs',
+    'south',
 )
 
 #AUTHENTICATION_BACKENDS = 'tokenapi.backends.TokenBackend'

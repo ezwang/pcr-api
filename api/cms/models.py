@@ -28,7 +28,10 @@ USER_TYPE = (
 
 
 class Tag(models.Model):
+    """ Specializations for the editors.
+        Each editor can have multiple Specializations """
     category = models.CharField(max_length=3, choices=TAGS)
+
     def __unicode__(self):
         return self.category
 
@@ -43,12 +46,17 @@ class UserProfile(models.Model):
 
 
 class Course(models.Model):
+    """ Course Section (2012F, 2012S...).
+        Every "instance" of a course that can be reviewed
+        Contains metadata taken from xml, as well as the current date
+    """
     user = models.ForeignKey(User, null=True, blank=True)
     name = models.CharField(max_length=200)
     department = models.CharField(max_length=200)
     professor = models.CharField(max_length=200)
     section = models.CharField(max_length=200)
     semester = models.DateField(auto_now_add=True)
+    term = models.CharField(max_length=20)
 
     def toJSON(self):
         pass
@@ -58,6 +66,10 @@ class Course(models.Model):
 
 
 class Summary(models.Model):
+    """
+        The summary that the summarizers create - contains information
+        on it's current review status (by the editors)
+    """
     course = models.ForeignKey(Course)
     status = models.CharField(max_length=1, choices=SUMMARY_STATUSES)
     text = models.TextField()
@@ -70,6 +82,7 @@ class Summary(models.Model):
 
 
 class Review(models.Model):
+    """ The review text for a given course by a student """
     course = models.ForeignKey(Course)
     text = models.TextField()
 
