@@ -1,0 +1,11 @@
+- model: auth.user
+  pk: 2
+  fields:
+    username: sclarawu
+    password: clarawu
+    email: s.clara.wu@gmail.com
+    first_name: Clara
+    last_name: Wu
+- model: cms.userprofile
+  pk: 2
+

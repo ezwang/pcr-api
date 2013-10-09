@@ -1,3 +1,4 @@
+
 # Django settings for api project.
 import sys
 from sandbox_config import *
@@ -18,7 +19,7 @@ MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql', # 'django.db.backends.sqlite3' if 'test' in sys.argv else 'django.db.backends.mysql',
+        'ENGINE': 'django.db.backends.%s' % DATABASE_ENGINE, # if 'test' in sys.argv else 'django.db.backends.mysql',
         # see sandbox_config.py
         'NAME': DATABASE_NAME,                      # Or path to database file if using sqlite3.
         'USER': DATABASE_USER,                      # Not used with sqlite3.
@@ -119,6 +120,10 @@ INSTALLED_APPS = (
     'api.cms',
     'django_extensions', # used for debugging, remove if problematic
     # 'django.contrib.staticfiles',
+<<<<<<< HEAD
+=======
+
+>>>>>>> 537b047e95b2fb717e60108a158d3975315866f4
     # Uncomment the next line to enable admin documentation:
     'django.contrib.staticfiles',
     'api.cms',
