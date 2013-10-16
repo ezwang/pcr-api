@@ -3,7 +3,11 @@ from django.template import RequestContext
 from django.shortcuts import redirect, render_to_response
 from django.core import serializers
 from django.http import HttpResponse
+from django.contrib.auth.models import User
+from cms.models import UserProfile, Tag
+from django.views.decorators.csrf import csrf_exempt
 import json
+
 
 # Create your views here.
 def home(request):
@@ -11,7 +15,47 @@ def home(request):
         return render_to_response('cms/index.html', {}, context_instance=RequestContext(request))
 
 
-def users(request, userid):
+# TODO: not safe?
+@csrf_exempt
+def users(request):
+    """
+    POST:
+        creates the user and the tags it's passed, if they aren't already created
+        ('WHA', 'Wharton'),
+        ('SOC', 'Social Sciences'),
+        ('MTS', 'Math/Science'),
+        ('HUM', 'Humanities'),
+        ('ENG', 'Engineering'),
+        ('NUR', 'Nursing'),
+        params:
+            'email'
+            'name'
+            'specialty'
+            'user_type': 3 character identifier as per model
+    """
+    if request.method == 'POST':
+        specialty = request.POST['specialty']
+        email = request.POST['email']
+        name = request.POST['name']
+        tag, created = Tag.objects.get_or_create(category=specialty.upper())
+        user = User(username=name, email=email)
+        user.save()
+        profile = UserProfile(user=user, user_type=request.POST['user_type'])
+        profile.save()
+        profile.tags.add(tag)
+        data = serializers.serialize('json', [profile])
+        return HttpResponse(data)
+
+
+# TODO: not safe?
+def get_user(request, userid=0):
+    """
+    GET:
+        params:
+            TODO: @scwu
+
+    """
+    import pdb; pdb.set_trace()
     if request.method == 'GET':
         u = {}
         current_user = UserProfile.objects.get(id=userid)
@@ -65,6 +109,7 @@ def initial(request):
     #put into json dump and return
     data = json.dumps(all_info)
     return HttpResponse(data)
+
 
 def update_assignments(request):
     if request.is_ajax():
