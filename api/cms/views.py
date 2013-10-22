@@ -141,6 +141,35 @@ def add_tags(request):
                 user.save()
                 return HttpResponse('{"Response":"Success", "Results": "True"}')
 
+def add_summary(request):
+    if request.is_ajax():
+        summary = request.POST['summary']
+        course_id = request.POST['course']
+        status_change = request.POST['status']
+        course_model = Course.objects.get(id=course_id)
+        if (status=='I'):
+            course_model.summary.text=summary
+            course_model.summary.status='I'
+            course_model.summary.save()
+        elif (status=='S'):
+            course_model.summary.text=summary
+            course_model.summary.status='S'
+            course_model.summary.save()
+        course_model.save()
+        return HttpResponse('{"Response":"Success"}')
+
+
+def summary_status(request):
+    if request.is_ajax():
+        course_id = request.POST['course']
+        status_change = request.POST['status']
+        if (status=='P'):
+            course_model = Course.objects.get(id=course_id)
+            course_model.summary.status='I'
+            course_model.summary.save()
+            course_model.save()
+
+
 
 def course(request):
     if request.method == 'GET':

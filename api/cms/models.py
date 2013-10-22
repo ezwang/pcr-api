@@ -45,6 +45,20 @@ class UserProfile(models.Model):
     tags = models.ManyToManyField(Tag, blank=True, null=True)
 
 
+class Summary(models.Model):
+    """
+        The summary that the summarizers create - contains information
+        on it's current review status (by the editors)
+    """
+    status = models.CharField(max_length=1, choices=SUMMARY_STATUSES)
+    text = models.TextField()
+
+    def toJSON(self):
+        pass
+
+    def __unicode__(self):
+        return u'%s' % (self.course.name)
+
 class Course(models.Model):
     """ Course Section (2012F, 2012S...).
         Every "instance" of a course that can be reviewed
@@ -57,29 +71,13 @@ class Course(models.Model):
     section = models.CharField(max_length=200)
     semester = models.DateField(auto_now_add=True)
     term = models.CharField(max_length=20)
+    # summary = models.ForeignKey(Summary, null=True, blank=True)
 
     def toJSON(self):
         pass
 
     def __unicode__(self):
         return u'%s %s' % (self.name, self.professor)
-
-
-class Summary(models.Model):
-    """
-        The summary that the summarizers create - contains information
-        on it's current review status (by the editors)
-    """
-    course = models.ForeignKey(Course)
-    status = models.CharField(max_length=1, choices=SUMMARY_STATUSES)
-    text = models.TextField()
-
-    def toJSON(self):
-        pass
-
-    def __unicode__(self):
-        return u'%s' % (self.course.name)
-
 
 class Review(models.Model):
     """ The review text for a given course by a student """
