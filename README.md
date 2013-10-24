@@ -13,7 +13,7 @@
   - Don't run collectstatic
 - Install MySQL. Try running it. If you encounter 'No module named MySQLdb', run sudo pip install mysql-python.
  In mysql, create the database you specified in your sandbox_config, and create a user with permissions
-  - google "mysql create user with permissions" if you need help. 
+  - google "mysql create user with permissions" if you need help.
   - Update your sandbox config if information has changed.
 - python manage.py syncdb
 - python manage.py runserver
@@ -43,7 +43,7 @@
   - Don't run collectstatic
 - Install MySQL. Try running it. If you encounter 'No module named MySQLdb', run sudo pip install mysql-python.
  In mysql, create the database you specified in your sandbox_config, and create a user with permissions
-  - google "mysql create user with permissions" if you need help. 
+  - google "mysql create user with permissions" if you need help.
   - Update your sandbox config if information has changed.
 - python manage.py syncdb
 - python manage.py runserver
@@ -73,3 +73,10 @@
 - api, a django app that responds to the queries
 - scripts, a collection of import scripts that imports the PCR data from the old PCR site (and soon, ISC)
 - wrappers, a set of of language wrappers for the API.  Currently, this means only an old PHP one.
+
+
+## build CMS
+- `make server`: runs the server
+- `make static`: builds static files
+
+
