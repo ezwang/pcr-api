@@ -79,8 +79,8 @@ def get_user(request, userid=0):
 
 def courses(request, courseid):
     if request.method == 'GET':
-        course = Course.objects.get(id=courseid)
-        data = json.dumps(course)
+        course = Course.objects.filter(id=courseid)
+        data = serializers.serialize("json", course)
         return HttpResponse(data)
 
 
