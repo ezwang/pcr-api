@@ -1,0 +1,150 @@
+.selected {
+  color: #D14;
+  background: #eee;
+}
+#stats {
+  width: 100%;
+  height: auto;
+  margin: 0 0 10px 0;
+  padding: 5px;
+  overflow: hidden;
+  background-color: #f8f8f8;
+  border-bottom: 1px solid #eee;
+  border-left: 1px solid #eee;
+  border-right: 1px solid #eee;
+  position: relative;
+}
+#stats p {
+  font-size: 20px;
+}
+#stats #stats-courses {
+  width: 40%;
+}
+#stats #stats-users {
+  width: 40%;
+}
+#stats #stats-summary {
+  width: 20%;
+}
+#stats li {
+  float: left;
+}
+#stats i {
+  position: absolute;
+  right: 0px;
+  bottom: 0px;
+  margin: 3px;
+}
+#search-wrapper {
+  margin-left: 0px;
+}
+.course-list tr:hover {
+  background-color: #f5f5f5;
+}
+.course-list .course {
+  border: 1px solid black;
+  height: 50px;
+  width: 600px;
+  overflow: hidden;
+}
+.course-list .course input {
+  float: left;
+  margin: 20px 0px 0px 5px;
+}
+.course-list .course h2 {
+  margin: 1px 0px 0px 40px;
+}
+.course-list .course table {
+  margin-left: 150px;
+  float: left;
+}
+.course-list .course td {
+  padding-right: 3px;
+}
+.course-list .course .assign {
+  border: 1px solid red;
+  float: right;
+  border-radius: 15px;
+  height: 100px;
+  min-width: 150px;
+  margin-right: -26px;
+  padding: 2px 28px 0px 5px;
+}
+ul,
+li {
+  list-style: none;
+}
+.editor-list {
+  height: 100%;
+}
+#user-table tr:hover {
+  background-color: #f5f5f5;
+}
+#user-table a {
+  color: inherit;
+}
+#user-table a:hover {
+  color: #08c;
+}
+.review-list {
+  height: 100%;
+}
+#review-summary-wrapper .review-summary {
+  width: 90%;
+  position: relative;
+  margin: auto;
+  border: 1px solid grey;
+  border: 1px solid #e9e9e9;
+  border-radius: 3px;
+  padding: 2em 3em 2em 2em;
+}
+#review-summary-wrapper .review-summary textarea:focus {
+  outline: none;
+  -webkit-appearance: none;
+}
+#review-summary-wrapper .review-summary textarea {
+  outline: none;
+  margin-top: -11px;
+  color: grey;
+  width: 100%;
+  height: 15em;
+  border: 1px solid #D9D9D9;
+  padding: 0.5em;
+  -webkit-border-top-right-radius: 0px;
+  -webkit-border-top-left-radius: 0px;
+  -moz-border-radius-topright: 0px;
+  -moz-border-radius-topleft: 0px;
+  border-top-right-radius: 0px;
+  border-top-left-radius: 0px;
+  -webkit-border-bottom-right-radius: 4px;
+  -webkit-border-bottom-left-radius: 4px;
+  -moz-border-radius-bottomright: 4px;
+  -moz-border-radius-bottomleft: 4px;
+  border-bottom-right-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+#review-summary-wrapper .review-summary p {
+  background-color: white;
+  border: 1px solid #D9D9D9;
+  padding: 0.5em;
+  width: 100%;
+  color: grey;
+  -webkit-border-top-left-radius: 4px;
+  -webkit-border-top-right-radius: 4px;
+  -moz-border-radius-topleft: 4px;
+  -moz-border-radius-topright: 4px;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+}
+#review-table-wrapper .review-table {
+  width: 100%;
+  margin: auto;
+}
+#review-table-wrapper .review-table .review {
+  width: 100%;
+}
+#review-table-wrapper .review-table .review p {
+  padding: 1em;
+  margin: 0px;
+  border-top: 1px solid #e9e9e9;
+}

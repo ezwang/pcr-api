@@ -6,10 +6,9 @@ staticgenerator_output/*
 CACHES/*
 venv
 api/static/*
-api/cms/static/coffeescripts/**/*.js
-api/cms/static/coffeescripts/*.js
+api/cms/static/js
+api/cms/static/css
 .sass-cache
-api/cms/static/sass/*.css
 
 venv/
 
