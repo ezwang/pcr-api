@@ -179,3 +179,60 @@ def course(request):
 def edit(request):
     if request.method == 'GET':
         return render_to_response('cms/edit.html', {}, context_instance=RequestContext(request))
+
+
+def autoassign(request):
+    """
+    simple inefficient alg:
+    1. get list of departments
+    2. get map of specialty to courses
+    3. get map of specialty to users (# as well)
+    4. calculate courses:user ratios
+    5. starting with the specialty with the lowest course:user ratio:
+        1. assign courses to users in that specialty until the average is reached.
+            If the first department, just iterate over and spread to users. Update global average as the number assigned to each user.
+        2. If average reached, then pool users and assign to all
+        3. update global average,
+    ** calculate and average the four ratios
+    """
+    if request.method == 'GET':
+        # return render_to_response('cms/edit.html', {}, context_instance=RequestContext(request))
+    # get all departments
+    # departments = 1
+
+    # grab all departments
+        departments = Course.objects.values_list('department', flat=True).distinct()
+        numbers = {}
+
+        # set up a dict, department to number in each
+        for dept in departments:
+            numbers[dept] = len(Course.objects.filter(department=dept))
+
+        sorted_list = sorted(numbers.items(), key=lambda x: x[1], reverse=True)
+
+        # get users, order them by number assigned
+        users = User.objects.all()
+        courses = Course.objects.all()
+        # for each course, assign it to a user in turn.
+
+        index = 0;
+        for course in courses:
+            course.user = users[index]
+            course.save()
+            if index == len(users) - 1:
+                index = 0
+            else:
+                index += 1
+        return render_to_response('cms/edit.html', {}, context_instance=RequestContext(request))
+
+
+
+
+
+
+
+
+
+
+
+
