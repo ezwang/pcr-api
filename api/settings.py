@@ -88,7 +88,6 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.cache.UpdateCacheMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.cache.FetchFromCacheMiddleware',
-    'api.apiconsumer.authenticate.Authenticate',
 )
 
 ROOT_URLCONF = 'urls'
@@ -106,6 +105,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.messages',
+    'tastypie',
     'api.courses',
     'api.apiconsumer',
     # Uncomment the next line to enable the admin:
