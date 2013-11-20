@@ -97,14 +97,26 @@ def _retrieve_courses(q, count):
     # then listing courses whose department code or department name matches
     # a token in q,
     # then listing courses whose name matches `q`.
-    qs = set(q.split() + q.split("-"))
+
+    tokens = set(q.split() + q.split("-"))
+
+    # split queries at the first number to handle cases like "cis110" or
+    # "econ001"
+    try:
+        i = _index_digit(q)
+    except ValueError:
+        pass
+    else:
+        tokens.add(q[:i])
+        tokens.add(q[i:])
+
     q1 = Q(course__name__icontains=q)
-    q2 = Q(department__code__in=qs)
-    q3 = Q(department__name__in=qs)
+    q2 = Q(department__code__in=tokens)
+    q3 = Q(department__name__in=tokens)
     nums = []
-    for x in qs:
+    for token in tokens:
         try:
-            num = int(x)
+            num = int(token)
         except ValueError:
             pass
         else:
@@ -158,3 +170,16 @@ def _nat(n):
     if n < 0:
         raise ValueError("could not convert string to natural: '%s'" % n)
     return n
+
+
+def _index_digit(s):
+    """Find the index of the first digit in `s`.
+
+    :param s: a string to scan
+
+    Raises a ValueError if no digit is found.
+    """
+    for i, c in enumerate(s):
+        if c.isdigit():
+            return i
+    raise ValueError("digit not found")
