@@ -23,9 +23,17 @@ TAGS = (
 
 USER_TYPE = (
     ('WR', 'Writer'),
+# broken up into section
+# each section has writers, 2 section editors.
+# writer hits post -> goes to editor
     ('ED', 'Editor'),
+# editor hits post -> editor in chief
     ('EC', 'Editor-in-Chief'),
+# eic hits post to go live
 )
+
+
+# threshold for showing the courses with certain number of reviews.
 
 
 class Tag(models.Model):
