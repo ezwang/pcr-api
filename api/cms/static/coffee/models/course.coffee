@@ -21,8 +21,11 @@ class root.app.models.Course extends Backbone.RelationalModel
 
   STATUSES: ['In Progress', 'Finished', 'Approved']
 
-  defaults: ->
-    course_attrs
+  urlRoot: '/cms/_update_assignments/'
+
+  idAttribute: '_id'
+
+  defaults: course_attrs
 
   initialize: ->
     @set 'reviews', Math.round(Math.random() * 100)
@@ -37,7 +40,6 @@ class root.app.models.Course extends Backbone.RelationalModel
 
   matches_at: (search_query, search_type) ->
     if search_type == 'user'
-      console.log('searching by user')
       return @get(search_type).get('name').toLowerCase().indexOf search_query.toLowerCase()
     else return @get(search_type).toLowerCase().indexOf search_query.toLowerCase()
 

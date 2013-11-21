@@ -6,6 +6,10 @@ random_id = ->
 
 class app.models.User extends Backbone.RelationalModel
 
+  urlRoot: '/cms/user/'
+
+  idAttribute: '_id'
+
   relations: [{
     type: Backbone.HasMany
     key: 'courses'

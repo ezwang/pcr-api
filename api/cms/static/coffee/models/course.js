@@ -34,11 +34,9 @@
 
     Course.prototype.STATUSES = ['In Progress', 'Finished', 'Approved'];
 
-    Course.prototype.urlRoot = '/cms/_update_assignments/';
-
-    Course.prototype.idAttribute = '_id';
-
-    Course.prototype.defaults = course_attrs;
+    Course.prototype.defaults = function() {
+      return course_attrs;
+    };
 
     Course.prototype.initialize = function() {
       this.set('reviews', Math.round(Math.random() * 100));
@@ -56,6 +54,7 @@
 
     Course.prototype.matches_at = function(search_query, search_type) {
       if (search_type === 'user') {
+        console.log('searching by user');
         return this.get(search_type).get('name').toLowerCase().indexOf(search_query.toLowerCase());
       } else {
         return this.get(search_type).toLowerCase().indexOf(search_query.toLowerCase());

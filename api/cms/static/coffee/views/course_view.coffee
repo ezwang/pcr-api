@@ -7,6 +7,7 @@ class app.views.CourseView extends Backbone.View
     "click": "assign_course"
 
   render: () ->
+    # console.log @model.collection.headers
     @$el.html _.template @template,
       {headers: @model.collection.headers, attributes: @model.attributes}
 

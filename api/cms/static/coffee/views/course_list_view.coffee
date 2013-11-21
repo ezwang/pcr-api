@@ -11,16 +11,16 @@ class app.views.CourseListView extends Backbone.View
 
   # data resulting from user selection
   render: (search_data = {}) ->
-    console.log search_data
+    # console.log search_data
     data = if @selectedUser then @collection.where({user:@selectedUser}) else []
 
     @$el.html _.template @template,
       {headers: @collection.headers, selected: @collection.by}
 
     course_list = []
-
     # if a search query exists, filter the collection results
     # extra class to be added (selected)
+    count = 0
     push_courses = (course) =>
       course_view = new app.views.CourseView(model: course, selected_user: @selectedUser)
       course_list.push course_view.render()
@@ -43,6 +43,8 @@ class app.views.CourseListView extends Backbone.View
     return @
 
   initialize: ->
+    # console.log 'inside hee'
+    # console.log @collection
     @listenTo @collection, 'add', @render
     @listenTo @collection, 'sort', @render
     @listenTo root.match_vent, 'select_user', @filter_by_user

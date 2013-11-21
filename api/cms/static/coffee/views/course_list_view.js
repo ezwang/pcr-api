@@ -27,11 +27,12 @@
     };
 
     CourseListView.prototype.render = function(search_data) {
-      var count, course_list, course_list_els, data, push_courses, search_query, search_results,
+      var course_list, course_list_els, data, push_courses, search_query, search_results,
         _this = this;
       if (search_data == null) {
         search_data = {};
       }
+      console.log(search_data);
       data = this.selectedUser ? this.collection.where({
         user: this.selectedUser
       }) : [];
@@ -40,7 +41,6 @@
         selected: this.collection.by
       }));
       course_list = [];
-      count = 0;
       push_courses = function(course) {
         var course_view;
         course_view = new app.views.CourseView({
