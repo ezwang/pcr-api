@@ -37,8 +37,9 @@ def users(request):
         specialty = request.POST['specialty']
         email = request.POST['email']
         name = request.POST['name']
+        first_name, last_name = name.split()
         tag, created = Tag.objects.get_or_create(category=specialty.upper())
-        user = User(username=name, email=email)
+        user = User(first_name=first_name, last_name=last_name, username=name, email=email)
         user.save()
         profile = UserProfile(user=user, user_type=request.POST['user_type'])
         profile.save()
@@ -55,12 +56,11 @@ def get_user(request, userid=0):
             TODO: @scwu
 
     """
-    import pdb; pdb.set_trace()
     if request.method == 'GET':
         u = {}
         current_user = UserProfile.objects.get(id=userid)
         u['userid'] = current_user.id
-        u['name'] = current_user.user.first_name + " " + current_user.user.last_name
+        u['name'] = current_user.user.username
         u['email'] = current_user.user.email
         c = []
         courses = Course.objects.filter(user = current_user.user)
@@ -88,7 +88,7 @@ def initial(request):
     all_info = {}
     writers = []
     #gets all writers of type "writer"
-    full_users = UserProfile.objects.filter(user_type='WR')
+    full_users = UserProfile.objects.all()
     for u in full_users:
         i = {'email' : u.user.email, 'userid' : u.id, 'name': u.user.first_name + " " + u.user.last_name}
         tags = u.tags.all()
