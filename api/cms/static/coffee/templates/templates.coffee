@@ -87,6 +87,10 @@ app.templates.course_table = """
     <tbody>
     </tbody>
   </table>
+  <input type="submit" class="paginate" id="backward" value="Backwards"/>
+  <input type="submit" class="paginate" id="forward" value="Forwards"/>
+
+
   """
 app.templates.course = """
   <td><input type='checkbox'></td>

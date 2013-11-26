@@ -22,16 +22,22 @@
 
     CourseListView.prototype.selectedUser = void 0;
 
+    CourseListView.prototype.currentPage = '1';
+
+    CourseListView.prototype.course_list = [];
+
     CourseListView.prototype.events = {
-      "click th": "sort_reviews"
+      "click th": "sort_reviews",
+      "click .paginate": "paginate"
     };
 
     CourseListView.prototype.render = function(search_data) {
-      var count, course_list, course_list_els, data, push_courses, search_query, search_results,
+      var course_list_els, data, push_courses, search_query, search_results,
         _this = this;
       if (search_data == null) {
         search_data = {};
       }
+      console.log(search_data);
       data = this.selectedUser ? this.collection.where({
         user: this.selectedUser
       }) : [];
@@ -39,15 +45,14 @@
         headers: this.collection.headers,
         selected: this.collection.by
       }));
-      course_list = [];
-      count = 0;
+      this.course_list = [];
       push_courses = function(course) {
         var course_view;
         course_view = new app.views.CourseView({
           model: course,
           selected_user: _this.selectedUser
         });
-        return course_list.push(course_view.render());
+        return _this.course_list.push(course_view.render());
       };
       search_query = $('#course-search').val();
       search_results = this.collection.search_by_type(search_query, search_data.search_type);
@@ -57,7 +62,7 @@
       _(_.difference(search_results, data)).each(function(item) {
         return push_courses(item);
       });
-      course_list_els = _.pluck(course_list, 'el');
+      course_list_els = _.pluck(this.course_list.slice(this.current_page - 1, 101), 'el');
       this.$el.find('tbody').html(course_list_els);
       return this;
     };
@@ -67,6 +72,30 @@
       this.listenTo(this.collection, 'sort', this.render);
       this.listenTo(root.match_vent, 'select_user', this.filter_by_user);
       return this.listenTo(root.search_vent, 'course:search_by', this.render);
+    };
+
+    CourseListView.prototype.paginate = function(e) {
+      var course_list_els, idv, index_number, sliced_array;
+      e.preventDefault();
+      idv = e.currentTarget.id;
+      if (idv === 'backward') {
+        if (this.currentPage !== 1) {
+          this.currentPage--;
+          index_number = this.currentPage * 100 - 1;
+          course_list_els = _.pluck(this.course_list.slice(index_number, +(index_number + 100) + 1 || 9e9), 'el');
+          this.$el.find('tbody').html(course_list_els);
+          return this;
+        }
+      } else {
+        this.currentPage++;
+        if (this.currentPage * 100 + 100 < this.course_list.length) {
+          index_number = this.currentPage * 100 - 1;
+          sliced_array = this.course_list.slice(index_number, +(index_number + 100) + 1 || 9e9);
+          course_list_els = _.pluck(sliced_array, 'el');
+          this.$el.find('tbody').html(course_list_els);
+          return this;
+        }
+      }
     };
 
     CourseListView.prototype.sort_reviews = function(e) {

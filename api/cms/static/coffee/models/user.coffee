@@ -41,6 +41,7 @@ class app.models.User extends Backbone.RelationalModel
     _.map @defaults, (val, key) =>
       @set key, @defaults.key if not @get key
 
+
   activate: ->
 
   clear: ->

@@ -45,6 +45,7 @@
       if (options.selected_user) {
         this.selected = this.selected_user === this.model.attributes.user;
       }
+      this.model.bind('change', this.jbcima, this);
       return this.render();
     };
 
@@ -58,12 +59,15 @@
 
     CourseView.prototype.select_course = function() {
       if (!this.selected) {
-        this.model.attributes.user = void 0;
+        this.model.set('user', void 0);
         this.$el.css('color', 'black');
         this.$el.removeClass('selected');
         return;
       }
-      this.model.attributes.user = this.selected_user;
+      this.model.save({
+        user: this.selected_user
+      });
+      console.log(this.model.attributes.user);
       this.$el.addClass('selected');
       this.$el.find('input[type=checkbox]').prop('checked', true);
       return this.model.attributes.user = this.selected_user ? this.selected_user : this.$el.find('td[data-category="user"]').html();

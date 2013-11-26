@@ -111,8 +111,9 @@ def initial(request):
     return HttpResponse(data)
 
 
+@csrf_exempt
 def update_assignments(request):
-    if request.is_ajax():
+    if request.method=='POST':
         course_id = request.POST['courseid']
         user_id = request.POST['userid']
         user = UserProfile.objects.get(id=user_id)

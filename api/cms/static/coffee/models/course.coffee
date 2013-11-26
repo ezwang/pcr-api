@@ -21,7 +21,7 @@ class root.app.models.Course extends Backbone.RelationalModel
 
   STATUSES: ['In Progress', 'Finished', 'Approved']
 
-  urlRoot: '/cms/_update_assignments/'
+  urlRoot: '/cms/update_assignments/'
 
   idAttribute: '_id'
 
@@ -37,6 +37,7 @@ class root.app.models.Course extends Backbone.RelationalModel
   clear: ->
     @destroy()
     @view.remove()
+
 
   matches_at: (search_query, search_type) ->
     if search_type == 'user'

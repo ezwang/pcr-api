@@ -34,7 +34,7 @@
 
     Course.prototype.STATUSES = ['In Progress', 'Finished', 'Approved'];
 
-    Course.prototype.urlRoot = '/cms/_update_assignments/';
+    Course.prototype.urlRoot = '/cms/update_assignments/';
 
     Course.prototype.idAttribute = '_id';
 

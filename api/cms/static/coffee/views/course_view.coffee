@@ -26,6 +26,7 @@ class app.views.CourseView extends Backbone.View
     if options.selected_user
       @selected = @selected_user == @model.attributes.user
     # check it
+    @model.bind 'change', @jbcima, this
     @render()
 
   assign_course: (e) ->
@@ -37,12 +38,14 @@ class app.views.CourseView extends Backbone.View
   select_course: ->
     if not @selected
       # if current user and search user is the same, set the model attribute to undefined (unassign this guy)
-      @model.attributes.user = undefined
+      @model.set('user',undefined)
       @$el.css('color', 'black')
 
       @$el.removeClass('selected')
       return
-    @model.attributes.user = @selected_user
+    #when this attribute is set -> send post request
+    @model.save({user: @selected_user})
+    console.log(@model.attributes.user)
     @$el.addClass('selected')
     @$el.find('input[type=checkbox]').prop('checked', true)
     @model.attributes.user = if @selected_user then @selected_user else @$el.find('td[data-category="user"]').html()

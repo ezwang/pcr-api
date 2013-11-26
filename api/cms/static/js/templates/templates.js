@@ -21,7 +21,7 @@
 
   app.templates.search_form = "\n<form class=\"form-inline\">\n  <select id=\"course-search-by\">\n    <% _.each(options, function(option) { %>\n      <option><%= option %></option>\n    <% }) %>\n  </select>\n\n  <input id=\"course-search\" type=\"text\" class=\"input-medium\" placeholder=\"Search Courses\">\n  <label class=\"checkbox\">\n    <input type=\"checkbox\"> Show Assigned\n  </label>\n\n</form>\n";
 
-  app.templates.course_table = "<table class=\"table \" id=\"course-table\">\n  <thead>\n    <tr>\n      <th>?</th>\n      <% _.each(headers, function(header) {  %>\n      <th <% if (selected === header) { %>class='selected'<% } %> data-by='<%= header %>'><%= header.capitalize() %></th>\n      <% }) %>\n    </tr>\n  </thead>\n  <tbody>\n  </tbody>\n</table>";
+  app.templates.course_table = "<table class=\"table \" id=\"course-table\">\n  <thead>\n    <tr>\n      <th>?</th>\n      <% _.each(headers, function(header) {  %>\n      <th <% if (selected === header) { %>class='selected'<% } %> data-by='<%= header %>'><%= header.capitalize() %></th>\n      <% }) %>\n    </tr>\n  </thead>\n  <tbody>\n  </tbody>\n</table>\n<input type=\"submit\" class=\"paginate\" id=\"backward\" value=\"Backwards\"/>\n<input type=\"submit\" class=\"paginate\" id=\"forward\" value=\"Forwards\"/>\n\n";
 
   app.templates.course = "<td><input type='checkbox'></td>\n<% _.each(headers, function(key) { %>\n\n<td data-category='<%= key %>'>\n  <% // if equal to user, read it from the model %>\n  <% if (key === 'user' && attributes[key] ) { %>\n  <%= attributes[key].get('name') %>\n  <% } else %>\n  <%= attributes[key] %>\n</td>\n<% }) %>";
 
