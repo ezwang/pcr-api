@@ -92,7 +92,7 @@ class Migration(DataMigration):
         'cms.userprofile': {
             'Meta': {'object_name': 'UserProfile'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'tags': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'to': "orm['cms.Tag']", 'null': 'True', 'blank': 'True'}),
+            'tags': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['cms.Tag']", 'null': 'True', 'blank': 'True'}),
             'user': ('django.db.models.fields.related.OneToOneField', [], {'related_name': "'profile'", 'unique': 'True', 'to': "orm['auth.User']"}),
             'user_type': ('django.db.models.fields.CharField', [], {'max_length': '3'})
         },
