@@ -1,0 +1,89 @@
+- model: auth.user
+  pk: 2
+  fields:
+    username: sclarawu
+    password: clarawu
+    email: s.clara.wu@gmail.com
+    first_name: Clara
+    last_name: Wu
+- model: cms.userprofile
+  pk: 2
+  fields:
+    tags: [4,3]
+    user: 2
+    user_type: EC
+- model: cms.tag
+  pk: 3
+  fields:
+    category: 'WHA'
+- model: cms.tag
+  pk: 4
+  fields:
+    category: 'ENG'
+- model: cms.course
+  pk: 2
+  fields:
+    name: CIS191
+    professor: Gianni Chen
+    semester:
+    user: 2
+    department: CIS
+    section: 001
+    term: S12
+    summary: 2
+- model: cms.review
+  pk: 2
+  fields:
+    course: 2
+    text: This was amazing.
+- model: cms.summary
+  pk: 2
+  fields:
+    status : N
+    text: best class i've ever taken.
+- model: auth.user
+  pk: 3
+  fields:
+    username: parkerg
+    password: hello
+    email: parkerg@gmail.com
+    first_name: Parker
+    last_name: Gahagen
+- model: cms.userprofile
+  pk: 1
+  fields:
+    tags: [1,2]
+    user: 1
+    user_type: EC
+- model: cms.tag
+  pk: 1
+  fields:
+    category: 'WHA'
+- model: cms.tag
+  pk: 2
+  fields:
+    category: 'ENG'
+- model: cms.course
+  pk: 1
+  fields:
+    name: STAT430
+    professor: Robert Lowe
+    semester: Fall-2013
+    user: 2
+    department:
+    section:
+    term: S-12
+    summary: 3
+- model: cms.review
+  pk: 3
+  fields:
+    course: 1
+    text: This was amazing.
+- model: cms.summary
+  pk: 3
+  fields:
+    status : N
+    text: best class i've ever taken.
+- model: 
+  pk: 2
+

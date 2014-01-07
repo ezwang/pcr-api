@@ -1,54 +1,29 @@
 root = exports ? this
 random_color = ->
   return '#' + (0x1000000 + (Math.random()) * 0xffffff).toString(16).substr(1, 6)
-random_id = ->
-  return Math.ceil(Math.random() * 10000)
 
-class app.models.User extends Backbone.RelationalModel
-
-  urlRoot: '/cms/user/'
-
-  idAttribute: '_id'
-
-  relations: [{
-    type: Backbone.HasMany
-    key: 'courses'
-    relatedModel: 'app.models.Course'
-    includeInJSON: ['color', '_id']
-    collectionType: 'app.collections.Courses'
-    # collectionKey: 'root.courses'
-    reverseRelation: {
-      key: 'user'
-      type: Backbone.HasOne
-      includeInJson: false
-      # collectionKey: 'app.models.User'
-    }
-  }]
-
+class app.models.User extends Backbone.Model
+  urlRoot: '/cms/users/'
   defaults:
-    id: random_id() # temporarily, from the python models
+    id: _.uniqueId()
     name: 'Default Name',
     permission: '0',
     email: 'default@default.com',
     color: '#000000',
     reviews: '0',
     profile: '/user/<%= id %>',
+    user_type: 'WR',
     specialty: 'Wharton'
 
   initialize: ->
-    @.set 'color', random_color()
-    @.set 'id', random_id()
+    @set 'color', random_color()
     _.map @defaults, (val, key) =>
       @set key, @defaults.key if not @get key
-
-
-  activate: ->
-
   clear: ->
     @destroy()
     @view.remove()
 
-app.models.User.setup() # required for coffeescript
+# app.models.User.setup() # required for coffeescript
 
 class app.collections.Users extends Backbone.Collection
   model: app.models.User
@@ -63,5 +38,3 @@ class app.collections.Users extends Backbone.Collection
         item != 'id' and item != 'color' and item != 'permission' and item != 'courses'
       )
       # ['name','email', 'reviews', 'profile', 'specialty']
-
-

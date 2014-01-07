@@ -51,7 +51,9 @@ class Tag(models.Model):
 class UserProfile(models.Model):
     user = models.OneToOneField(User, related_name="profile")
     user_type = models.CharField(max_length=3, choices=USER_TYPE)
-    tags = models.ManyToManyField(Tag, blank=True, null=True)
+    # tags = models.ManyToManyField(Tag, blank=True, null=True)
+    # tags = models.ForeignKey(Tag, blank=True, null=True)
+    tags = models.ForeignKey(Tag, blank=True, null=True)
 
 
 class Summary(models.Model):

@@ -39,19 +39,10 @@
       email = this.$el.find('#add-email').val();
       specialty = this.$el.find('#add-specialty').val();
       e.preventDefault();
-      return $.post('/cms/users', {
+      return root.create_vent.trigger('user:create', {
         name: name,
         email: email,
-        specialty: specialty,
-        user_type: 'WR'
-      }, function(data) {
-        console.log('users request');
-        console.log(data);
-        return root.create_vent.trigger('user:create', {
-          name: name,
-          email: email,
-          specialty: specialty
-        });
+        specialty: specialty
       });
     };
 

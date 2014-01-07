@@ -53,6 +53,8 @@
       var user;
       user = new app.models.User(data);
       this.collection.add(user);
+      console.log("save");
+      user.save();
       return this;
     };
 

@@ -4,7 +4,7 @@ class app.views.CourseListView extends Backbone.View
   template: app.templates.course_table
   tagName: 'div'
   className:'course-list'
-  selectedUser: undefined
+  selectedUser: null
   currentPage: '1'
   course_list: []
 
@@ -14,7 +14,8 @@ class app.views.CourseListView extends Backbone.View
 
   # data resulting from user selection
   render: (search_data = {}) ->
-    data = if @selectedUser then @collection.where({user:@selectedUser}) else []
+    user_id = @selectedUser?.id
+    data = if user_id then @collection.where(user: user_id) else []
 
     @$el.html _.template @template,
       {headers: @collection.headers, selected: @collection.by}
@@ -24,7 +25,7 @@ class app.views.CourseListView extends Backbone.View
     # extra class to be added (selected)
     push_courses = (course) =>
       course_view = new app.views.CourseView(model: course, selected_user: @selectedUser)
-      @course_list.push course_view.render()
+      @course_list.push course_view
 
     search_query = $('#course-search').val()
     search_results = @collection.search_by_type(search_query, search_data.search_type)
@@ -39,7 +40,10 @@ class app.views.CourseListView extends Backbone.View
     #search_query = $('#course-search').val()
     #@collection.search_by_name(search_query).each push_courses
 
-    course_list_els = _.pluck @course_list[@current_page-1..100], 'el'
+    current = @course_list[@currentPage-1..99]
+    console.log current.length
+    course_list_els = _.map current, (v) -> v.render().el
+
     @$el.find('tbody').html course_list_els
     return @
 
@@ -55,18 +59,15 @@ class app.views.CourseListView extends Backbone.View
     if (idv=='backward')
       if (@currentPage !=1)
         @currentPage--
-        index_number = @currentPage*100-1
-        course_list_els = _.pluck @course_list[index_number..index_number+100], 'el'
-        @$el.find('tbody').html course_list_els
-        return @
     else
-      @currentPage++
       if (@currentPage*100 + 100 < @course_list.length)
-        index_number = @currentPage*100-1
-        sliced_array = @course_list[index_number..index_number+100]
-        course_list_els = _.pluck sliced_array, 'el'
-        @$el.find('tbody').html course_list_els
-        return @
+        @currentPage++
+
+    index_number = (@currentPage-1) * 100
+    current = @course_list[index_number..index_number + 100]
+    course_list_els = _.map current, (v) -> v.render().el
+    @$el.find('tbody').html course_list_els
+    return @
 
   sort_reviews: (e) ->
     e.preventDefault()
@@ -75,7 +76,5 @@ class app.views.CourseListView extends Backbone.View
 
   filter_by_user: (data) ->
     @selectedUser = data.user
-    # console.log('hier')
-    # console.log(@selectedUser)
     @render()
 

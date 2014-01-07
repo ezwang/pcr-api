@@ -5,15 +5,26 @@ root.app = if root.app then root.app else
   views: {}
   templates: {}
 
+do ->
+    _sync = Backbone.sync
+    Backbone.sync = (method, model, options) ->
+      options.beforeSend = (xhr) ->
+        token = $('meta[name="csrf-token"]').attr("content")
+        xhr.setRequestHeader "X-CSRFToken", token
+      _sync method, model, options
+
 $ ->
 
   $.ajax
-      url:"/cms/initial"
+      url: "/cms/initial"
       success: (data) =>
-        @initial_models = data
-        root.courses = new app.collections.Courses($.parseJSON(@initial_models).courses)
-        root.users = new app.collections.Users($.parseJSON(@initial_models).users)
+        data = JSON.parse(data)
+        for c in data.courses
+          console.log c.user
+        root.courses = new app.collections.Courses(data.courses)
+        root.users = new app.collections.Users(data.users)
 
+        console.log(root.courses)
         String::capitalize = ->
           @charAt(0).toUpperCase() + @[1..]
 

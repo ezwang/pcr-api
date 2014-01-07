@@ -18,24 +18,26 @@
 
     CourseView.prototype.selected = false;
 
-    CourseView.prototype.selected_user = void 0;
+    CourseView.prototype.selected_user = null;
 
     CourseView.prototype.events = {
       "click": "assign_course"
     };
 
     CourseView.prototype.render = function() {
+      var color, _ref1;
       this.$el.html(_.template(this.template, {
         headers: this.model.collection.headers,
         attributes: this.model.attributes
       }));
-      if (this.model.get('user') && this.model.get('user') === this.selected_user) {
+      if (this.model.get('user') === ((_ref1 = this.selected_user) != null ? _ref1.id : void 0)) {
         this.$el.addClass('selected');
       } else {
         this.$el.removeClass('selected');
       }
       if (this.model.get('user')) {
-        this.$el.css('color', this.model.get('user').get('color'));
+        color = users.get(this.model.get('user')).get('color');
+        this.$el.css('color', color);
       }
       return this;
     };
@@ -43,10 +45,8 @@
     CourseView.prototype.initialize = function(options) {
       this.selected_user = options.selected_user;
       if (options.selected_user) {
-        this.selected = this.selected_user === this.model.attributes.user;
+        return this.selected = this.selected_user.id === this.model.get("user");
       }
-      this.model.bind('change', this.jbcima, this);
-      return this.render();
     };
 
     CourseView.prototype.assign_course = function(e) {
@@ -59,18 +59,18 @@
 
     CourseView.prototype.select_course = function() {
       if (!this.selected) {
-        this.model.set('user', void 0);
+        this.model.save({
+          user: null
+        });
         this.$el.css('color', 'black');
-        this.$el.removeClass('selected');
-        return;
+        return this.$el.removeClass('selected');
+      } else {
+        this.model.save({
+          user: this.selected_user.id
+        });
+        this.$el.addClass('selected');
+        return this.$el.find('input[type=checkbox]').prop('checked', true);
       }
-      this.model.save({
-        user: this.selected_user
-      });
-      console.log(this.model.attributes.user);
-      this.$el.addClass('selected');
-      this.$el.find('input[type=checkbox]').prop('checked', true);
-      return this.model.attributes.user = this.selected_user ? this.selected_user : this.$el.find('td[data-category="user"]').html();
     };
 
     return CourseView;

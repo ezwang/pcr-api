@@ -21,11 +21,6 @@ class app.views.UserNewView extends Backbone.View
     email = @$el.find('#add-email').val()
     specialty = @$el.find('#add-specialty').val()
     e.preventDefault()
-    # send ajax request, if success, create, else popup notification error
-    $.post '/cms/users', {name, email, specialty, user_type:'WR'}, (data)->
-      console.log 'users request'
-      console.log data
-#TODO: 403 forbidden
-      root.create_vent.trigger 'user:create',
-        {name, email, specialty}
+    root.create_vent.trigger 'user:create',
+      {name, email, specialty}
 

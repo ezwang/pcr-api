@@ -11,14 +11,34 @@
     templates: {}
   };
 
+  (function() {
+    var _sync;
+    _sync = Backbone.sync;
+    return Backbone.sync = function(method, model, options) {
+      options.beforeSend = function(xhr) {
+        var token;
+        token = $('meta[name="csrf-token"]').attr("content");
+        return xhr.setRequestHeader("X-CSRFToken", token);
+      };
+      return _sync(method, model, options);
+    };
+  })();
+
   $(function() {
     var _this = this;
     return $.ajax({
       url: "/cms/initial",
       success: function(data) {
-        _this.initial_models = data;
-        root.courses = new app.collections.Courses($.parseJSON(_this.initial_models).courses);
-        root.users = new app.collections.Users($.parseJSON(_this.initial_models).users);
+        var c, _i, _len, _ref;
+        data = JSON.parse(data);
+        _ref = data.courses;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          c = _ref[_i];
+          console.log(c.user);
+        }
+        root.courses = new app.collections.Courses(data.courses);
+        root.users = new app.collections.Users(data.users);
+        console.log(root.courses);
         String.prototype.capitalize = function() {
           return this.charAt(0).toUpperCase() + this.slice(1);
         };

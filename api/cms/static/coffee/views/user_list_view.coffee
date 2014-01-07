@@ -29,6 +29,8 @@ class app.views.UserListView extends Backbone.View
   addOne: (data) ->
     user = new app.models.User data
     @collection.add user
+    console.log "save"
+    user.save()
     return @
 
   sort_reviews: (e) ->

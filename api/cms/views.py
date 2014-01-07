@@ -6,17 +6,20 @@ from django.http import HttpResponse
 from django.contrib.auth.models import User
 from cms.models import UserProfile, Tag
 from django.views.decorators.csrf import csrf_exempt
+from django.core.context_processors import csrf
+import pdb
 import json
 
 
 # Create your views here.
 def home(request):
     if request.method == 'GET':
-        return render_to_response('cms/index.html', {}, context_instance=RequestContext(request))
+        c = {}
+        c.update(csrf(request))
+        return render_to_response('cms/index.html', c, context_instance=RequestContext(request))
 
 
 # TODO: not safe?
-@csrf_exempt
 def users(request):
     """
     POST:
@@ -34,16 +37,17 @@ def users(request):
             'user_type': 3 character identifier as per model
     """
     if request.method == 'POST':
-        specialty = request.POST['specialty']
-        email = request.POST['email']
-        name = request.POST['name']
+        params = json.loads(request.body)
+        specialty = params['specialty']
+        email = params['email']
+        name = params['name']
         first_name, last_name = name.split()
         tag, created = Tag.objects.get_or_create(category=specialty.upper())
         user = User(first_name=first_name, last_name=last_name, username=name, email=email)
         user.save()
-        profile = UserProfile(user=user, user_type=request.POST['user_type'])
+        profile = UserProfile(user=user, user_type=params['user_type'])
         profile.save()
-        profile.tags.add(tag)
+        profile.tags = tag
         data = serializers.serialize('json', [profile])
         return HttpResponse(data)
 
@@ -90,19 +94,18 @@ def initial(request):
     #gets all writers of type "writer"
     full_users = UserProfile.objects.all()
     for u in full_users:
-        i = {'email' : u.user.email, 'userid' : u.id, 'name': u.user.first_name + " " + u.user.last_name}
-        tags = u.tags.all()
+        user_courses = Course.objects.filter(user=u).count()
+        i = {'reviews': user_courses, 'id': u.id,'email' : u.user.email, 'name': u.user.first_name + " " + u.user.last_name}
+        tags = u.tags
         #get all tags of user
-        tag_list= [t.category for t in tags]
-        i['tags'] = tag_list
-        #add writer information to list of writers
-        writers.append(i)
+        writers.append(i);
     all_info['users'] = writers
     courses = []
     #get all courses
     all_courses = Course.objects.all()
     for co in all_courses:
-        i = {'name' :  co.name, 'department' : co.department,
+        user_id = co.user.id if co.user else None
+        i = {'user' : user_id, 'department' : co.department,
              'professor' : co.professor, 'section' : co.section, 'courseid' : co.id}
         courses.append(i)
     all_info['courses'] = courses
@@ -110,13 +113,12 @@ def initial(request):
     data = json.dumps(all_info)
     return HttpResponse(data)
 
-
-@csrf_exempt
 def update_assignments(request):
     if request.method=='POST':
-        course_id = request.POST['courseid']
-        user_id = request.POST['userid']
-        user = UserProfile.objects.get(id=user_id)
+        params = json.loads(request.body)
+        course_id = params['courseid']
+        user_id = params['user']
+        user = User.objects.get(id=user_id)
         if user:
             course = Course.objects.get(id=course_id)
             if course:
@@ -171,10 +173,11 @@ def summary_status(request):
             course_model.save()
 
 
-
 def course(request):
     if request.method == 'GET':
-        return render_to_response('cms/course.html', {}, context_instance=RequestContext(request))
+        c = {}
+        c.update(csrf(request))
+        return render_to_response('cms/course.html', c, context_instance=RequestContext(request))
 
 
 def edit(request):

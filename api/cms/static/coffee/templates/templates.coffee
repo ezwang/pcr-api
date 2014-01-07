@@ -99,7 +99,7 @@ app.templates.course = """
   <td data-category='<%= key %>'>
     <% // if equal to user, read it from the model %>
     <% if (key === 'user' && attributes[key] ) { %>
-    <%= attributes[key].get('name') %>
+    <%= users.get(attributes[key]).get("name") %>
     <% } else %>
     <%= attributes[key] %>
   </td>

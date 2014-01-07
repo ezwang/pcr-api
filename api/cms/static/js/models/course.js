@@ -18,7 +18,7 @@
     department: 'default department',
     section: '110',
     name: 'Default Course Name',
-    user: void 0,
+    user: null,
     professor: 'professory dude',
     status: 'In Progress',
     category: 'Wharton'
@@ -36,18 +36,11 @@
 
     Course.prototype.urlRoot = '/cms/update_assignments/';
 
-    Course.prototype.idAttribute = '_id';
-
     Course.prototype.defaults = course_attrs;
 
     Course.prototype.initialize = function() {
-      this.set('reviews', Math.round(Math.random() * 100));
-      if (root.courses) {
-        return root.courses.add(this);
-      }
+      return this.set('reviews', Math.round(Math.random() * 100));
     };
-
-    Course.prototype.activate = function() {};
 
     Course.prototype.clear = function() {
       this.destroy();
@@ -64,9 +57,7 @@
 
     return Course;
 
-  })(Backbone.RelationalModel);
-
-  root.app.models.Course.setup();
+  })(Backbone.Model);
 
   root.app.collections.Courses = (function(_super) {
     __extends(Courses, _super);
