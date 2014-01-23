@@ -6,6 +6,7 @@ from utils import current_semester
 from json_helpers import JSON
 import sandbox_config
 from models import *
+from django.http import HttpResponse
 from links import *
 import dispatcher
 from dispatcher import API404, dead_end

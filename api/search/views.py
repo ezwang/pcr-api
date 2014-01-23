@@ -3,6 +3,7 @@ The modules implement the PennCourseReview search endpoint.
 """
 from django.db.models import Q
 from django.http import HttpResponseBadRequest
+from django.http import HttpResponse
 from django.views.decorators.http import require_GET
 
 from json_helpers import JSON
@@ -139,15 +140,48 @@ def _retrieve_instructors(q, count):
     :param count: The number of results to return
     """
     # Generate a list of `count` instructors,
-    # first listing instructors whose last name matches `q`,
-    # then listing instructors who first name matches `q`.
-    q1 = Q(last_name__istartswith=q)
-    q2 = Q(first_name__istartswith=q)
-    r0 = Instructor.objects.filter(q1 | q2)
-    r1 = list(r0.filter(q1)[:count])
-    r2 = list(r0.exclude(q1)[:count - len(r1)])
-    return r1 + r2
 
+    # This function generates a list of <= count instructors, first listing instructors
+    # whose first AND last names match q, and second listing instructors whose
+    # first OR last names matches a term in q.
+
+    r = list()
+    words = q.split()
+
+    q_all = Q()
+
+    for word in words:
+        q_all |= Q(last_name__istartswith=word) | Q(first_name__istartswith=word)
+
+    r_all = Instructor.objects.filter(q_all)
+
+    if len(words) == 2:
+        q0 = Q(last_name__istartswith=words[1]) & Q(first_name__istartswith=words[0])
+        q1 = Q(last_name__istartswith=words[0]) & Q(first_name__istartswith=words[1])
+        
+        r += list(r_all.filter(q0)[:count])
+        r += list(r_all.filter(q1)[:count-len(r)])
+
+    r_all = r_all.exclude(q0 | q1)
+
+    # We assume the query does not contain identical words, which we expect to generate duplicates
+    for i, word in enumerate(words):
+        q1 = Q(last_name__istartswith=word)
+        q2 = Q(first_name__istartswith=word)
+
+        # Given that the query is 'Adam Grant' we consider results with "Adam" in the first name
+        # more relevant than results with "Adam" in the last name, and vice-versa for "Grant"
+        if i == 0: 
+            r += list(r_all.filter(q2)[:count-len(r)])
+            r += list(r_all.filter(q1)[:count-len(r)])
+        else:
+            r += list(r_all.filter(q1)[:count-len(r)])
+            r += list(r_all.filter(q2)[:count-len(r)])
+            
+        if len(r) == count:
+            break
+    return r
+    
 
 def _retrieve_departments(q, count):
     """Retrieve a list of `count` unique Departments that are relevant to `q`.
