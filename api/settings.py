@@ -136,5 +136,4 @@ if USE_DJANGO_DEBUG_TOOLBAR:
     #MIDDLEWARE_CLASSES = tuple(c for c in MIDDLEWARE_CLASSES if "Authenticate" not in c)
     MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
     INSTALLED_APPS += ('debug_toolbar',)
-    wifi_3913 = '76.124.117.94'
-    INTERNAL_IPS = (wifi_3913,'158.130.103.7')
+    INTERNAL_IPS = ('158.130.103.7','127.0.0.1')
