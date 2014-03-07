@@ -138,4 +138,4 @@ except ImportError:
 else:
     MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
     INSTALLED_APPS += ('debug_toolbar',)
-    INTERNAL_IPS = ('127.0.0.1',)
+    INTERNAL_IPS = ('158.130.103.7','127.0.0.1')
