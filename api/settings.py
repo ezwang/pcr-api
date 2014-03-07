@@ -86,6 +86,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.middleware.cache.FetchFromCacheMiddleware',
     'api.apiconsumer.authenticate.Authenticate',
+    'corsheaders.middleware.CorsMiddleware',
 )
 
 ROOT_URLCONF = 'urls'
@@ -98,6 +99,7 @@ TEMPLATE_DIRS = (
 )
 
 INSTALLED_APPS = (
+    'corsheaders',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -112,6 +114,8 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
 )
+
+CORS_ORIGIN_ALLOW_ALL = True
 
 # Caching
 if DO_CACHING:
