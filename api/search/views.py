@@ -162,7 +162,7 @@ def _retrieve_instructors(q, count):
         r += list(r_all.filter(q0)[:count])
         r += list(r_all.filter(q1)[:count-len(r)])
 
-    r_all = r_all.exclude(q0 | q1)
+        r_all = r_all.exclude(q0 | q1)
 
     # We assume the query does not contain identical words, which we expect to generate duplicates
     for i, word in enumerate(words):
