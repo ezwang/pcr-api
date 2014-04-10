@@ -99,6 +99,7 @@ TEMPLATE_DIRS = (
 )
 
 INSTALLED_APPS = (
+    'south',
     'corsheaders',
     'django.contrib.auth',
     'django.contrib.contenttypes',
