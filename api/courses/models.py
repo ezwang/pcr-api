@@ -374,8 +374,8 @@ class Course(models.Model):
 class Instructor(models.Model):
   """ A course instructor or TA (or "STAFF")"""
   #Leave names able to accept nulls- some professor names have been redacted
-  first_name = models.CharField(max_length=80, null=True) 
-  last_name = models.CharField(max_length=80, null=True)
+  first_name = models.CharField(db_index=True, max_length=80, null=True) 
+  last_name = models.CharField(db_index=True, max_length=80, null=True)
   #TODO: don't have these yet
   pennkey = models.CharField(max_length=80, null=True)
   email = models.EmailField(max_length=80, null=True)
