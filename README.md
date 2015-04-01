@@ -39,11 +39,11 @@ Password: laurenspringer
 1. Change your directory to Penn-Course-API/scripts
 2. Run "python download.py"
     * This scrapes the registrar, cleans up the data, and dumps it into /registrardata.
-    3. Run "python uploadcourses.py YEAR SEMESTER registrardata/*.txt"
-        * uploadcourses.py [YEAR] [SEMESTER] [*FILES] parses the data scraped from download.py and uses it to update the PCR API database.
-            * SEMESTER accepts either 'a', 'b', or 'c'
-                * (ie, run "python uploadcourses.py 2009 a registrardata/econ.txt")
-                    * Since the registrardata changes every year, YEAR should be the current year, and SEMESTER the current semester.
-                    4. Run "python import_from_pcr.py YEAR SEMESTER"
-                        * import_from_pcr.py [YEAR] [SEMESTER] reads from an external database-- assumed to have the original PCR records --and creates or updates course and review data in the new PCR API database.
-                            * (This can take a while.)
+3. Run "python uploadcourses.py YEAR SEMESTER registrardata/*.txt"
+   * uploadcourses.py [YEAR] [SEMESTER] [*FILES] parses the data scraped from download.py and uses it to update the PCR API database.
+   * SEMESTER accepts either 'a', 'b', or 'c'
+   * (ie, run "python uploadcourses.py 2009 a registrardata/econ.txt")
+   * Since the registrar data changes every year, YEAR should be the current year, and SEMESTER the current semester.
+4. Run "python import_from_pcr.py YEAR SEMESTER"
+   * import_from_pcr.py [YEAR] [SEMESTER] reads from an external database-- assumed to have the original PCR records --and creates or updates course and review data in the new PCR API database.
+   * (This can take a while.)

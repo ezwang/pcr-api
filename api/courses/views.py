@@ -11,7 +11,7 @@ from links import *
 import dispatcher
 from dispatcher import API404, dead_end
 
-DOCS_URL = 'http://pennapps.com/console/docs.html'
+DOCS_URL = 'http://pennlabs.org/console/docs.html'
 DOCS_HTML = "<a href='%s'>%s</a>" % (DOCS_URL, DOCS_URL)
 
 
@@ -269,5 +269,5 @@ def building_main(request, path, (code,)):
 
 @dead_end
 def index(request, path, _):
-  return JSON("Welcome to the PennApps Courses API. For docs, see %s."
+  return JSON("Welcome to the Penn Labs PCR API. For docs, see %s."
               % DOCS_HTML)
