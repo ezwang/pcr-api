@@ -594,7 +594,11 @@ class Command(BaseCommand):
       sect_code = int(section_str[7:10])
     except ValueError:
       sect_code = None
-    return (section_str[0:4].strip(), int(section_str[4:7]), sect_code)
+    try:
+      course_code = int(section_str[4:7])
+    except ValueError:
+      course_code = None
+    return (section_str[0:4].strip(), course_code, sect_code)
 
 
   def query(self, query_str, args=None):
