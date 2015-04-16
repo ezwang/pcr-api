@@ -91,10 +91,9 @@ d_data = d.read()
 print '!'
 j = json.loads(d_data)
 print '!'
-#urls = ["course/AAMW-401"]*7 +["course/foo", "autocomplete_data.json"]
-urls = ([os.path.join(AUTOCOMPLETE_PATH, c1 + c2)
+urls = ([os.path.join(AUTOCOMPLETE_PATH, c1 + c2 + ".json")
          for c1 in string.letters[:26] for c2 in string.letters[:26]] +
-        [str(it['url']) for bla in j.values() for it in bla])
+        [str(item['url']) for item_categ in j.values() for item in item_categ])
 
 
 semaphore = twisted.internet.defer.DeferredSemaphore(N_CONCURRENT_ACCESSES)
