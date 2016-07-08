@@ -1,5 +1,8 @@
 from django.http import HttpResponse
 from apiconsumer.models import APIConsumer
+import requests
+
+BASE_API = 'https://api.pennlabs.org'
 
 class Authenticate(object):
   """Looks up the token (passed as a GET parameter) in the token database.
@@ -14,20 +17,24 @@ class Authenticate(object):
     # for errors in HTTP-standard authentication.
 
     old_path = request.path_info
-    
+
     if old_path.startswith("/admin/") or old_path.startswith("/__debug__/"):
       return None
-    
+
     try:
       token = request.GET['token']
     except:
       return HttpResponse("No token provided.", status=404)
-    
+
     try:
       consumer = APIConsumer.objects.get(token=token)
     except APIConsumer.DoesNotExist:
       consumer = None
-      
+
+    if request.GET.get('origin', None) == 'labs-api':
+      validation = requests.get(BASE_API + '/validate/' + token).json()
+      valid = validation['status'] == 'valid'
+
     if consumer is not None and consumer.valid:
       # The found consumer is added to the request object, in request.consumer.
       request.consumer = consumer
