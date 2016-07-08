@@ -1,5 +1,5 @@
 from django.http import HttpResponse
-from apiconsumer.models import APIConsumer
+from apiconsumer.models import APIConsumer, generate_api_consumer
 import requests
 
 BASE_API = 'https://api.pennlabs.org'
@@ -31,9 +31,11 @@ class Authenticate(object):
     except APIConsumer.DoesNotExist:
       consumer = None
 
-    if request.GET.get('origin', None) == 'labs-api':
+    if request.GET.get('origin', None) == 'labs-api' and not consumer:
       validation = requests.get(BASE_API + '/validate/' + token).json()
       valid = validation['status'] == 'valid'
+      if valid:
+        consumer = generate_api_consumer(token)
 
     if consumer is not None and consumer.valid:
       # The found consumer is added to the request object, in request.consumer.
