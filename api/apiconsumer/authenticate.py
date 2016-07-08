@@ -12,9 +12,9 @@ class Authenticate(object):
 
   def process_request(self, request):
 
-    # We use status=404 for errors. Is this accurate? There are HTTP status
-    # codes for authentication failure, but I think those are reserved
-    # for errors in HTTP-standard authentication.
+    # We use status=403 for errors. There are HTTP status codes for
+    # authentication failure, where 403 is for denied access.
+    # https://en.wikipedia.org/wiki/HTTP_403
 
     old_path = request.path_info
 
@@ -24,7 +24,7 @@ class Authenticate(object):
     try:
       token = request.GET['token']
     except:
-      return HttpResponse("No token provided.", status=404)
+      return HttpResponse("No token provided.", status=403)
 
     try:
       consumer = APIConsumer.objects.get(token=token)
@@ -40,4 +40,4 @@ class Authenticate(object):
       request.consumer = consumer
       return None # continue rendering
     else:
-      return HttpResponse("Invalid token.", status=404)
+      return HttpResponse("Invalid token.", status=403)
