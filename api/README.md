@@ -5,6 +5,12 @@ Provides the PennCourseReview API.
 
 # Setup
 
+(Linux) Make sure you have the `libmysqlclient-dev` library installed:
+
+```
+sudo apt-get install libmysqlclient-dev
+```
+
 Install requirements with:
 
 ```
