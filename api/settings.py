@@ -15,11 +15,13 @@ SERVER_EMAIL = "pennapps@ve.rckr5ngx.vesrv.com"
 
 MANAGERS = ADMINS
 
+DB_ENGINE = 'django.db.backends.sqlite3' if 'test' in sys.argv or DEBUG \
+            else 'django.db.backends.mysql'
+
 DATABASES = {
     'default': {
         # sqlite3 is used when testing
-        'ENGINE': ('django.db.backends.sqlite3' if 'test' in sys.argv
-                   else 'django.db.backends.mysql'),
+        'ENGINE': DB_ENGINE,
         'NAME': DATABASE_NAME,  # Or path to database file if using sqlite3.
         'USER': DATABASE_USER,                      # Not used with sqlite3.
         'PASSWORD': DATABASE_PWD,                   # Not used with sqlite3.
