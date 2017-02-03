@@ -63,3 +63,13 @@ You may want to create a token to access data. Run `python ./manage.py maketoken
 Finally hit `http://localhost:8000/?token=public` to check that everything worked.
 
 [1]: http://brew.sh/
+
+# Testing
+
+To test the server:
+
+```
+python ./manage.py test apiconsumer courses
+```
+
+At the time of writing, there are 3 failures in the `courses` tests.
