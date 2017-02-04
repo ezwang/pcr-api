@@ -36,7 +36,7 @@ def course_histories(request, path, _):
     hist_to_aliases[e['course__history']].add((e['department__code'], e['coursenum']))
     hist_to_name[e['course__history']] = (e['course__name'])
 
-  #don't inclue course histories that are only offered this semester
+  #don't include course histories that are only offered this semester
   old_course_history_ids = [x[0] for x in Course.objects \
     .filter(semester__lt=current_semester()) \
     .select_related('history') \
@@ -47,6 +47,48 @@ def course_histories(request, path, _):
   course_histories = [h.toShortJSON(name_override=hist_to_name[h.id],
                                     aliases_override=hist_to_aliases[h.id])
                       for h in hists]
+
+  #dict_histories = defaultdict(list)
+  # TEMP = [{ "aliases": [ "FILM-295", "FILM-260", "ENGL-295", "CINE-295", "SAST-296", "CINE-296", "CINE-260", "FILM-211", "COML-295" ], 
+  # "id": 2538, "name": "TOPICS CULTURAL STUDIES: SOCIAL NETWORKS", "path": "/coursehistories/2538" },{ "aliases": [ "CINE-296", "COMM-393", "COMM-392", "CINE-393", "ENGL-295" ], 
+  # "id": 4769, "name": "Chinese & US Perspectives on Intellectual Property, Piracy & Creativity", "path": "/coursehistories/4769" }]
+  # course_histories = TEMP
+  # done_with_loop = False
+  # for history in course_histories:
+  #   done_with_loop = False
+  #   departments = list(set([i.encode('utf8').split('-')[0] for i in history['aliases']]))
+  #   print departments
+  #   for dep in departments:
+  #     for i, coursehistory in enumerate(dict_histories[dep]):
+  #       print set(history['aliases']).isdisjoint(coursehistory['aliases'])
+  #       if not set(history['aliases']).isdisjoint(coursehistory['aliases']):
+  #         print history['aliases']
+  #         print coursehistory['aliases']
+  #         print max(history, coursehistory, key=lambda x: len(x['aliases']))
+  #         dict_histories[dep][i] = max(history, coursehistory, key=lambda x: len(x['aliases']))
+  #         dict_histories[dep][i]['aliases'] = list(set(history['aliases']) | set(coursehistory['aliases']))
+  #         done_with_loop = True
+  #         break
+  #     if done_with_loop:
+  #       break
+  #   if not done_with_loop:
+  #     print departments[0]
+  #     dict_histories[departments[0]].append(history)
+
+  dict_histories = []
+  for history in course_histories:
+    found = False
+    for i, old_history in enumerate(dict_histories):
+      if not set(history['aliases']).isdisjoint(old_history['aliases']):
+        dict_histories[i] = max(history, old_history, key=lambda x: len(x['aliases']))
+        dict_histories[i]['aliases'] = list(set(history['aliases']) | set(old_history['aliases']))
+        found = True
+        break
+    if not found:
+      dict_histories.append(history)
+
+  course_histories = dict_histories
+
 
   return JSON({RSRCS: course_histories})
 
