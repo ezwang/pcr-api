@@ -75,6 +75,7 @@ def course_histories(request, path, _):
   #     print departments[0]
   #     dict_histories[departments[0]].append(history)
 
+  course_histories.sort(key=lambda x: -len(x['aliases']))
   dict_histories = []
   for history in course_histories:
     found = False
