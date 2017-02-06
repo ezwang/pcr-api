@@ -1,11 +1,10 @@
+"""Tokens for paths and dispatcher
 
-
-#tokens for paths and dispatcher
-
-# List of keywords for each of the API end points.
-# the API. That is, if a user wants to get a list of Departments, they should
-# go to "/depts"
-# Our convention is to use plural names for everything.
+List of keywords for each of the API end points. the API.
+That is, if a user wants to get a list of Departments,
+they should go to "/depts"
+Our convention is to use plural names for everything.
+"""
 
 DEPARTMENT_TOKEN = 'depts'
 INSTRUCTOR_TOKEN = 'instructors'
@@ -17,7 +16,7 @@ REVIEW_TOKEN = 'reviews'
 BUILDING_TOKEN = 'building'
 SEMESTER_TOKEN = 'semesters'
 
-#TODO: do we want JSON keys to be here or elsewhere?
+# TODO: do we want JSON keys to be here or elsewhere?
 # This is the wrapper keyword for whatever is returned from the API.
 # That is, if one accesses "/depts", one should get:
 #   {
