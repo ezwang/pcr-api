@@ -22,4 +22,6 @@ def JSON(result, valid=True, httpstatus=200):
                          indent=3)
     if 'debug_toolbar' in settings.INSTALLED_APPS:
         content = "<html><body>%s</body></html>" % content
-    return HttpResponse(status=httpstatus, content=content)
+    return HttpResponse(status=httpstatus,
+                        content=content,
+                        content_type="application/json")
