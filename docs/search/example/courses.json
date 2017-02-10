@@ -1,0 +1,80 @@
+{
+    "courses": [
+        {
+            "value": "ECON 001",
+            "tokens": [
+              "econ001",
+              "econ-001",
+              "econ",
+              "001",
+              "intro",
+              "to",
+              "micro"
+            ],
+            "path": "/courses/ECON-001",
+            "name": "INTRO TO MICRO",
+            "description": "Discussion of special research topics"
+        }, {
+            "value": "CIS 120",
+            "tokens": [
+              "cis120",
+              "cis-120",
+              "cis",
+              "120",
+              "prog",
+              "lang",
+              "&",
+              "tech",
+              "i"
+            ],
+            "path": "/courses/CIS-120",
+            "name": "PROG LANG & TECH I",
+            "description": "Introduction to the fundamental concepts of programming."
+        }
+    ],
+    "instructors": [
+        {
+            "value": "Uriel Spiegel",
+            "tokens": [
+                "uriel",
+                "spiegel",
+                "econ"
+            ],
+            "path": "/instructors/1360-URIEL-SPIEGEL",
+            "departments": ["ECON"]
+        }, {
+            "value": "Carita C. Huang",
+            "tokens": [
+                "carita",
+                "c.",
+                "huang",
+                "hssc",
+                "hsoc"
+            ],
+            "path": "/instructors/2182-CARITA-C--HUANG",
+            "departments": ["HSSC", "HSOC"]
+        }
+    ],
+    "departments": [
+        {
+            "value": "Economics",
+            "tokens": [
+                "econ",
+                "economics"
+            ],
+            "path": "/depts/ECON",
+            "id": "ECON"
+        }, {
+            "value": "Computer and Information Science",
+            "tokens": [
+                "cis",
+                "computer",
+                "and",
+                "information",
+                "science"
+            ],
+            "path": "/depts/CIS",
+            "id": "CIS"
+        }
+    ]
+}
