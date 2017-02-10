@@ -14,13 +14,13 @@ class NoTokenTest(TestCase):
   def setUp(self):
     self.client = Client()
 
-  def test_no_token_should_404(self):
+  def test_no_token_should_403(self):
     response = self.client.get('/depts/')
-    self.assertEqual(response.status_code, 404, response.request)
+    self.assertEqual(response.status_code, 403, response.request)
 
-  def test_invalid_token_should_404(self):
+  def test_invalid_token_should_403(self):
     response = self.client.get('/depts/', {'token': 'token'})
-    self.assertEqual(response.status_code, 404, response.request)
+    self.assertEqual(response.status_code, 403, response.request)
 
 
 class Permission0Test(TestCase):
@@ -34,9 +34,9 @@ class Permission0Test(TestCase):
         )
     self.client = Client()
 
-  def test_valid_token_should_404(self):
+  def test_valid_token_should_403(self):
     response = self.client.get('/depts/', {'token': self.consumer.token})
-    self.assertEqual(response.status_code, 404, response.request)
+    self.assertEqual(response.status_code, 403, response.request)
 
 
 class Permission1Test(TestCase):
@@ -50,6 +50,6 @@ class Permission1Test(TestCase):
         )
     self.client = Client()
 
-  def test_valid_token_should_not_404(self):
+  def test_valid_token_should_not_403(self):
     response = self.client.get('/depts/', {'token': self.consumer.token})
-    self.assertNotEqual(response.status_code, 404, response.request)
+    self.assertNotEqual(response.status_code, 403, response.request)

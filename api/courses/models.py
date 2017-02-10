@@ -1,10 +1,141 @@
-from django.db import models
-from Semester import *
-from links import *
 import urllib
 import re
+import datetime
+
+from django.db import models
+from links import *
 
 # Note: each class has get_absolute_url - this is for "url" when queried
+
+from south.modelsinspector import add_introspection_rules
+add_introspection_rules([], ["^api\.courses\.models\.SemesterField"])
+
+
+class Semester:
+  """ A semester, with a calendar year and a season.
+  Season codes: (a,b,c) -> (Spring, Summer, Fall)
+    Note that:
+    (Year Y, semester s) (with s=0,1,2 -> a,b,c) is semester
+      3(Y-1740) + s       = 780 + 3(Y-2000) + s
+    Semester 2010a is 810. Current (2010c) is 812.
+  """
+  def __init__(self, year = None, semester = None):
+    """ Create a semester from a year and a season code.
+      Valid inputs (all case-insensitive): Semester(2010, 'c') ==
+        Semester('2010', 'c') == Semester('2010c') """
+    if year is None:
+      year, semester = 1740, "a" # the epoch
+    if semester is None:
+      year, semester = year[:-1], year[-1]
+    semesternum = "abc".find(semester.lower())
+    if semesternum == -1:
+      raise ValueError("Invalid semester code: " + semester)
+    
+    self.year = int(year) # calendar year
+    self.semesternum = semesternum # (0,1,2) -> (Spring, Summer, Fall)
+
+  @property    
+  def id(self):
+    """ Returns the numerical ID for this semester.
+    (Year Y, semester s) (with s=0,1,2 -> a,b,c) is semester
+      3(Y-1740) + s       = 780 + 3(Y-2000) + s
+    Semester 2010a is 810. Current (2010c) is 812. """
+    return 3 * (self.year - 1740) + self.semesternum
+
+  @property  
+  def seasoncodeABC(self):
+    """ Returns the season code. """
+    return "ABC"[self.semesternum]
+  
+  def code(self):
+    """ Returns code YYYYa (calendar year + season code) """
+    return "%4d%s" % (self.year, self.seasoncodeABC)
+  
+  def __repr__(self):
+    return "Semester(%d,\"%s\")" % (self.year, self.seasoncodeABC)
+  
+  def __str__(self):
+    return "%s %d" % (["Spring", "Summer", "Fall"][self.semesternum], self.year)
+
+  def get_absolute_url(self):
+    return semester_url(self.code())
+
+  def __cmp__(self, other):
+    if other:
+      return cmp(self.id, other.id)
+    else:
+      return 1 # arbitrarily, if other is given as '' 
+
+  def toShortJSON(self):
+    return {
+      'id': self.code(),
+      'name': str(self),
+      'year': self.year,
+      'seasoncode': self.seasoncodeABC,
+      'path': self.get_absolute_url()
+    }
+
+  def toJSON(self):
+    # import here, to avoid circular import
+    from models import Department, SemesterDepartment
+
+    result = self.toShortJSON()
+
+    depts = Department.objects.filter(alias__semester=self).order_by(
+      'code').distinct()
+    result[DEPARTMENT_TOKEN] = [SemesterDepartment(self, d).toShortJSON()
+                                for d in depts]
+    return result
+
+
+def semesterFromID(id):
+  """ Given a numerical semester ID, return a semester. """
+  return Semester(1740 + id / 3, "abc"[id % 3])
+
+def semesterFromCode(yyyys):
+  if len(yyyys) != 5: raise Exception("too many or too few characters")
+  year = int(yyyys[:4])
+  season = yyyys[4].lower()
+  return Semester(year=year, semester=season)
+
+
+class SemesterField(models.Field):
+  description = "A semester during which a course may be offered"
+
+  __metaclass__ = models.SubfieldBase
+
+  def __init__(self, *args, **kwargs):
+    super(SemesterField, self).__init__(*args, **kwargs)
+
+  def get_internal_type(self):
+    return "SemesterField"
+
+  def db_type(self, connection):
+    return 'smallint'
+
+  def to_python(self, value):
+    if isinstance(value, Semester):
+      return value
+    if value == "":
+      return Semester()
+    if "HACKS!": # commence hack:
+      try:
+        seasons = ["Spring", "Summer", "Fall"]
+        tmp_season, tmp_year = value.split(" ")
+        if tmp_season in seasons:
+          return Semester(tmp_year, "abc"[seasons.index(tmp_season)])
+      except:
+        pass
+    try: 
+      id = int(value)
+    except ValueError as e:
+      raise e
+    else:
+      return semesterFromID(id)
+
+  def get_prep_value(self, value):
+    return value.id
+
 
 class Department(models.Model):
   """A department/subject"""
@@ -13,6 +144,43 @@ class Department(models.Model):
 
   def __unicode__(self):
     return self.code
+
+  @property
+  def tokens(self):
+    """List of single-word strings used to guide search.
+
+    >>> d = Department.objects.create(code="ECON", name="Economics")
+    >>> d.tokens
+    ['economics', 'econ']
+    >>> d.delete()
+
+    >>> d = Department.objects.create(code="CIS",
+    ...                               name="Computer and Information Science")
+    >>> d.tokens
+    ['computer', 'and', 'information', 'science', 'cis']
+    >>> d.delete()
+    """
+    tokens = self.name.lower().split()
+    tokens.append(self.code.lower())
+    return tokens
+
+  @property
+  def datum(self):
+    """Response format for search queries.
+
+    >>> d = Department.objects.create(code="ECON", name="Economics")
+    >>> d.datum == {'tokens': ['economics', 'econ'],
+    ...             'path': '/depts/econ',
+    ...             'id': 'ECON',
+    ...             'value': 'Economics'}
+    True
+    >>> d.delete()
+    """
+    return {'value': self.name,
+            'tokens': self.tokens,
+            'path': self.get_absolute_url(),
+            'id': self.code,
+            }
 
   def get_absolute_url(self):
     # don't know actual semester
@@ -44,7 +212,7 @@ class CourseHistory(models.Model):
   notes = models.TextField()
   def __unicode__(self):
     return u"CourseHistory ID %d (%s)" % (self.id, self.notes)
-  
+
   @property
   def aliases(self):
     """all names that this thing is known by"""
@@ -61,7 +229,10 @@ class CourseHistory(models.Model):
     
   def toShortJSON(self, name_override=None, aliases_override=None):
     # need to explictly check for None; user may override with empty string/list
-    name = list(self.course_set.all())[-1].name if name_override is None else name_override
+    if name_override is None:
+        name = self.course_set.all()[:1].get().name
+    else:
+        name = name_override
     aliases = set(alias.course_code for alias in self.aliases) if aliases_override is None else aliases_override
     return {
       'id': self.id,
@@ -89,17 +260,55 @@ class Course(models.Model):
       but different titles)
   """
   semester = SemesterField() # models.IntegerField() # ID to create a Semester
+
+  # The name of the course
+  # e.g. FINANCIAL ACCOUNTING
   name = models.CharField(max_length=200)
+
   credits = models.FloatField(null=True)
   description = models.TextField()
   history = models.ForeignKey(CourseHistory, null=True)
   oldpcr_id = models.IntegerField(null=True)
 
+  # This is the course's primary cross-listing. In fact, cross-listings are
+  # handled at the section level on ISC's side, but we abstract to the course
+  # level for simplicity. (This may change.) Should not be null, but must be
+  # nullable since it will point back to the Course and one must be
+  # inserted first.
+  primary_alias = models.ForeignKey('Alias', related_name='courses', null=True)
+
   def __unicode__(self):
     return "%s %s" % (self.id, self.name)
 
+  @property
+  def tokens(self):
+    """List of single-word strings used to guide search.
+
+    >>> d = Department.objects.create(code="econ")
+    >>> c = Course.objects.create(name="INTRO TO MICRO")
+    >>> alias = Alias.objects.create(department=d, course=c, coursenum=001)
+    >>> c.primary_alias = alias
+    >>> c.tokens == ['econ001', 'econ-001', 'econ', '001', 'intro', 'to', 'micro']
+    True
+    >>> alias.delete()
+    >>> c.delete()
+    >>> d.delete()
+    """
+    tokens = []
+    for alias in self.getAliases():
+        tokens.append(alias.lower().replace("-", ""))
+        tokens.append(alias.lower())
+        tokens.extend(alias.lower().split("-"))
+    tokens.extend(self.name.lower().split())
+    return tokens
+
   def get_absolute_url(self):
     return course_url(self.id)
+
+  @property
+  def code(self):
+    return '%s-%03d' % (self.primary_alias.department_id,
+                        self.primary_alias.coursenum)
 
   def getAliases(self):
     return ["%s-%03d" % (x.department_id, x.coursenum)
@@ -107,8 +316,11 @@ class Course(models.Model):
 
   def toShortJSON(self):
     return {
-      'id': self.id, 'name': self.name,
-      'aliases': self.getAliases(), 'path': self.get_absolute_url(),
+      'id': self.id,
+      'name': self.name,
+      'primary_alias': self.code,
+      'aliases': self.getAliases(),
+      'path': self.get_absolute_url(),
       'semester': self.semester.code()
     }
 
@@ -130,18 +342,49 @@ class Course(models.Model):
 
     return result
 
+  @property
+  def datum(self):
+    """Response format for search queries.
+    >>> d = Department.objects.create(code="econ")
+    >>> desc = "Topics in microeconomics."
+    >>> c = Course.objects.create(name="INTRO TO MICRO", description=desc)
+    >>> alias = Alias.objects.create(department=d, course=c, coursenum=001)
+    >>> c.primary_alias = alias
+    >>> c.datum == {'tokens': ['econ001', 'econ-001', 'econ', '001', 'intro', 'to', 'micro'],
+    ...             'path': '/courses/1',
+    ...             'name': 'INTRO TO MICRO',
+    ...             'value': 'econ-001',
+    ...             'aliases': ['econ-001'],
+    ...             'semester': '1740A',
+    ...             'description': 'Topics in microeconomics.'}
+    True
+    >>> alias.delete()
+    >>> c.delete()
+    >>> d.delete()
+    """
+    return {
+        'value': self.code,
+        'name': self.name,
+        'tokens': self.tokens,
+        'path': self.get_absolute_url(),
+        'description': self.description,
+        'semester': self.semester.code(),
+        'aliases': self.getAliases(),
+    }
+
+
 class Instructor(models.Model):
   """ A course instructor or TA (or "STAFF")"""
   #Leave names able to accept nulls- some professor names have been redacted
-  first_name = models.CharField(max_length=80, null=True) 
-  last_name = models.CharField(max_length=80, null=True)
+  first_name = models.CharField(db_index=True, max_length=80, null=True) 
+  last_name = models.CharField(db_index=True, max_length=80, null=True)
   #TODO: don't have these yet
   pennkey = models.CharField(max_length=80, null=True)
   email = models.EmailField(max_length=80, null=True)
   #TODO photo?
   website = models.URLField(max_length=200, null=True)
   oldpcr_id = models.IntegerField(null=True)
- 
+
   @property
   def name(self):
     return (self.first_name or "") + " " + (self.last_name or "")
@@ -151,12 +394,41 @@ class Instructor(models.Model):
     return re.sub(r"[^\w]", "-", "%d %s" % (self.id, self.name))
     #for pennapps demo only
 
+  @property
+  def tokens(self):
+    """List single-word strings that can aid in finding this object.
+    
+    >>> i = Instructor.objects.create(first_name="Uriel", last_name="Spiegel")
+    >>> i.tokens
+    ['uriel', 'spiegel']
+    >>> i.delete()
+    """
+    name = self.name or ""
+    return name.lower().split()
+
   def get_absolute_url(self):
     return instructor_url(self.temp_id)
 
   def __unicode__(self):
     return self.name
+
+  @property
+  def datum(self):
+    """Response format for search queries.
     
+    >>> i = Instructor.objects.create(first_name="Uriel", last_name="Spiegel")
+    >>> i.datum == {'tokens': ['uriel', 'spiegel'],
+    ...             'path': '/instructors/1-Uriel-Spiegel',
+    ...             'value': 'Uriel Spiegel'}
+    True
+    >>> i.delete()
+    """
+    return {
+      'value': self.name,
+      'tokens': self.tokens,
+      'path': self.get_absolute_url(),
+    }
+
   def toShortJSON(self):
     return {
       'id': self.temp_id,
@@ -176,9 +448,12 @@ class Instructor(models.Model):
       result[REVIEW_TOKEN][RSRCS] = [x.toShortJSON() for x in self.review_set.all()]
     return result
 
+
 class Alias(models.Model):
-  """ A (department, number) name for a Course. A Course will have
-  as many Aliases as it has crosslistings. """
+  """A (department, number) name for a Course.
+
+  A Course will have as many Aliases as it has crosslistings.
+  """
   
   course = models.ForeignKey(Course)
   department = models.ForeignKey(Department)
@@ -239,7 +514,12 @@ class Section(models.Model):
     """ To hold uniqueness constraint """
     unique_together = (("course", "sectionnum"),)
 
+  # TODO: Deprecate
   def getAliases(self):
+      return self.aliases
+
+  @property
+  def aliases(self):
     return ["%s-%03d" % (alias, self.sectionnum)
             for alias in self.course.getAliases()]
 
@@ -248,9 +528,12 @@ class Section(models.Model):
     return "%s-%03d" % (self.course_id, self.sectionnum)
   
   def toShortJSON(self):
+    pri_alias = self.course.primary_alias
     return {
       'id': self.api_id, 
       'aliases': self.getAliases(),
+      'primary_alias': '%s-%03d-%03d' % (
+        pri_alias.department_id, pri_alias.coursenum, self.sectionnum),
       'name': self.name,
       'sectionnum': "%03d" % self.sectionnum, 
       'path': self.get_absolute_url(),

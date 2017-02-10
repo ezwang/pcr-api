@@ -1,30 +1,32 @@
 # Django settings for api project.
 import sys
-from sandbox_config import *
+import os
+
+from sandbox_config import (DISPLAY_NAME, COURSESAPI_APP_ROOT, DO_CACHING,
+                            DEBUG, DATABASE_NAME, DATABASE_USER, DATABASE_PWD,
+                            SECRET_KEY,)
 
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
     ('PennApps', 'pennappslabs@google.groups.com'),
 )
-SERVER_EMAIL="pennapps@ve.rckr5ngx.vesrv.com"
+SERVER_EMAIL = "pennapps@ve.rckr5ngx.vesrv.com"
 
 MANAGERS = ADMINS
 
-# Values for DATABASE_NAME:
-# 'coursesapi-v3-prod' - production (for now)
-# 'coursesapi-v3-dev' - shared development
-# whatever - your personal database, if you have one
+DB_ENGINE = 'django.db.backends.sqlite3' if 'test' in sys.argv or DEBUG \
+            else 'django.db.backends.mysql'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3' if 'test' in sys.argv else 'django.db.backends.mysql',
-        # see sandbox_config.py
-        'NAME': DATABASE_NAME,                      # Or path to database file if using sqlite3.
+        # sqlite3 is used when testing
+        'ENGINE': DB_ENGINE,
+        'NAME': DATABASE_NAME,  # Or path to database file if using sqlite3.
         'USER': DATABASE_USER,                      # Not used with sqlite3.
         'PASSWORD': DATABASE_PWD,                   # Not used with sqlite3.
-        'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
+        'HOST': '',  # Set to empty string for localhost. Not used with sqlite3
+        'PORT': '',  # Set to empty string for default. Not used with sqlite3.
     }
 }
 
@@ -60,13 +62,14 @@ MEDIA_ROOT = ''
 # Examples: "http://media.lawrence.com", "http://example.com/media/"
 MEDIA_URL = ''
 
-# URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
-# trailing slash.
-# Examples: "http://foo.com/media/", "/media/".
-STATIC_URL = '/pcradmin/media/'
 
-# Make this unique, and don't share it with anybody.
-SECRET_KEY = 'F2g3XtfUb76T5g-PWNdIKYeD4ajuvz6tVLrDQLVddw5hVr7bnVGygYNUrYWGCNYs1'
+# The absolute path to the Unix folder where ./manage.py collectstatic will
+# deposit the symlinked static files
+STATIC_ROOT = os.path.join(COURSESAPI_APP_ROOT, 'api/static')
+
+# The actual URL from which static files are served.
+# Examples: "http://foo.com/static/"
+STATIC_URL = os.path.join(DISPLAY_NAME, 'static/')
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
@@ -85,18 +88,21 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.middleware.cache.FetchFromCacheMiddleware',
     'api.apiconsumer.authenticate.Authenticate',
+    'corsheaders.middleware.CorsMiddleware',
 )
 
 ROOT_URLCONF = 'urls'
 
 TEMPLATE_DIRS = (
     COURSESAPI_APP_ROOT + '/api/templates',
-    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
+    # Put strings here, like "/home/html/django_templates"
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
 )
 
 INSTALLED_APPS = (
+    'south',
+    'corsheaders',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -107,29 +113,32 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
     'api.static_content',
-    'django_extensions', # used for debugging, remove if problematic
+    'django.contrib.staticfiles',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
 )
 
-#AUTHENTICATION_BACKENDS = 'tokenapi.backends.TokenBackend' 
+CORS_ORIGIN_ALLOW_ALL = True
 
 # Caching
 if DO_CACHING:
-    timeout_hours = 24*7
+    timeout_hours = 24 * 7
     CACHES = {
         'default': {
             'BACKEND': "django.core.cache.backends.filebased.FileBasedCache",
             # The directory in LOCATION should be owned by user: www-data
             'LOCATION': COURSESAPI_APP_ROOT + "/CACHES/current",
-            'TIMEOUT': 60*60*timeout_hours # now in seconds
+            'TIMEOUT': 60 * 60 * timeout_hours  # now in seconds
             }
         }
 
 
-if USE_DJANGO_DEBUG_TOOLBAR:
-    #MIDDLEWARE_CLASSES = tuple(c for c in MIDDLEWARE_CLASSES if "Authenticate" not in c)
+# Used for Django debug toolbar (or use debugsqlshell)
+try:
+    import debug_toolbar
+except ImportError:
+    pass
+else:
     MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
     INSTALLED_APPS += ('debug_toolbar',)
-    wifi_3913 = '76.124.117.94'
-    INTERNAL_IPS = (wifi_3913,'158.130.103.7')
+    INTERNAL_IPS = ('158.130.103.7','127.0.0.1')

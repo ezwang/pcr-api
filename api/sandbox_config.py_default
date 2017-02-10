@@ -8,28 +8,40 @@ Updated for Courses API: MJC, May 12, 2011
 """
 import os
 
-DISPLAY_NAME = "courses-mjc"
+DISPLAY_NAME = "/"
+# Ensure DISPLAY_NAME is never used relatively
+assert DISPLAY_NAME.startswith("/")
 
-DEV_ROOT = "/home/mcroop/mcroop_dev" # root of all apps you're working on
-COURSESAPI_APP_ROOT = os.path.join(DEV_ROOT, "Penn-Course-API")
+# root of all apps you're working on
+# Example: "/home/mcroop/mcroop_dev/pcr-api"
+COURSESAPI_APP_ROOT = os.getcwd()
 
-# should be True only in production. unless you really like caching.
-DO_CACHING = False 
-
-# should be False only in production. unless you really hate error messages.
+# Turn on/off debug mode.
+# Debug mode displays detailed error page.
+# See: https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-DEBUG
 DEBUG = True
 
-# should be False unless you want to debug something (or use debugsqlshell)
-USE_DJANGO_DEBUG_TOOLBAR = False
+# Turn on/off caching.
+DO_CACHING = not DEBUG
 
-# see settings.py for possible values
-DATABASE_NAME = 'coursesapi-v3-stable'
-DATABASE_USER = 'pcr-daemon'
-DATABASE_PWD = None # fill in
+# Default database settings
+
+# Values for DATABASE_NAME:
+# - 'coursesapi-v3-prod' - production (for now)
+# - 'coursesapi-v3-dev' - shared development
+# - whatever - your personal database, if you have one
+DATABASE_NAME = 'api'
+DATABASE_USER = 'root'
+DATABASE_PWD = None
+
+# Necessary for `courses/management/commands/importfromisc.py`
 
 IMPORT_DATABASE_NAME = 'old_pcr_2011b'
 IMPORT_DATABASE_USER = 'pcr-daemon'
-IMPORT_DATABASE_PWD = None # fill in
+IMPORT_DATABASE_PWD = None
+
+# Make this unique, and don't share it with anybody.
+SECRET_KEY = ''
 
 # This is an APIConsumer token - created in the database above - used to 
 # test data in the live API. See courses.tests for more info.

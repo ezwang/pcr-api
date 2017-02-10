@@ -1,5 +1,10 @@
 *.pyc
 sandbox_config.py
 *~
+*.swp
 staticgenerator_output/*
 CACHES/*
+static
+venv
+*.sql
+sandbox_config_backup.py

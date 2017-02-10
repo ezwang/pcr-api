@@ -1,59 +1,18 @@
-from models import *
-from Semester import *
-from links import *
 import json
 import datetime
-import sandbox_config
 from collections import defaultdict
-from django.http import HttpResponse, HttpResponseRedirect
+
+from utils import current_semester
 from json_helpers import JSON
+import sandbox_config
+from models import *
+from django.http import HttpResponse
+from links import *
+import dispatcher
+from dispatcher import API404, dead_end
 
-DOCS_URL = 'http://www.pennapps.com/kevinsu/pcr_documentation.html'
-DOCS_HTML = "<a href='%s'> %s </a>" % (DOCS_URL, DOCS_URL)
-
-API_ROOT = '/' + sandbox_config.DISPLAY_NAME
-
-def redirect(path, request, extras=[]):
-  query = '?' + request.GET.urlencode() if request.GET else ''
-  fullpath = "%s/%s/%s%s" % (API_ROOT, path, '/'.join(extras), query)
-  return HttpResponseRedirect(fullpath)
-
-def dead_end(fn):
-  def wrapped(request, path, variables):
-    if path:
-      return dispatch_404(message="Past dead end!")(request, path, variables)
-    else:
-      return fn(request, path, variables)
-  return wrapped
-
-def dispatch_404(message=None, perhaps=None):
-  def view(request, path, _):
-    raise API404(message)
-  return view
-
-def dispatch_dead_end(str):
-  @dead_end
-  def view(request, path, _):
-    return HttpResponse("Useful information! " + str)
-  return view
-
-def optlist_map(func, l):
-  return None if l is None else [func(x) for x in l]
-
-def list_json(l):
-  return None if l is None else l if type(l) is list else list(l)
-
-# FNAR 337 Advanced Orange (Jaime Mundo)
-# Explore the majesty of the color Orange in its natural habitat,
-# and ridicule other, uglier colors, such as Chartreuse (eww).
-
-# MGMT 099 The Art of Delegating (Alexey Komissarouky)
-# The Kemisserouh delegates teaching duties to you. Independent study.
-
-class API404(Exception):
-  def __init__(self, message=None, perhaps=None):
-    self.message = message
-    self.perhaps = perhaps
+DOCS_URL = 'http://pennlabs.org/console/docs.html'
+DOCS_HTML = "<a href='%s'>%s</a>" % (DOCS_URL, DOCS_URL)
 
 
 @dead_end
@@ -196,7 +155,7 @@ def course_sections(request, path, (courseid,)):
 
 def course_history(request, path, (courseid,)):
   course = Course.objects.get(id=int(courseid))
-  return redirect(coursehistory_url(course.history_id), request)
+  return dispatcher.redirect(coursehistory_url(course.history_id), request)
 
 @dead_end
 def section_main(request, path, (courseid, sectionnum)):
@@ -240,7 +199,7 @@ def alias_course(request, path, (coursealias,)):
   courseid = Alias.objects.get(semester=semester,
                                department=dept_code,
                                coursenum=coursenum).course_id
-  return redirect(course_url(courseid), request, path)
+  return dispatcher.redirect(course_url(courseid), request, path)
 
 def alias_section(request, path, (sectionalias,)):
   try:
@@ -256,7 +215,7 @@ def alias_section(request, path, (sectionalias,)):
   courseid = Alias.objects.get(semester=semester,
                                department=dept_code,
                                coursenum=coursenum).course_id
-  return redirect(section_url(courseid, sectionnum), request, path)
+  return dispatcher.redirect(section_url(courseid, sectionnum), request, path)
 
 def alias_currentsemester(request, path, _):
   return HttpResponse("(redirect) current semester, extra %s" % path)
@@ -272,11 +231,11 @@ def alias_coursehistory(request, path, (historyalias,)):
   latest_alias = Alias.objects.filter(
     department=dept_code, coursenum=coursenum).order_by('-semester')[0]
   
-  return redirect(coursehistory_url(latest_alias.course.history_id),
+  return dispatcher.redirect(coursehistory_url(latest_alias.course.history_id),
                   request, path)
 
 def alias_misc(request, path, (alias,)):
-  return HttpResponse("I have no idea how you got here.  This isn't really a 'thing'." + alias)
+  return HttpResponse('"%s" is not a valid query.' % alias)
 
 @dead_end
 def depts(request, path, _):
@@ -310,78 +269,5 @@ def building_main(request, path, (code,)):
 
 @dead_end
 def index(request, path, _):
-  return JSON("Welcome to the PennApps Courses API. For documentation, see %s."
+  return JSON("Welcome to the Penn Labs PCR API. For docs, see %s."
               % DOCS_HTML)
-
-def dispatcher(dispatchers):
-  d_str = dispatchers.get("/str")
-  d_int = dispatchers.get("/int")
-  def dispatch_func(request, path, variables=[]):
-    if not path:
-      return dispatchers[''](request, [], variables)
-    first, rest = path[0], path[1:]
-    if first in dispatchers:
-      return dispatchers[first](request, rest, variables)
-    elif d_int and all(x in "0123456789" for x in first):
-      return d_int(request, rest, variables + [int(first)])
-    elif d_str:
-      return d_str(request, rest, variables + [first])
-    elif d_int:
-      return dispatch_404("i can has digits")(request, path, variables)
-    else:
-      return dispatch_404("what is this i dont even")(request, path, variables)
-  return dispatch_func
-
-dispatch_root = {
-  '': index,
-  INSTRUCTOR_TOKEN: {'': instructors,
-                 '/str': {'': instructor_main,
-                          SECTION_TOKEN: instructor_sections,
-                          REVIEW_TOKEN: instructor_reviews}},
-  COURSEHISTORY_TOKEN: {'': course_histories,
-                    '/int': {'': coursehistory_main,
-                             REVIEW_TOKEN: coursehistory_reviews},
-                    '/str': alias_coursehistory},
-  DEPARTMENT_TOKEN: {'': depts,
-           '/str': {'': dept_main,
-                    REVIEW_TOKEN: dept_reviews}},
-  COURSE_TOKEN: {'': dispatch_404("sorry, no global course list"),
-             '/int': {'': course_main,
-                      REVIEW_TOKEN: course_reviews,
-                      SECTION_TOKEN: {'': course_sections,
-                                  '/int': {'': section_main,
-                                           REVIEW_TOKEN: {'': section_reviews,
-                                                      '/str': review_main}}},
-                      COURSEHISTORY_TOKEN: course_history},
-             '/str': alias_course},
-  SECTION_TOKEN: {'': dispatch_404("sorry, no global sections list"),
-              '/str': alias_section},
-  SEMESTER_TOKEN: {'': semesters,
-               '/str': {'': semester_main,
-                        '/str': semester_dept}},
-  BUILDING_TOKEN: {'': buildings,
-               '/str': building_main},
-  '/str': alias_misc}
-
-def annotate_dictionary(d, fn):
-  if type(d) == dict:
-    return fn(dict((k, annotate_dictionary(v, fn)) for k,v in d.iteritems()))
-  else:
-    return d
-
-dispatch_root = annotate_dictionary(dispatch_root, dispatcher)
-
-def dispatch(request, url):
-  try:
-    if not request.consumer.access_pcr and "review" in url:
-      raise API404("This API token does not have access to review data.")
-    return dispatch_root(request, [x for x in url.split('/') if x])
-  except API404 as e:
-    obj = {
-      'help': "See %s for API documentation." % DOCS_HTML,
-      'error': 'Error 404. The resource could not be found: ' + request.path}
-    if e.perhaps:
-      obj['perhaps_you_meant'] = e.perhaps # and perhaps not
-    if e.message:
-      obj['message'] = e.message
-    return JSON(obj, valid=False, httpstatus=404)
