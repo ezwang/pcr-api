@@ -217,4 +217,3 @@ def _index_digit(s):
         if c.isdigit():
             return i
     raise ValueError("digit not found")
-    
