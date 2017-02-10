@@ -48,33 +48,11 @@ def course_histories(request, path, _):
                                     aliases_override=hist_to_aliases[h.id])
                       for h in hists]
 
-  #dict_histories = defaultdict(list)
-  # TEMP = [{ "aliases": [ "FILM-295", "FILM-260", "ENGL-295", "CINE-295", "SAST-296", "CINE-296", "CINE-260", "FILM-211", "COML-295" ], 
-  # "id": 2538, "name": "TOPICS CULTURAL STUDIES: SOCIAL NETWORKS", "path": "/coursehistories/2538" },{ "aliases": [ "CINE-296", "COMM-393", "COMM-392", "CINE-393", "ENGL-295" ], 
-  # "id": 4769, "name": "Chinese & US Perspectives on Intellectual Property, Piracy & Creativity", "path": "/coursehistories/4769" }]
-  # course_histories = TEMP
-  # done_with_loop = False
-  # for history in course_histories:
-  #   done_with_loop = False
-  #   departments = list(set([i.encode('utf8').split('-')[0] for i in history['aliases']]))
-  #   print departments
-  #   for dep in departments:
-  #     for i, coursehistory in enumerate(dict_histories[dep]):
-  #       print set(history['aliases']).isdisjoint(coursehistory['aliases'])
-  #       if not set(history['aliases']).isdisjoint(coursehistory['aliases']):
-  #         print history['aliases']
-  #         print coursehistory['aliases']
-  #         print max(history, coursehistory, key=lambda x: len(x['aliases']))
-  #         dict_histories[dep][i] = max(history, coursehistory, key=lambda x: len(x['aliases']))
-  #         dict_histories[dep][i]['aliases'] = list(set(history['aliases']) | set(coursehistory['aliases']))
-  #         done_with_loop = True
-  #         break
-  #     if done_with_loop:
-  #       break
-  #   if not done_with_loop:
-  #     print departments[0]
-  #     dict_histories[departments[0]].append(history)
+  # twice to get some crosslistings not caught in the first pass
+  dict_histories = remove_duplicates(remove_duplicates(course_histories))
+  return JSON({RSRCS: dict_histories})
 
+def remove_duplicates(course_histories):
   course_histories.sort(key=lambda x: -len(x['aliases']))
   dict_histories = []
   for history in course_histories:
@@ -88,10 +66,7 @@ def course_histories(request, path, _):
     if not found:
       dict_histories.append(history)
 
-  course_histories = dict_histories
-
-
-  return JSON({RSRCS: course_histories})
+  return dict_histories
 
 @dead_end
 def semesters(request, path, _):
