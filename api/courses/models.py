@@ -288,8 +288,8 @@ class Course(models.Model):
     >>> c = Course.objects.create(name="INTRO TO MICRO")
     >>> alias = Alias.objects.create(department=d, course=c, coursenum=001)
     >>> c.primary_alias = alias
-    >>> c.tokens
-    ['econ001', 'econ-001', 'econ', '001', 'intro', 'to', 'micro']
+    >>> c.tokens == ['econ001', 'econ-001', 'econ', '001', 'intro', 'to', 'micro']
+    True
     >>> alias.delete()
     >>> c.delete()
     >>> d.delete()
@@ -354,6 +354,8 @@ class Course(models.Model):
     ...             'path': '/courses/1',
     ...             'name': 'INTRO TO MICRO',
     ...             'value': 'econ-001',
+    ...             'aliases': ['econ-001'],
+    ...             'semester': '1740A',
     ...             'description': 'Topics in microeconomics.'}
     True
     >>> alias.delete()
@@ -417,7 +419,6 @@ class Instructor(models.Model):
     >>> i = Instructor.objects.create(first_name="Uriel", last_name="Spiegel")
     >>> i.datum == {'tokens': ['uriel', 'spiegel'],
     ...             'path': '/instructors/1-Uriel-Spiegel',
-    ...             'departments': [],
     ...             'value': 'Uriel Spiegel'}
     True
     >>> i.delete()
