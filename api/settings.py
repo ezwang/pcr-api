@@ -4,7 +4,7 @@ import os
 
 from sandbox_config import (DISPLAY_NAME, COURSESAPI_APP_ROOT, DO_CACHING,
                             DEBUG, DATABASE_NAME, DATABASE_USER, DATABASE_PWD,
-                            SECRET_KEY,)
+                            SECRET_KEY, TEST_API_TOKEN,)
 
 TEMPLATE_DEBUG = DEBUG
 
