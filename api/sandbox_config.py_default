@@ -43,6 +43,6 @@ IMPORT_DATABASE_PWD = None
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = ''
 
-# This is an APIConsumer token - created in the database above - used to 
+# This is an APIConsumer token - created in the database above - used to
 # test data in the live API. See courses.tests for more info.
 TEST_API_TOKEN = ''

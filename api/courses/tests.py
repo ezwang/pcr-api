@@ -198,8 +198,8 @@ class DataTest(ViewTest):
 class LiveViewTest(TestCase):
   """A test of the live API views.
 
-  Because Django creates an empty database for testing, we use an 
-  actualy HTTP request instead of Django's django.test.client.Client
+  Because Django creates an empty database for testing, we use an
+  actual HTTP request instead of Django's django.test.client.Client
   so that we can see actual data.
 
   Attributes:
@@ -209,7 +209,7 @@ class LiveViewTest(TestCase):
   """
   def setUp(self):
     # TODO(kyleh): Factor this out
-    self.root_path = 'http://kyleh.pennapps.com/pcrapi'
+    self.root_path = 'http://api.penncoursereview.com/v1'
     self.token = settings.TEST_API_TOKEN
 
 
@@ -217,7 +217,7 @@ class LiveViewTest(TestCase):
     """Load a page of the live API and return the result."""
     full_path = self.root_path + path
     response = requests.get(full_path, params={'token': self.token})
-    content = response.json
+    content = response.json()
     self.assertEquals(
       response.status_code, requests.codes.ok,
       'Server response error to %s: %s' % (full_path, response.status_code))
@@ -233,11 +233,11 @@ class LiveViewTest(TestCase):
       semester: The semester to search in the form '2011A' = Spring 2011
       course_code: The target course in the form 'CIS-125'
     """
-    # TODO(kyleh): We assume that there is only one course with the 
+    # TODO(kyleh): We assume that there is only one course with the
     # course_code in the given semester. May not be a safe assumption.
-    search_path = '/semesters/%s/%s' % (semester.lower(), 
+    search_path = '/semesters/%s/%s' % (semester.lower(),
                                         course_code.split('-')[0])
-    return [course['path'] 
+    return [course['path']
             for course in self.get_result(search_path)['courses']
             if course_code in course['aliases']][0]
 
@@ -246,7 +246,7 @@ class LiveViewTest(TestCase):
 class CrossListingTest(LiveViewTest):
   """Test that courses are being properly crosslisted.
 
-  In many places, a course that shoud be counted once is being listed 
+  In many places, a course that shoud be counted once is being listed
   as several different courses. We test that this is not happening.
   """
 
@@ -262,7 +262,7 @@ class CrossListingTest(LiveViewTest):
       primary_listing: The primary listing of the course in the form 'CIS-125'
       aliases: A list of aliases in the form 'DEPT-123'
     """
-    # TODO(kyleh): When we add a primary listing field to the API, 
+    # TODO(kyleh): When we add a primary listing field to the API,
     # update this test accordingly.
     main_path = self.get_course_path(semester, primary_listing)
     main_data = self.get_result(main_path)
@@ -290,8 +290,8 @@ class CrossListingTest(LiveViewTest):
 
   def test_jarosinski(self):
     """Test the many cross-listings of Jarosinski's COML-501 in 2009C."""
-    self.check_crosslist('2009C', 'COML-501', 
-                         ['CLST-511', 'ROML-512', 'GRMN-534', 'SLAG-500', 
+    self.check_crosslist('2009C', 'COML-501',
+                         ['CLST-511', 'ROML-512', 'GRMN-534', 'SLAV-500',
                           'ENGL-573'])
 
 
