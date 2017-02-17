@@ -10,7 +10,7 @@ class Migration(DataMigration):
 
     def forwards(self, orm):
         "Takes the xml file and imports seed data into the models."
-        tree = ET.parse('cms/migrations/PCR_Reviews2013S.xml')
+        tree = ET.parse('cms/migrations/PCR_Reviews2013s.xml')
         root = tree.getroot()
         for item in root:
             lname = item[1].text
