@@ -19,7 +19,7 @@ MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.%s' % DATABASE_ENGINE, # if 'test' in sys.argv else 'django.db.backends.mysql',
+        'ENGINE': 'django.db.backends.sqlite3', # if 'test' in sys.argv else 'django.db.backends.mysql',
         # see sandbox_config.py
         'NAME': DATABASE_NAME,                      # Or path to database file if using sqlite3.
         'USER': DATABASE_USER,                      # Not used with sqlite3.
@@ -118,7 +118,6 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'api.static_content',
     'api.cms',
-    'django_extensions', # used for debugging, remove if problematic
     # 'django.contrib.staticfiles',
     # Uncomment the next line to enable admin documentation:
     'django.contrib.staticfiles',
@@ -140,11 +139,3 @@ if DO_CACHING:
             'TIMEOUT': 60*60*timeout_hours # now in seconds
             }
         }
-
-
-if USE_DJANGO_DEBUG_TOOLBAR:
-    #MIDDLEWARE_CLASSES = tuple(c for c in MIDDLEWARE_CLASSES if "Authenticate" not in c)
-    MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
-    INSTALLED_APPS += ('debug_toolbar',)
-    wifi_3913 = '76.124.117.94'
-    INTERNAL_IPS = (wifi_3913,'158.130.103.7')
