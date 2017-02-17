@@ -1,4 +1,3 @@
-
 # PennCourseReview API
 
 API for Penn Course Review Data.
@@ -7,30 +6,45 @@ Used by the PennCourseReview frontend and others.
 
 # Architecture
 
-The PCR API is composed of two parts. The scripts which pull the course data from the registrar and the legacy PCR database, and the site which powers the API itself.
+The PCR API is composed of two parts. The scripts which pull the course data
+from the registrar and the legacy PCR database, and the site which powers the
+API itself.
 
 ## api
-The api itself consists of five apps-- apiconsumer, course_descriptions, courses, static_content, and testconsole.
+
+The api itself consists of five apps-- apiconsumer, course_descriptions,
+courses, static_content, and testconsole.
 
 ### apiconsumer
-Sets permission levels for developers who wish to use our API. This is mainly in place because the data should only be accessible to Penn students and faculty.
+
+Sets permission levels for developers who wish to use our API. This is mainly in
+place because the data should only be accessible to Penn students and faculty.
 
 ### course_descriptions
+
 Parses the course register. (Probably should be moved to /scripts)
 
 ### courses
+
 Powers the actual API.
 
 ### static_content
-Responsible for powering the static pages on the PCR site. It's basically a very simple version of a CMS and exists solely so that admins only have to manage one admin site.
+
+Responsible for powering the static pages on the PCR site. It's basically a very
+simple version of a CMS and exists solely so that admins only have to manage one
+admin site.
 
 ### testconsole
+
 testconsole is a simple javascript interface for the api.
 
 ## scripts
-Responsible for scraping new data from the registrar and grabbing old data from the legacy PCR site.
+
+Responsible for scraping new data from the registrar and grabbing old data from
+the legacy PCR site.
 
 ### PCR Daemon User
+
 Username: pcr-daemon
 Password: laurenspringer
 
