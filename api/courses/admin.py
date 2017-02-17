@@ -8,7 +8,6 @@ from django.contrib.auth.models import Group
 from courses.models import Instructor, Course, Section, Review
 
 
-admin.site.unregister(User)
 admin.site.unregister(Group)
 admin.site.unregister(Site)
 
