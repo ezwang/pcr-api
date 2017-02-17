@@ -1,13 +1,11 @@
 from cms.models import *
 from django.template import RequestContext
-from django.shortcuts import redirect, render_to_response
+from django.shortcuts import render_to_response
 from django.core import serializers
 from django.http import HttpResponse
 from django.contrib.auth.models import User
 from cms.models import UserProfile, Tag
-from django.views.decorators.csrf import csrf_exempt
 from django.core.context_processors import csrf
-import pdb
 import json
 
 

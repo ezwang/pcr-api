@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
-import datetime
 import re
-from south.db import db
 from south.v2 import DataMigration
-from django.db import models
 import xml.etree.ElementTree as ET
 
 class Migration(DataMigration):
