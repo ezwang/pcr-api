@@ -3,6 +3,7 @@ sandbox_config.py
 *~
 *.swp
 staticgenerator_output/*
+CACHES/*
 api/CACHES/*
 static
 venv
