@@ -48,7 +48,7 @@ Finally, sync the database with `python ./manage.py syncdb`.
 
 ## Static files
 
-run: `python manage.py collectstatic -l`
+Run `python manage.py collectstatic -l`
 
 # Usage
 
