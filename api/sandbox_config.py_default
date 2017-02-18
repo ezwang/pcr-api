@@ -9,7 +9,7 @@ Updated for Courses API: MJC, May 12, 2011
 import os
 
 DISPLAY_NAME = "/"
-# Ensure DISPLAY_NAME is never used relatively
+# Ensure DISPLAY_NAME is never used relatively by beginning with forward slash
 assert DISPLAY_NAME.startswith("/")
 
 # root of all apps you're working on

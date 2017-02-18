@@ -36,7 +36,7 @@ def course_histories(request, path, _):
     hist_to_aliases[e['course__history']].add((e['department__code'], e['coursenum']))
     hist_to_name[e['course__history']] = (e['course__name'])
 
-  #don't inclue course histories that are only offered this semester
+  #don't include course histories that are only offered this semester
   old_course_history_ids = [x[0] for x in Course.objects \
     .filter(semester__lt=current_semester()) \
     .select_related('history') \
@@ -48,7 +48,59 @@ def course_histories(request, path, _):
                                     aliases_override=hist_to_aliases[h.id])
                       for h in hists]
 
-  return JSON({RSRCS: course_histories})
+  # Union-find approach to removing duplicates, code from
+  # Stack Overflow: http://stackoverflow.com/a/42183579
+  dict_histories = merge_union(course_histories)
+
+  return JSON({RSRCS: dict_histories})
+
+# Return ancestor of given node
+def ancestor(parent, node):
+    if parent[node] != node:
+        # Do path compression
+        parent[node] = ancestor(parent, parent[node])
+
+    return parent[node]
+
+def merge(parent, rank, x, y):
+    # Merge sets that x & y belong to
+    x = ancestor(parent, x)
+    y = ancestor(parent, y)
+
+    if x == y:
+        return
+
+    # Union by rank, merge smaller set to larger one
+    if rank[y] > rank[x]:
+        x, y = y, x
+
+    parent[y] = x
+    rank[x] += rank[y]
+
+def merge_union(setlist):
+    # For every word in sets list what sets contain it
+    words = defaultdict(list)
+
+    for i, s in enumerate(setlist):
+        for w in s['aliases']:
+            words[w].append(i)
+    # Merge sets that share the word
+    parent = list(range(len(setlist)))
+    rank = [1] * len(setlist)
+    for sets in words.values():
+        it = iter(sets)
+        merge_to = next(it)
+        for x in it:
+            merge(parent, rank, merge_to, x)
+    # Construct result by union the sets within a component
+    result = defaultdict(dict)
+    for merge_from, merge_to in enumerate(parent):
+        if not merge_to in result:
+          result[merge_to] = setlist[merge_from]
+        else:
+          result[merge_to]['aliases'] = list(set(result[merge_to]['aliases']) | \
+                                             set(setlist[merge_from]['aliases']))
+    return list(result.values())
 
 @dead_end
 def semesters(request, path, _):

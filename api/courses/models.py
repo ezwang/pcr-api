@@ -459,7 +459,7 @@ class Alias(models.Model):
   department = models.ForeignKey(Department)
   coursenum = models.IntegerField()
   semester = SemesterField() # redundant; should equal course.semester
-  #when importing from registrat, we don't have pcr_id's
+  #when importing from registrar , we don't have pcr_id's
   oldpcr_id = models.IntegerField(null=True)
 
   def __unicode__(self):

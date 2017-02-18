@@ -87,8 +87,8 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.cache.UpdateCacheMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.cache.FetchFromCacheMiddleware',
-    'api.apiconsumer.authenticate.Authenticate',
     'corsheaders.middleware.CorsMiddleware',
+    'api.apiconsumer.authenticate.Authenticate',
 )
 
 ROOT_URLCONF = 'urls'

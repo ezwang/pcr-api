@@ -48,7 +48,7 @@ Finally, sync the database with `python ./manage.py syncdb`.
 
 ## Static files
 
-run: `python manage.py collectstatic -l`
+Run `python manage.py collectstatic -l`
 
 # Usage
 
@@ -72,4 +72,5 @@ To test the server:
 python ./manage.py test apiconsumer courses
 ```
 
-At the time of writing, there are 3 failures in the `courses` tests.
+At the time of writing, there are no failures in the test suite, but coverage is
+relatively minimal.
