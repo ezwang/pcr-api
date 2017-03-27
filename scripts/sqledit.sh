@@ -9,7 +9,10 @@
 #
 # ./sqledit.sh
 #
-# 
+# #
+# 1. Deletes the first line causing an error.
+# 2. Replaces TO_DATE() with STR_TO_DATE() in the ratings file TEST_PCR_RATING_V.sql.
+# 3. Replaces the date format from the Oracle format to the MySQL format in the ratings file.
 
 files=("TEST_PCR_COURSE_DESC_V.sql" "TEST_PCR_CROSSLIST_SUMMARY_V.sql" "TEST_PCR_SUMMARY_HIST_V.sql" "TEST_PCR_SUMMARY_V.sql" "TEST_PCR_RATING_V.sql")
 
