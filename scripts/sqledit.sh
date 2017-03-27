@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # This script is used to eliminate the manual editing of the 
 # large PCR SQL files that would originally cause errors while
