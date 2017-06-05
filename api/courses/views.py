@@ -287,7 +287,14 @@ def alias_coursehistory(request, path, (historyalias,)):
                   request, path)
 
 def alias_misc(request, path, (alias,)):
-  return HttpResponse('"%s" is not a valid query.' % alias)
+  content = json.dumps({"error": "Unmatched query '%s'" % alias,
+                        "valid": False,
+                        "version": "0.3"},
+                       sort_keys=True,
+                       indent=3)
+  return HttpResponse(status=404,
+                      content=content,
+                      content_type="application/json")
 
 @dead_end
 def depts(request, path, _):
