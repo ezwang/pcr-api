@@ -6,8 +6,6 @@ from sandbox_config import (DISPLAY_NAME, COURSESAPI_APP_ROOT, DO_CACHING,
                             DEBUG, DATABASE_NAME, DATABASE_USER, DATABASE_PWD,
                             SECRET_KEY, TEST_API_TOKEN,)
 
-TEMPLATE_DEBUG = DEBUG
-
 ADMINS = (
     ('PennApps', 'pennappslabs@google.groups.com'),
 )
@@ -17,6 +15,8 @@ MANAGERS = ADMINS
 
 DB_ENGINE = 'django.db.backends.sqlite3' if 'test' in sys.argv or DEBUG \
             else 'django.db.backends.mysql'
+
+ALLOWED_HOSTS = ["127.0.0.1", "localhost", "[::1]", "api.penncoursereview.com"]
 
 DATABASES = {
     'default': {
@@ -71,13 +71,6 @@ STATIC_ROOT = os.path.join(COURSESAPI_APP_ROOT, 'api/static')
 # Examples: "http://foo.com/static/"
 STATIC_URL = os.path.join(DISPLAY_NAME, 'static/')
 
-# List of callables that know how to import templates from various sources.
-TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.Loader',
-    'django.template.loaders.app_directories.Loader',
-    'django.template.loaders.eggs.Loader',
-)
-
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -91,17 +84,27 @@ MIDDLEWARE_CLASSES = (
     'api.apiconsumer.authenticate.Authenticate',
 )
 
-ROOT_URLCONF = 'urls'
+ROOT_URLCONF = 'api.urls'
 
-TEMPLATE_DIRS = (
-    COURSESAPI_APP_ROOT + '/api/templates',
-    # Put strings here, like "/home/html/django_templates"
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-)
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [
+            os.path.join(COURSESAPI_APP_ROOT, '/api/templates'),
+        ],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ]
+        }
+    }
+]
 
 INSTALLED_APPS = (
-    'south',
     'corsheaders',
     'django.contrib.auth',
     'django.contrib.contenttypes',

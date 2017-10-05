@@ -6,8 +6,8 @@ from django.http import HttpResponseBadRequest
 from django.http import HttpResponse
 from django.views.decorators.http import require_GET
 
-from json_helpers import JSON
-from courses.models import Alias, Course, Department, Instructor
+from ..json_helpers import JSON
+from ..courses.models import Alias, Course, Department, Instructor
 
 # Field name for the query value
 QUERY_FIELD = 'q'

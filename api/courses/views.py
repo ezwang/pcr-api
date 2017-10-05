@@ -1,15 +1,15 @@
 import json
 import datetime
-from collections import defaultdict
 
-from utils import current_semester
-from json_helpers import JSON
-import sandbox_config
-from models import *
+from collections import defaultdict
 from django.http import HttpResponse
-from links import *
-import dispatcher
-from dispatcher import API404, dead_end
+
+from .utils import current_semester
+from ..json_helpers import JSON
+from .models import *
+from .links import *
+from . import dispatcher
+from .dispatcher import API404, dead_end
 
 DOCS_URL = 'http://pennlabs.org/console/docs.html'
 DOCS_HTML = "<a href='%s'>%s</a>" % (DOCS_URL, DOCS_URL)

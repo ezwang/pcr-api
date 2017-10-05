@@ -7,9 +7,6 @@ from links import *
 
 # Note: each class has get_absolute_url - this is for "url" when queried
 
-from south.modelsinspector import add_introspection_rules
-add_introspection_rules([], ["^api\.courses\.models\.SemesterField"])
-
 
 class Semester:
   """ A semester, with a calendar year and a season.
@@ -101,8 +98,6 @@ def semesterFromCode(yyyys):
 
 class SemesterField(models.Field):
   description = "A semester during which a course may be offered"
-
-  __metaclass__ = models.SubfieldBase
 
   def __init__(self, *args, **kwargs):
     super(SemesterField, self).__init__(*args, **kwargs)
@@ -486,7 +481,7 @@ class Section(models.Model):
   course      = models.ForeignKey(Course)
   name        = models.CharField(max_length=200)
   sectionnum  = models.IntegerField()
-  instructors = models.ManyToManyField(Instructor, null=True)
+  instructors = models.ManyToManyField(Instructor)
   group       = models.IntegerField(null=True)
   sectiontype = models.CharField(max_length=3, null=True)
   """ Section type values:

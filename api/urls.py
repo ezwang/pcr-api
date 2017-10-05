@@ -1,18 +1,22 @@
-from django.conf.urls.defaults import *
+from django.conf.urls import url
+
+from api.static_content.views import serve_page
+from api.search.views import search
+from api.courses.urls import dispatch
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
 admin.autodiscover()
 
-urlpatterns = patterns('',
+urlpatterns = [
     # Example:
 
     # Uncomment the admin/doc line below to enable admin documentation:
     # (r'^admin/doc/', include('django.contrib.admindocs.urls')),
 
     # Uncomment the next line to enable the admin:
-    (r'^admin/', include(admin.site.urls)),
-    (r'^pcrsite-static/(?P<page>.*)$', 'static_content.views.serve_page'),
-    (r'^search', 'search.views.search'),
-    (r'^(?P<url>.*)', 'courses.urls.dispatch'),
-)
+    url(r'^admin/', admin.site.urls),
+    url(r'^pcrsite-static/(?P<page>.*)$', serve_page),
+    url(r'^search', search),
+    url(r'^(?P<url>.*)', dispatch),
+]
