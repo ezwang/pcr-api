@@ -27,6 +27,9 @@ DATABASES = {
         'PASSWORD': DATABASE_PWD,                   # Not used with sqlite3.
         'HOST': '',  # Set to empty string for localhost. Not used with sqlite3
         'PORT': '',  # Set to empty string for default. Not used with sqlite3.
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
+        }
     }
 }
 
@@ -111,12 +114,12 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.messages',
-    'api.courses',
-    'api.apiconsumer',
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
-    'api.static_content',
     'django.contrib.staticfiles',
+    'api.courses',
+    'api.apiconsumer',
+    'api.static_content',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
 )
