@@ -27,11 +27,13 @@ DATABASES = {
         'PASSWORD': DATABASE_PWD,                   # Not used with sqlite3.
         'HOST': '',  # Set to empty string for localhost. Not used with sqlite3
         'PORT': '',  # Set to empty string for default. Not used with sqlite3.
-        'OPTIONS': {
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
-        }
     }
 }
+
+if DB_ENGINE.endswith("mysql"):
+    DATABASES["default"]["OPTIONS"] = {
+        'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
+    }
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
