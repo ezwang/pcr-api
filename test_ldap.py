@@ -21,7 +21,7 @@ def parse_ldap_file(file_name, entries=None):
       (this code is way too complex for what it needs to do ATM)
   """
   f = open(file_name)
-  entries = defaultdict(list) if entries is None
+  entries = defaultdict(list) if entries is None else entries
   entry = {}
   for line in f:
     line = line.strip()
