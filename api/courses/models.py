@@ -129,7 +129,7 @@ class SemesterField(models.Field):
       return semesterFromID(id)
 
   def get_prep_value(self, value):
-    return value.id
+    return value
 
 
 class Department(models.Model):
@@ -316,7 +316,7 @@ class Course(models.Model):
       'primary_alias': self.code,
       'aliases': self.getAliases(),
       'path': self.get_absolute_url(),
-      'semester': self.semester.code()
+      'semester': self.semester
     }
 
   def toJSON(self):
