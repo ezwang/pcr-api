@@ -33,18 +33,22 @@ mysql.server start
 
 ## Configuration
 
-Configuration variables are stored in `sandbox_config.py`.
+Configuration variables are stored in environment variables. A list of these is shown below:
 
-Copy the defaults via: `cp sandbox_config.py_default sandbox_config.py`
-
-Next, edit `sandbox_config.py` as necessary.
+- `DEBUG` - Turns on and off debugging. The default is false.
+- `API_DB_NAME` - The name of the database. Default is api.
+- `API_DB_USER` - The user used to connect to the database. Default is root.
+- `API_DB_PWD` - The password used to connect to the database. Default is none.
+- `DISPLAY_NAME` - Default `/`.
+- `SECRET_KEY` - Random string, should be kept secret in production.
+- `TEST_API_TOKEN` - Used when running `python manage.py test`.
 
 For local development, you may need to create a database.
 
 1. Open the mysql shell with `mysql --user=root mysql`.
-2. Create the database `CREATE DATABASE <DATABASE_NAME>;` where `<DATABASE_NAME>` is the value of `sandbox_config.DATABASE_NAME`.
+2. Create the database `CREATE DATABASE <DATABASE_NAME>;` where `<DATABASE_NAME>` is the value of `API_DB_NAME`.
 
-Finally, sync the database with `python ./manage.py syncdb`.
+Finally, setup the database with `python manage.py migrate`.
 
 ## Static files
 
