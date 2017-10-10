@@ -205,7 +205,7 @@ class LiveViewTest(TestCase):
   Attributes:
     root_path: The root path where this API is serving.
     token: The access token used for testing. Should have permissions
-      set to 9001 and be defined in sandbox_config.
+      set to 9001 and be defined in settings.
   """
   def setUp(self):
     # TODO(kyleh): Factor this out

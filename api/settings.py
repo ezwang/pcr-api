@@ -2,10 +2,6 @@
 import sys
 import os
 
-from sandbox_config import (DISPLAY_NAME, DO_CACHING,
-                            DEBUG, DATABASE_NAME, DATABASE_USER, DATABASE_PWD,
-                            SECRET_KEY, TEST_API_TOKEN,)
-
 ADMINS = (
     ('PennApps', 'pennappslabs@google.groups.com'),
 )
@@ -15,10 +11,31 @@ MANAGERS = ADMINS
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+DEBUG = os.getenv("API_DEBUG", "false").lower() == "true"
+
 DB_ENGINE = 'django.db.backends.sqlite3' if 'test' in sys.argv or DEBUG \
             else 'django.db.backends.mysql'
+DATABASE_NAME = os.getenv("API_DB_NAME", "api")
+DATABASE_USER = os.getenv("API_DB_USER", "root")
+DATABASE_PWD = os.getenv("API_DB_PWD")
 
 ALLOWED_HOSTS = ["127.0.0.1", "localhost", "[::1]", "api.penncoursereview.com"]
+
+DISPLAY_NAME = os.getenv("API_DISPLAY_NAME", "/")
+
+# Ensure DISPLAY_NAME is never used relatively by beginning with forward slash
+assert DISPLAY_NAME.startswith("/")
+
+DO_CACHING = not DEBUG
+
+SECRET_KEY = os.getenv("API_SECRET_KEY", "o*#l$n+-(vlj(n6z*cp5q5!#z9#8v(")
+TEST_API_TOKEN = os.getenv("API_TEST_TOKEN", "")
+
+# Necessary for `courses/management/commands/importfromisc.py` and 
+#               `courses/management/commands/mergeprofs.py`
+IMPORT_DATABASE_NAME = os.getenv("API_IMPORT_DATABASE_NAME", "old_pcr_2011b")
+IMPORT_DATABASE_USER = os.getenv("API_IMPORT_DATABASE_USER", "pcr-daemon")
+IMPORT_DATABASE_PWD = os.getenv("API_IMPORT_DATABASE_PWD")
 
 DATABASES = {
     'default': {

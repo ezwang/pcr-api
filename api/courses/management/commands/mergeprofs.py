@@ -6,11 +6,10 @@ import traceback
 
 import MySQLdb as db
 from django.core.management.base import BaseCommand, CommandError
+from django.conf import settings
 
 from courses.models import (Alias, Course, CourseHistory, Department,
                             Instructor, Review, ReviewBit, Section, Semester)
-from sandbox_config import (IMPORT_DATABASE_NAME, IMPORT_DATABASE_USER,
-                            IMPORT_DATABASE_PWD)
 
 
 class Command(BaseCommand):
@@ -28,8 +27,8 @@ class Command(BaseCommand):
 
   def handle(self, *args, **opts):
     """Handle command line arguments."""
-    self.db = db.connect(db='kyleh_pcrapi', user=IMPORT_DATABASE_USER,
-                         passwd=IMPORT_DATABASE_PWD)
+    self.db = db.connect(db='kyleh_pcrapi', user=settings.IMPORT_DATABASE_USER,
+                         passwd=settings.IMPORT_DATABASE_PWD)
     self.dry_run = opts['dryrun']
     duplicate_ids = self.query(('SELECT oldpcr_id FROM courses_instructor '
                                 'GROUP BY oldpcr_id HAVING count(id) > 1'))
