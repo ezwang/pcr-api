@@ -2,7 +2,7 @@
 import sys
 import os
 
-from sandbox_config import (DISPLAY_NAME, COURSESAPI_APP_ROOT, DO_CACHING,
+from sandbox_config import (DISPLAY_NAME, DO_CACHING,
                             DEBUG, DATABASE_NAME, DATABASE_USER, DATABASE_PWD,
                             SECRET_KEY, TEST_API_TOKEN,)
 
@@ -12,6 +12,8 @@ ADMINS = (
 SERVER_EMAIL = "pennapps@ve.rckr5ngx.vesrv.com"
 
 MANAGERS = ADMINS
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 DB_ENGINE = 'django.db.backends.sqlite3' if 'test' in sys.argv or DEBUG \
             else 'django.db.backends.mysql'
@@ -70,7 +72,7 @@ MEDIA_URL = ''
 
 # The absolute path to the Unix folder where ./manage.py collectstatic will
 # deposit the symlinked static files
-STATIC_ROOT = os.path.join(COURSESAPI_APP_ROOT, 'api/static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'api/static')
 
 # The actual URL from which static files are served.
 # Examples: "http://foo.com/static/"
@@ -95,7 +97,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            os.path.join(COURSESAPI_APP_ROOT, '/api/templates'),
+            os.path.join(BASE_DIR, 'api/templates'),
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -135,7 +137,7 @@ if DO_CACHING:
         'default': {
             'BACKEND': "django.core.cache.backends.filebased.FileBasedCache",
             # The directory in LOCATION should be owned by user: www-data
-            'LOCATION': COURSESAPI_APP_ROOT + "/CACHES/current",
+            'LOCATION': os.path.join(BASE_DIR, "CACHES/current"),
             'TIMEOUT': 60 * 60 * timeout_hours  # now in seconds
             }
         }
