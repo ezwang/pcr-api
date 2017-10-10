@@ -12,10 +12,6 @@ DISPLAY_NAME = "/"
 # Ensure DISPLAY_NAME is never used relatively by beginning with forward slash
 assert DISPLAY_NAME.startswith("/")
 
-# root of all apps you're working on
-# Example: "/home/mcroop/mcroop_dev/pcr-api"
-COURSESAPI_APP_ROOT = os.getcwd()
-
 # Turn on/off debug mode.
 # Debug mode displays detailed error page.
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-DEBUG
