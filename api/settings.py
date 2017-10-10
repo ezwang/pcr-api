@@ -31,6 +31,10 @@ DO_CACHING = not DEBUG
 SECRET_KEY = os.getenv("API_SECRET_KEY", "o*#l$n+-(vlj(n6z*cp5q5!#z9#8v(")
 TEST_API_TOKEN = os.getenv("API_TEST_TOKEN", "")
 
+# Make sure that the test API token is set when testing, or some tests will fail.
+if 'test' in sys.argv:
+    assert TEST_API_TOKEN
+
 # Necessary for `courses/management/commands/importfromisc.py` and 
 #               `courses/management/commands/mergeprofs.py`
 IMPORT_DATABASE_NAME = os.getenv("API_IMPORT_DATABASE_NAME", "old_pcr_2011b")
