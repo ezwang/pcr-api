@@ -19,6 +19,9 @@ DATABASE_NAME = os.getenv("API_DB_NAME", "api")
 DATABASE_USER = os.getenv("API_DB_USER", "root")
 DATABASE_PWD = os.getenv("API_DB_PWD")
 
+DATABASE_HOST = os.getenv("API_DB_HOST", "")
+DATABASE_PORT = os.getenv("API_DB_PORT", "")
+
 ALLOWED_HOSTS = ["127.0.0.1", "localhost", "[::1]", "api.penncoursereview.com"]
 
 DISPLAY_NAME = os.getenv("API_DISPLAY_NAME", "/")
@@ -48,8 +51,8 @@ DATABASES = {
         'NAME': DATABASE_NAME,  # Or path to database file if using sqlite3.
         'USER': DATABASE_USER,                      # Not used with sqlite3.
         'PASSWORD': DATABASE_PWD,                   # Not used with sqlite3.
-        'HOST': '',  # Set to empty string for localhost. Not used with sqlite3
-        'PORT': '',  # Set to empty string for default. Not used with sqlite3.
+        'HOST': DATABASE_HOST,  # Set to empty string for localhost. Not used with sqlite3
+        'PORT': DATABASE_PORT,  # Set to empty string for default. Not used with sqlite3.
     }
 }
 
