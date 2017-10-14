@@ -167,23 +167,21 @@ def instructors(request):
         for i in Instructor.objects.all() if i.id in prof_to_courses
     ]})
 
-@dead_end
-def instructor_main(request, path, (instructor_id,)):
+
+def instructor_main(request, instructor_id):
     db_id = int(instructor_id.split("-")[0])
     c = Instructor.objects.get(id=db_id)
     return JSON(c.toJSON(extra=['sections', 'reviews']))
 
 
-@dead_end
-def instructor_sections(request, path, (instructor_id,)):
+def instructor_sections(request, instructor_id):
     db_id = int(instructor_id.split("-")[0])
     sections = Instructor.objects.get(id=db_id).section_set.all()
 
     return JSON({RSRCS: [s.toJSON() for s in sections]})
 
 
-@dead_end
-def instructor_reviews(request, path, (instructor_id,)):
+def instructor_reviews(request, instructor_id):
     db_id = int(instructor_id.split("-")[0])
     sections = Instructor.objects.get(id=db_id).section_set.all()
     reviews = sum([list(s.review_set.all()) for s in sections], [])
@@ -359,7 +357,6 @@ def building_main(request, path, (code,)):
     return JSON(Building(code="LEVH", name="Levine Hall").toJSON())
 
 
-@dead_end
-def index(request, path, _):
+def index(request):
     return JSON("Welcome to the Penn Labs PCR API. For docs, see %s."
                 % DOCS_HTML)

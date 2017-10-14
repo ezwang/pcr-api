@@ -8,7 +8,14 @@ from dispatcher import cross_domain_ajax
 
 
 urlpatterns = [
-    url(r"^instructors$", instructors)
+    # Index
+    url(r"^$", index),
+
+    # Instructors
+    url(r"^instructors$", instructors),
+    url(r"^instructors/(?P<instructor_id>[^/]+)$", instructor_main),
+    url(r"^instructors/(?P<instructor_id>[^/]+)/sections$", instructor_sections),
+    url(r"^instructors/(?P<instructor_id>[^/]+)/reviews$", instructor_reviews),
 ]
 
 
@@ -40,11 +47,6 @@ def dispatcher(dispatchers):
 
 
 dispatch_root = {
-    '': index,
-    INSTRUCTOR_TOKEN: {'': instructors,
-                       '/str': {'': instructor_main,
-                                SECTION_TOKEN: instructor_sections,
-                                REVIEW_TOKEN: instructor_reviews}},
     COURSEHISTORY_TOKEN: {'': course_histories,
                           '/int': {'': coursehistory_main,
                                    REVIEW_TOKEN: coursehistory_reviews},
