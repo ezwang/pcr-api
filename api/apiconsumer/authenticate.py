@@ -1,5 +1,5 @@
 from django.http import HttpResponse
-from apiconsumer.models import APIConsumer, generate_api_consumer
+from .models import APIConsumer, generate_api_consumer
 import requests
 
 BASE_API = 'https://api.pennlabs.org'

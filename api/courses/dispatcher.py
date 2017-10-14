@@ -1,9 +1,8 @@
 from django.http import HttpResponse, HttpResponseRedirect
+from django.conf import settings
 
-import sandbox_config
 
-
-API_ROOT = sandbox_config.DISPLAY_NAME
+API_ROOT = settings.DISPLAY_NAME
 ACC_HEADERS = {'Access-Control-Allow-Origin': '*',
                'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
                'Access-Control-Max-Age': 1000,

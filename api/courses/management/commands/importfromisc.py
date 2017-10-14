@@ -15,11 +15,10 @@ import traceback
 
 import MySQLdb as db
 from django.core.management.base import BaseCommand, CommandError
+from django.conf import settings
 
 from courses.models import (Alias, Course, CourseHistory, Department,
                             Instructor, Review, ReviewBit, Section, Semester)
-from sandbox_config import (IMPORT_DATABASE_NAME, IMPORT_DATABASE_USER,
-                            IMPORT_DATABASE_PWD)
 
 
 class Command(BaseCommand):
@@ -68,7 +67,7 @@ class Command(BaseCommand):
                 help='Log errors instead of interrupting the import.'),
     make_option('-d', '--db',
                 help=('An alternate database (uses the IMPORT_DATABASE '
-                      'in sandbox_config by default).')),
+                      'in settings by default).')),
     make_option('-p', '--passwd',
                 help='Alternate database password.'),
     make_option('-u', '--user',
@@ -111,9 +110,9 @@ class Command(BaseCommand):
       self.import_other_aliases = opts['otheraliases']
 
       # Set database
-      db_name = opts['db'] if opts['db'] else IMPORT_DATABASE_NAME
-      db_user = opts['user'] if opts['user'] else IMPORT_DATABASE_USER
-      db_pw = opts['passwd'] if opts['passwd'] else IMPORT_DATABASE_PWD
+      db_name = opts['db'] if opts['db'] else settings.IMPORT_DATABASE_NAME
+      db_user = opts['user'] if opts['user'] else settings.IMPORT_DATABASE_USER
+      db_pw = opts['passwd'] if opts['passwd'] else settings.IMPORT_DATABASE_PWD
       self._log('Using database %s and user %s' % (db_name, db_user))
       self.db = db.connect(db=db_name, user=db_user, passwd=db_pw)
 

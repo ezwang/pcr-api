@@ -1,4 +1,4 @@
-from static_content.models import Page 
+from .models import Page
 from django.contrib import admin
 
 class PageAdmin(admin.ModelAdmin):

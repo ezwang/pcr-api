@@ -4,14 +4,13 @@ PROJECT_PATH = os.path.realpath(os.path.dirname(__file__))
 
 sys.path.append(PROJECT_PATH)
 
-from sandbox_config import *
+from django.conf import settings
 
 #Uncomment these two lines to use virtualenv
-#activate_this = os.path.join(COURSESAPI_APP_ROOT, "ENV/bin/activate_this.py")
+#activate_this = os.path.join(BASE_DIR, "ENV/bin/activate_this.py")
 #execfile(activate_this, dict(__file__=activate_this))
 
-sys.path.append(DEV_ROOT)
-sys.path.append(COURSESAPI_APP_ROOT)
+sys.path.append(settings.BASE_DIR)
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
 

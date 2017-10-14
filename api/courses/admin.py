@@ -1,11 +1,11 @@
 from django.contrib import admin
 from django.http import HttpResponse
-from django.conf.urls.defaults import patterns
+from django.conf.urls import url
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.contrib.auth.models import Group
 
-from courses.models import Instructor, Course, Section, Review
+from .models import Instructor, Course, Section, Review
 
 
 admin.site.unregister(Group)
@@ -25,10 +25,10 @@ class CourseAdmin(admin.ModelAdmin):
 
     def get_urls(self):
         urls = super(CourseAdmin, self).get_urls()
-        my_urls = patterns('',
-          (r'^generate_cache/$', lambda(request): HttpResponse("you clicked generate cache")),
-          (r'^push_to_live/$', lambda(request): HttpResponse("you clicked push to live"))
-        )
+        my_urls = [
+          url(r'^generate_cache/$', lambda(request): HttpResponse("you clicked generate cache")),
+          url(r'^push_to_live/$', lambda(request): HttpResponse("you clicked push to live"))
+        ]
         return my_urls + urls
 
 
@@ -73,8 +73,7 @@ admin.site.register(Section, SectionAdmin)
 admin.site.register(Review, ReviewAdmin)
 
 """
-grab 'patterns' from django.conf.urls.defaults
- and either add the pattern to some Admin's get_urls(self) 
+ add urls to some Admin's get_urls(self) 
  a la the end of http://djangosnippets.org/snippets/1936/
 
  Make it fire towards some custom python script that Matt has.

@@ -2,12 +2,6 @@
 import sys
 import os
 
-from sandbox_config import (DISPLAY_NAME, COURSESAPI_APP_ROOT, DO_CACHING,
-                            DEBUG, DATABASE_NAME, DATABASE_USER, DATABASE_PWD,
-                            SECRET_KEY, TEST_API_TOKEN,)
-
-TEMPLATE_DEBUG = DEBUG
-
 ADMINS = (
     ('PennApps', 'pennappslabs@google.groups.com'),
 )
@@ -15,8 +9,37 @@ SERVER_EMAIL = "pennapps@ve.rckr5ngx.vesrv.com"
 
 MANAGERS = ADMINS
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+DEBUG = os.getenv("API_DEBUG", "false").lower() == "true"
+
 DB_ENGINE = 'django.db.backends.sqlite3' if 'test' in sys.argv or DEBUG \
             else 'django.db.backends.mysql'
+DATABASE_NAME = os.getenv("API_DB_NAME", "api")
+DATABASE_USER = os.getenv("API_DB_USER", "root")
+DATABASE_PWD = os.getenv("API_DB_PWD")
+
+ALLOWED_HOSTS = ["127.0.0.1", "localhost", "[::1]", "api.penncoursereview.com"]
+
+DISPLAY_NAME = os.getenv("API_DISPLAY_NAME", "/")
+
+# Ensure DISPLAY_NAME is never used relatively by beginning with forward slash
+assert DISPLAY_NAME.startswith("/")
+
+DO_CACHING = not DEBUG
+
+SECRET_KEY = os.getenv("API_SECRET_KEY", "o*#l$n+-(vlj(n6z*cp5q5!#z9#8v(")
+TEST_API_TOKEN = os.getenv("API_TEST_TOKEN", "")
+
+# Make sure that the test API token is set when testing, or some tests will fail.
+if 'test' in sys.argv:
+    assert TEST_API_TOKEN
+
+# Necessary for `courses/management/commands/importfromisc.py` and 
+#               `courses/management/commands/mergeprofs.py`
+IMPORT_DATABASE_NAME = os.getenv("API_IMPORT_DATABASE_NAME", "old_pcr_2011b")
+IMPORT_DATABASE_USER = os.getenv("API_IMPORT_DATABASE_USER", "pcr-daemon")
+IMPORT_DATABASE_PWD = os.getenv("API_IMPORT_DATABASE_PWD")
 
 DATABASES = {
     'default': {
@@ -29,6 +52,11 @@ DATABASES = {
         'PORT': '',  # Set to empty string for default. Not used with sqlite3.
     }
 }
+
+if DB_ENGINE.endswith("mysql"):
+    DATABASES["default"]["OPTIONS"] = {
+        'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
+    }
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -65,18 +93,11 @@ MEDIA_URL = ''
 
 # The absolute path to the Unix folder where ./manage.py collectstatic will
 # deposit the symlinked static files
-STATIC_ROOT = os.path.join(COURSESAPI_APP_ROOT, 'api/static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'api/static')
 
 # The actual URL from which static files are served.
 # Examples: "http://foo.com/static/"
 STATIC_URL = os.path.join(DISPLAY_NAME, 'static/')
-
-# List of callables that know how to import templates from various sources.
-TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.Loader',
-    'django.template.loaders.app_directories.Loader',
-    'django.template.loaders.eggs.Loader',
-)
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
@@ -91,29 +112,39 @@ MIDDLEWARE_CLASSES = (
     'api.apiconsumer.authenticate.Authenticate',
 )
 
-ROOT_URLCONF = 'urls'
+ROOT_URLCONF = 'api.urls'
 
-TEMPLATE_DIRS = (
-    COURSESAPI_APP_ROOT + '/api/templates',
-    # Put strings here, like "/home/html/django_templates"
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-)
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [
+            os.path.join(BASE_DIR, 'api/templates'),
+        ],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ]
+        }
+    }
+]
 
 INSTALLED_APPS = (
-    'south',
     'corsheaders',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.messages',
-    'api.courses',
-    'api.apiconsumer',
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
-    'api.static_content',
     'django.contrib.staticfiles',
+    'api.courses',
+    'api.apiconsumer',
+    'api.static_content',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
 )
@@ -127,7 +158,7 @@ if DO_CACHING:
         'default': {
             'BACKEND': "django.core.cache.backends.filebased.FileBasedCache",
             # The directory in LOCATION should be owned by user: www-data
-            'LOCATION': COURSESAPI_APP_ROOT + "/CACHES/current",
+            'LOCATION': os.path.join(BASE_DIR, "CACHES/current"),
             'TIMEOUT': 60 * 60 * timeout_hours  # now in seconds
             }
         }
