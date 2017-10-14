@@ -16,6 +16,11 @@ urlpatterns = [
     url(r"^instructors/(?P<instructor_id>[^/]+)$", instructor_main),
     url(r"^instructors/(?P<instructor_id>[^/]+)/sections$", instructor_sections),
     url(r"^instructors/(?P<instructor_id>[^/]+)/reviews$", instructor_reviews),
+
+    # Course Histories
+    url(r"^coursehistories$", course_histories),
+    url(r"^coursehistories/(?P<histid>[^/]+)$", coursehistory_main),
+    url(r"^coursehistories/(?P<histid>[^/]+)/reviews$", coursehistory_reviews),
 ]
 
 
@@ -47,10 +52,6 @@ def dispatcher(dispatchers):
 
 
 dispatch_root = {
-    COURSEHISTORY_TOKEN: {'': course_histories,
-                          '/int': {'': coursehistory_main,
-                                   REVIEW_TOKEN: coursehistory_reviews},
-                          '/str': alias_coursehistory},
     DEPARTMENT_TOKEN: {'': depts,
                        '/str': {'': dept_main,
                                 REVIEW_TOKEN: dept_reviews}},

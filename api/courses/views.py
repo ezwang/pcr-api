@@ -15,11 +15,10 @@ DOCS_URL = 'http://pennlabs.org/console/docs.html'
 DOCS_HTML = "<a href='%s'>%s</a>" % (DOCS_URL, DOCS_URL)
 
 
-@dead_end
-def course_histories(request, path, _):
+def course_histories(request):
     if not request.consumer.access_secret:
         # This method is for the PCR site only.
-        raise API404("This is not the database dump you are looking for.")
+        raise Http404("This is not the database dump you are looking for.")
 
     # 1. get and aggregate all course alias data
     alias_fields = ['coursenum', 'department__code',
@@ -189,14 +188,16 @@ def instructor_reviews(request, instructor_id):
     return JSON({RSRCS: [r.toJSON() for r in reviews]})
 
 
-@dead_end
-def coursehistory_main(request, path, (histid,)):
+def coursehistory_main(request, histid):
+    if not histid.isdigit():
+        histid = alias_coursehistory(histid)
     hist = CourseHistory.objects.get(id=histid)
     return JSON(hist.toJSON())
 
 
-@dead_end
-def coursehistory_reviews(request, path, (histid,)):
+def coursehistory_reviews(request, histid):
+    if not histid.isdigit():
+        histid = alias_coursehistory(histid)
     reviews = Review.objects.filter(section__course__history__id=histid)
     return JSON({RSRCS: [r.toJSON() for r in reviews]})
 
@@ -296,19 +297,18 @@ def alias_currentsemester(request, path, _):
     return HttpResponse("(redirect) current semester, extra %s" % path)
 
 
-def alias_coursehistory(request, path, (historyalias,)):
+def alias_coursehistory(historyalias):
     try:
         dept_code, coursenum_str = historyalias.upper().split('-')
         coursenum = int(coursenum_str)
     except:
-        raise API404("Course alias %s not in correct format: DEPT-100." %
+        raise Http404("Course alias %s not in correct format: DEPT-100." %
                      historyalias)
 
     latest_alias = Alias.objects.filter(
         department=dept_code, coursenum=coursenum).order_by('-semester')[0]
 
-    return dispatcher.redirect(coursehistory_url(latest_alias.course.history_id),
-                               request, path)
+    return latest_alias.course.history_id
 
 
 def alias_misc(request, path, (alias,)):
