@@ -39,7 +39,7 @@ Configuration variables are stored in environment variables. A list of these is 
 - `API_DB_NAME` - The name of the database. Default is api.
 - `API_DB_USER` - The user used to connect to the database. Default is root.
 - `API_DB_PWD` - The password used to connect to the database. Default is none.
-- `DISPLAY_NAME` - Default `/`.
+- `DISPLAY_NAME` - Prefixed before API requests (ex: `/v1/`). Default `/`.
 - `SECRET_KEY` - Random string, should be kept secret in production.
 - `TEST_API_TOKEN` - Used when running `python manage.py test`.
 
