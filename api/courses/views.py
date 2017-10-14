@@ -2,7 +2,7 @@ import json
 import datetime
 
 from collections import defaultdict
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 
 from .utils import current_semester
 from ..json_helpers import JSON
@@ -130,8 +130,7 @@ def semester_dept(request, path, (semester_code, dept_code,)):
     return JSON(dept.toJSON())
 
 
-@dead_end
-def instructors(request, path, _):
+def instructors(request):
     if not request.consumer.access_pcr:
         # This method is only available to those with review data access.
         raise API404("This is not the database dump you are looking for.")
@@ -167,7 +166,6 @@ def instructors(request, path, _):
         make_instructor_json(i)
         for i in Instructor.objects.all() if i.id in prof_to_courses
     ]})
-
 
 @dead_end
 def instructor_main(request, path, (instructor_id,)):

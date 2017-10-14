@@ -1,8 +1,15 @@
+from django.conf.urls import url
+
 # import each of the keys for the dispatch_root
 from links import *
 # import each of the handlers
 from views import *
 from dispatcher import cross_domain_ajax
+
+
+urlpatterns = [
+    url(r"^instructors$", instructors)
+]
 
 
 def dispatch_404(message=None, perhaps=None):
