@@ -19,15 +19,16 @@ class InstructorAdmin(admin.ModelAdmin):
 class CourseAdmin(admin.ModelAdmin):
     list_display = ('primary_alias', 'semester', 'name')
     list_select_related = True
-    search_fields = ('primary_alias__department__code', 'primary_alias__coursenum', 'name', 'description',)
+    search_fields = ('primary_alias__department__code',
+                     'primary_alias__coursenum', 'name', 'description',)
     ordering = ('-semester', 'primary_alias')
     raw_id_fields = ('primary_alias', 'history',)
 
     def get_urls(self):
         urls = super(CourseAdmin, self).get_urls()
         my_urls = [
-          url(r'^generate_cache/$', lambda(request): HttpResponse("you clicked generate cache")),
-          url(r'^push_to_live/$', lambda(request): HttpResponse("you clicked push to live"))
+            url(r'^generate_cache/$', lambda(request): HttpResponse("you clicked generate cache")),
+            url(r'^push_to_live/$', lambda(request): HttpResponse("you clicked push to live"))
         ]
         return my_urls + urls
 
@@ -45,11 +46,14 @@ class SectionAdmin(admin.ModelAdmin):
     def semester(self, obj):
         return obj.course.semester
 
+
 class ReviewAdmin(admin.ModelAdmin):
     list_select_related = True
-    list_display = ('primary_alias', 'sectionnum', 'instructor', 'section', 'semester')
+    list_display = ('primary_alias', 'sectionnum',
+                    'instructor', 'section', 'semester')
     list_display_links = ('primary_alias', 'sectionnum', 'instructor',)
-    search_fields = ('section__course__primary_alias__department__code', 'section__course__primary_alias__coursenum', 'section__course__name', 'section__name', '^instructor__first_name', '^instructor__last_name')
+    search_fields = ('section__course__primary_alias__department__code', 'section__course__primary_alias__coursenum',
+                     'section__course__name', 'section__name', '^instructor__first_name', '^instructor__last_name')
     ordering = ('-section__course__semester', 'section')
     raw_id_fields = ('section', 'instructor')
 
