@@ -322,21 +322,18 @@ def alias_misc(request, path, (alias,)):
                         content_type="application/json")
 
 
-@dead_end
-def depts(request, path, _):
+def depts(request):
     depts = Department.objects.order_by('code').all()
     return JSON({RSRCS: [d.toShortJSON() for d in depts]})
 
 
-@dead_end
-def dept_main(request, path, (dept_code,)):
+def dept_main(request, dept_code):
     dept_code = dept_code.upper()
     d = Department.objects.get(code=dept_code)
     return JSON(d.toJSON())
 
 
-@dead_end
-def dept_reviews(request, path, (dept_code,)):
+def dept_reviews(request, dept_code):
     reviews = Review.objects.filter(
         section__course__alias__department__code=dept_code)
     return JSON({RSRCS: [r.toJSON() for r in reviews]})

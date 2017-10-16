@@ -21,6 +21,11 @@ urlpatterns = [
     url(r"^coursehistories$", course_histories),
     url(r"^coursehistories/(?P<histid>[^/]+)$", coursehistory_main),
     url(r"^coursehistories/(?P<histid>[^/]+)/reviews$", coursehistory_reviews),
+
+    # Departments
+    url(r"^depts$", depts),
+    url(r"^depts/(?P<dept_code>[^/]+)$", dept_main),
+    url(r"^depts/(?P<dept_code>[^/]+)/reviews$", dept_reviews),
 ]
 
 
@@ -52,9 +57,6 @@ def dispatcher(dispatchers):
 
 
 dispatch_root = {
-    DEPARTMENT_TOKEN: {'': depts,
-                       '/str': {'': dept_main,
-                                REVIEW_TOKEN: dept_reviews}},
     COURSE_TOKEN: {'': dispatch_404("sorry, no global course list"),
                    '/int': {'': course_main,
                             REVIEW_TOKEN: course_reviews,
