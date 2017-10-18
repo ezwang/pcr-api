@@ -285,10 +285,6 @@ def alias_section(request, sectionalias):
     return redirect("section", courseid=courseid, sectionnum=sectionnum)
 
 
-def alias_currentsemester(request, path, _):
-    return HttpResponse("(redirect) current semester, extra %s" % path)
-
-
 def alias_coursehistory(request, historyalias, path):
     try:
         dept_code, coursenum_str = historyalias.upper().split('-')
