@@ -3,7 +3,6 @@ from django.conf import settings
 
 from api.static_content.views import serve_page
 from api.search.views import search
-from api.courses.urls import dispatch
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
@@ -20,5 +19,4 @@ urlpatterns = [
     url(r'^pcrsite-static/(?P<page>.*)$', serve_page),
     url(r'^search', search),
     url(r'^' + settings.DISPLAY_NAME.lstrip("/"), include("api.courses.urls")),
-    url(r'^(?P<url>.*)', dispatch),
 ]

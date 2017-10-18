@@ -32,15 +32,6 @@ def redirect(path, request, extras=[]):
     return HttpResponseRedirect(fullpath)
 
 
-def dead_end(fn):
-    def wrapped(request, path, variables):
-        if path:
-            return dispatch_404(message="Past dead end!")(request, path, variables)
-        else:
-            return fn(request, path, variables)
-    return wrapped
-
-
 # FNAR 337 Advanced Orange (Jaime Mundo)
 # Explore the majesty of the color Orange in its natural habitat,
 # and ridicule other, uglier colors, such as Chartreuse (eww).
