@@ -1,10 +1,8 @@
 from django.conf.urls import url
 
-# import each of the keys for the dispatch_root
-from links import *
 # import each of the handlers
 from views import *
-from dispatcher import cross_domain_ajax
+from dispatcher import cross_domain_ajax, API404
 
 
 def dispatch_404(message=None, perhaps=None):
@@ -19,7 +17,7 @@ urlpatterns = [
 
     # Instructors
     url(r"^instructors$", instructors),
-    url(r"^instructors/(?P<instructor_id>[^/]+)$", instructor_main),
+    url(r"^instructors/(?P<instructor_id>[^/]+)$", instructor_main, name="instructor"),
     url(r"^instructors/(?P<instructor_id>[^/]+)/sections$", instructor_sections),
     url(r"^instructors/(?P<instructor_id>[^/]+)/reviews$", instructor_reviews),
 
@@ -31,17 +29,17 @@ urlpatterns = [
 
     # Departments
     url(r"^depts$", depts),
-    url(r"^depts/(?P<dept_code>[^/]+)$", dept_main),
+    url(r"^depts/(?P<dept_code>[^/]+)$", dept_main, name="department"),
     url(r"^depts/(?P<dept_code>[^/]+)/reviews$", dept_reviews),
 
     # Semesters
     url(r"^semesters$", semesters),
-    url(r"^semesters/(?P<semester_code>[^/]+)$", semester_main),
-    url(r"^semesters/(?P<semester_code>[^/]+)/(?P<dept_code>[^/]+)$", semester_dept),
+    url(r"^semesters/(?P<semester_code>[^/]+)$", semester_main, name="semester"),
+    url(r"^semesters/(?P<semester_code>[^/]+)/(?P<dept_code>[^/]+)$", semester_dept, name="semdept"),
 
     # Buildings
     url(r"^building$", buildings),
-    url(r"^building/(?P<code>[^/]+)$", building_main),
+    url(r"^building/(?P<code>[^/]+)$", building_main, name="building"),
 
     # Courses
     url(r"^courses$", dispatch_404("sorry, no global course list")),
@@ -50,7 +48,7 @@ urlpatterns = [
     url(r"^courses/(?P<courseid>\d+)/sections$", course_sections),
     url(r"^courses/(?P<courseid>\d+)/sections/(?P<sectionnum>[^/]+)/?$", section_main, name="section"),
     url(r"^courses/(?P<courseid>\d+)/sections/(?P<sectionnum>[^/]+)/reviews$", section_reviews),
-    url(r"^courses/(?P<courseid>\d+)/sections/(?P<sectionnum>[^/]+)/reviews/(?P<instructor_id>[^/]+)$", review_main),
+    url(r"^courses/(?P<courseid>\d+)/sections/(?P<sectionnum>[^/]+)/reviews/(?P<instructor_id>[^/]+)$", review_main, name="review"),
     url(r"^courses/(?P<coursealias>[^/]+)(?P<path>.*)$", alias_course),
 
     # Sections

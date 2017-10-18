@@ -1,5 +1,4 @@
 import json
-import datetime
 
 from collections import defaultdict
 from django.http import HttpResponse
@@ -7,9 +6,11 @@ from django.shortcuts import redirect, reverse
 
 from .utils import current_semester
 from ..json_helpers import JSON
-from .models import *
-from .links import *
+from .models import (Course, Department, Review, Alias, Building, CourseHistory,
+                     Section, Instructor, SemesterDepartment, semesterFromID,
+                     semesterFromCode, )
 from .dispatcher import API404
+from .links import RSRCS
 
 DOCS_URL = 'http://pennlabs.org/console/docs.html'
 DOCS_HTML = "<a href='%s'>%s</a>" % (DOCS_URL, DOCS_URL)
@@ -101,7 +102,7 @@ def merge_union(setlist):
     # Construct result by union the sets within a component
     result = defaultdict(dict)
     for merge_from, merge_to in enumerate(parent):
-        if not merge_to in result:
+        if merge_to not in result:
             result[merge_to] = setlist[merge_from]
         else:
             result[merge_to]['aliases'] = list(set(result[merge_to]['aliases']) |
@@ -154,7 +155,7 @@ def instructors(request):
 
     def make_instructor_json(i):
         json = i.toShortJSON()
-        json[DEPARTMENT_TOKEN] = instructor_to_depts(i)
+        json["depts"] = instructor_to_depts(i)
         return json
 
     # 3. get and aggregate all course alias data no 'this semester only' prof, please
@@ -264,7 +265,7 @@ def alias_course(request, coursealias, path):
     courseid = Alias.objects.get(semester=semester,
                                  department=dept_code,
                                  coursenum=coursenum).course_id
-    return redirect(reverse("course", courseid=courseid) + path)
+    return redirect(reverse("course", kwargs={"courseid": courseid}) + path)
 
 
 def alias_section(request, sectionalias):
@@ -299,7 +300,7 @@ def alias_coursehistory(request, historyalias, path):
     latest_alias = Alias.objects.filter(
         department=dept_code, coursenum=coursenum).order_by('-semester')[0]
 
-    return redirect(reverse("history", histid=latest_alias.course.history_id) + path)
+    return redirect(reverse("history", kwargs={"histid": latest_alias.course.history_id}) + path)
 
 
 def alias_misc(request, alias):
