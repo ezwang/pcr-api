@@ -26,12 +26,6 @@ def cross_domain_ajax(func):
     return wrap
 
 
-def redirect(path, request, extras=[]):
-    query = '?' + request.GET.urlencode() if request.GET else ''
-    fullpath = "%s/%s/%s%s" % (API_ROOT, path, '/'.join(extras), query)
-    return HttpResponseRedirect(fullpath)
-
-
 # FNAR 337 Advanced Orange (Jaime Mundo)
 # Explore the majesty of the color Orange in its natural habitat,
 # and ridicule other, uglier colors, such as Chartreuse (eww).
