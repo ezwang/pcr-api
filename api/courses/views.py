@@ -4,12 +4,11 @@ from collections import defaultdict
 from django.http import HttpResponse
 from django.shortcuts import redirect, reverse
 
-from .utils import current_semester
+from .utils import current_semester, API404
 from ..json_helpers import JSON
 from .models import (Course, Department, Review, Alias, Building, CourseHistory,
                      Section, Instructor, SemesterDepartment, semesterFromID,
                      semesterFromCode, )
-from .dispatcher import API404
 from .links import RSRCS
 
 DOCS_URL = 'http://pennlabs.org/console/docs.html'

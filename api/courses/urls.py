@@ -2,7 +2,7 @@ from django.conf.urls import url
 
 # import each of the handlers
 from . import views
-from dispatcher import cross_domain_ajax, API404
+from .utils import cross_domain_ajax, API404
 
 
 def dispatch_404(message=None, perhaps=None):
