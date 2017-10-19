@@ -42,7 +42,7 @@ urlpatterns = [
     url(r"^building/(?P<code>[^/]+)$", views.building_main, name="building"),
 
     # Courses
-    url(r"^courses$", views.dispatch_404("sorry, no global course list")),
+    url(r"^courses$", dispatch_404("sorry, no global course list")),
     url(r"^courses/(?P<courseid>\d+)/?$", views.course_main, name="course"),
     url(r"^courses/(?P<courseid>\d+)/reviews$", views.course_reviews),
     url(r"^courses/(?P<courseid>\d+)/sections$", views.course_sections),
@@ -52,7 +52,7 @@ urlpatterns = [
     url(r"^courses/(?P<coursealias>[^/]+)(?P<path>.*)$", views.alias_course),
 
     # Sections
-    url(r"^sections$", views.dispatch_404("sorry, no global sections list")),
+    url(r"^sections$", dispatch_404("sorry, no global sections list")),
     url(r"^sections/(?P<sectionalias>[^/]+)$", views.alias_section),
 
     # Misc

@@ -1,6 +1,6 @@
 import datetime
 
-from models import Semester
+from .models import Semester
 
 
 def current_semester():
