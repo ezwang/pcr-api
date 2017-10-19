@@ -12,7 +12,7 @@ from django.test.client import Client
 
 from api.apiconsumer.models import APIConsumer
 from models import (Alias, Course, CourseHistory, Department, Instructor,
-                    Section, Semester, Review, ReviewBit)
+                    Section, Review, ReviewBit)
 
 
 class ViewTest(TestCase):
@@ -53,7 +53,7 @@ class ViewTest(TestCase):
 
 
 class DataTest(ViewTest):
-    """Test the basic integrety of the API structure."""
+    """Test the basic integrity of the API structure."""
 
     def setUp(self):
         super(DataTest, self).setUp()
@@ -193,6 +193,9 @@ class DataTest(ViewTest):
         self.assertTrue(int(num_reviewers) > 0)
         self.assertTrue(int(num_students) > 0)
         self.assertTrue(section['sectionnum'] == '001')
+
+    def test_appending_forward_slash(self):
+        self.validate_results('/instructors/')
 
 
 class LiveViewTest(TestCase):
