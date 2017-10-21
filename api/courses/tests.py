@@ -194,9 +194,13 @@ class DataTest(ViewTest):
         self.assertTrue(int(num_students) > 0)
         self.assertTrue(section['sectionnum'] == '001')
 
-    def test_appending_forward_slash(self):
+    def test_forward_slash_depts(self):
         self.validate_results('/depts/')
+
+    def test_forward_slash_instructors(self):
         self.validate_results('/instructors/')
+
+    def test_forward_slash_coursehistories(self):
         self.validate_results('/coursehistories/')
 
 
