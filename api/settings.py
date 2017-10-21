@@ -35,7 +35,7 @@ TEST_API_TOKEN = os.getenv("API_TEST_TOKEN", "")
 if 'test' in sys.argv:
     assert TEST_API_TOKEN
 
-# Necessary for `courses/management/commands/importfromisc.py` and 
+# Necessary for `courses/management/commands/importfromisc.py` and
 #               `courses/management/commands/mergeprofs.py`
 IMPORT_DATABASE_NAME = os.getenv("API_IMPORT_DATABASE_NAME", "old_pcr_2011b")
 IMPORT_DATABASE_USER = os.getenv("API_IMPORT_DATABASE_USER", "pcr-daemon")
@@ -160,8 +160,8 @@ if DO_CACHING:
             # The directory in LOCATION should be owned by user: www-data
             'LOCATION': os.path.join(BASE_DIR, "CACHES/current"),
             'TIMEOUT': 60 * 60 * timeout_hours  # now in seconds
-            }
         }
+    }
 
 
 # Used for Django debug toolbar (or use debugsqlshell)
@@ -172,4 +172,4 @@ except ImportError:
 else:
     MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
     INSTALLED_APPS += ('debug_toolbar',)
-    INTERNAL_IPS = ('158.130.103.7','127.0.0.1')
+    INTERNAL_IPS = ('158.130.103.7', '127.0.0.1')

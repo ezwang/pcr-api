@@ -10,31 +10,35 @@ ACC_HEADERS = {'Access-Control-Allow-Origin': '*',
 
 # allows cross-domain AJAX calls
 # https://gist.github.com/1308865
+
+
 def cross_domain_ajax(func):
-  """ Sets Access Control request headers. """
-  def wrap(request, *args, **kwargs):
-    # Firefox sends 'OPTIONS' request for cross-domain javascript call.
-    if request.method != "OPTIONS":
-      response = func(request, *args, **kwargs)
-    else:
-      response = HttpResponse()
-    for k, v in ACC_HEADERS.iteritems():
-      response[k] = v
-    return response
-  return wrap
+    """ Sets Access Control request headers. """
+    def wrap(request, *args, **kwargs):
+        # Firefox sends 'OPTIONS' request for cross-domain javascript call.
+        if request.method != "OPTIONS":
+            response = func(request, *args, **kwargs)
+        else:
+            response = HttpResponse()
+        for k, v in ACC_HEADERS.iteritems():
+            response[k] = v
+        return response
+    return wrap
+
 
 def redirect(path, request, extras=[]):
-  query = '?' + request.GET.urlencode() if request.GET else ''
-  fullpath = "%s/%s/%s%s" % (API_ROOT, path, '/'.join(extras), query)
-  return HttpResponseRedirect(fullpath)
+    query = '?' + request.GET.urlencode() if request.GET else ''
+    fullpath = "%s/%s/%s%s" % (API_ROOT, path, '/'.join(extras), query)
+    return HttpResponseRedirect(fullpath)
+
 
 def dead_end(fn):
-  def wrapped(request, path, variables):
-    if path:
-      return dispatch_404(message="Past dead end!")(request, path, variables)
-    else:
-      return fn(request, path, variables)
-  return wrapped
+    def wrapped(request, path, variables):
+        if path:
+            return dispatch_404(message="Past dead end!")(request, path, variables)
+        else:
+            return fn(request, path, variables)
+    return wrapped
 
 
 # FNAR 337 Advanced Orange (Jaime Mundo)
@@ -45,6 +49,6 @@ def dead_end(fn):
 # The Kemisserouh delegates teaching duties to you. Independent study.
 
 class API404(Exception):
-  def __init__(self, message=None, perhaps=None):
-    self.message = message
-    self.perhaps = perhaps
+    def __init__(self, message=None, perhaps=None):
+        self.message = message
+        self.perhaps = perhaps

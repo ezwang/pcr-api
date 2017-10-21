@@ -25,6 +25,7 @@ class ResultType(object):
     INSTRUCTORS = 'instructors'
     DEPARTMENTS = 'departments'
 
+
 RESULT_TYPES = [ResultType.MIXED, ResultType.COURSES, ResultType.INSTRUCTORS,
                 ResultType.DEPARTMENTS]
 
@@ -151,16 +152,19 @@ def _retrieve_instructors(q, count):
     q_all = Q()
 
     for word in words:
-        q_all |= Q(last_name__istartswith=word) | Q(first_name__istartswith=word)
+        q_all |= Q(last_name__istartswith=word) | Q(
+            first_name__istartswith=word)
 
     r_all = Instructor.objects.filter(q_all)
 
     if len(words) == 2:
-        q0 = Q(last_name__istartswith=words[1]) & Q(first_name__istartswith=words[0])
-        q1 = Q(last_name__istartswith=words[0]) & Q(first_name__istartswith=words[1])
-        
+        q0 = Q(last_name__istartswith=words[1]) & Q(
+            first_name__istartswith=words[0])
+        q1 = Q(last_name__istartswith=words[0]) & Q(
+            first_name__istartswith=words[1])
+
         r += list(r_all.filter(q0)[:count])
-        r += list(r_all.filter(q1)[:count-len(r)])
+        r += list(r_all.filter(q1)[:count - len(r)])
 
         r_all = r_all.exclude(q0 | q1)
 
@@ -171,17 +175,17 @@ def _retrieve_instructors(q, count):
 
         # Given that the query is 'Adam Grant' we consider results with "Adam" in the first name
         # more relevant than results with "Adam" in the last name, and vice-versa for "Grant"
-        if i == 0: 
-            r += list(r_all.filter(q2)[:count-len(r)])
-            r += list(r_all.filter(q1)[:count-len(r)])
+        if i == 0:
+            r += list(r_all.filter(q2)[:count - len(r)])
+            r += list(r_all.filter(q1)[:count - len(r)])
         else:
-            r += list(r_all.filter(q1)[:count-len(r)])
-            r += list(r_all.filter(q2)[:count-len(r)])
-            
+            r += list(r_all.filter(q1)[:count - len(r)])
+            r += list(r_all.filter(q2)[:count - len(r)])
+
         if len(r) == count:
             break
     return r
-    
+
 
 def _retrieve_departments(q, count):
     """Retrieve a list of `count` unique Departments that are relevant to `q`.
