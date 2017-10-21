@@ -195,7 +195,9 @@ class DataTest(ViewTest):
         self.assertTrue(section['sectionnum'] == '001')
 
     def test_appending_forward_slash(self):
+        self.validate_results('/depts/')
         self.validate_results('/instructors/')
+        self.validate_results('/coursehistories/')
 
 
 class LiveViewTest(TestCase):
