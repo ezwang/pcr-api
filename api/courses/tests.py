@@ -79,9 +79,9 @@ class DataTest(ViewTest):
             sectionnum='001', sectiontype='LEC')
         self.sectionid = section1.sectionnum
         alias1 = Alias.objects.create(
-            course=cis110_1, department=cis, coursenum=1, semester='810')
+            course=cis110_1, department=cis, coursenum=1, semester=810)
         alias2 = Alias.objects.create(
-            course=cis110_1, department=ese, coursenum=1, semester='810')
+            course=cis110_1, department=ese, coursenum=1, semester=810)
         cis110_1.primary_alias = alias1
         cis110_1.save()
         review1 = Review.objects.create(
@@ -194,6 +194,9 @@ class DataTest(ViewTest):
         self.assertTrue(int(num_students) > 0)
         self.assertTrue(section['sectionnum'] == '001')
 
+    def test_presence_of_semesters(self):
+        self.validate_results('/semesters')
+
     def test_forward_slash_depts(self):
         self.validate_results('/depts/')
 
@@ -202,6 +205,9 @@ class DataTest(ViewTest):
 
     def test_forward_slash_coursehistories(self):
         self.validate_results('/coursehistories/')
+
+    def test_forward_slash_semesters(self):
+        self.validate_results('/semesters/')
 
 
 class LiveViewTest(TestCase):
