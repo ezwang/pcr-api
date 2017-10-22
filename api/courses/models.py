@@ -90,6 +90,8 @@ class Semester:
 
 def semesterFromID(id):
     """ Given a numerical semester ID, return a semester. """
+    if isinstance(id, Semester):
+        return id
     return Semester(1740 + id / 3, "abc"[id % 3])
 
 
@@ -137,7 +139,11 @@ class SemesterField(models.Field):
         return self.to_python(value)
 
     def get_prep_value(self, value):
-        return value.id
+        if isinstance(value, Semester):
+            return value.id
+        if isinstance(value, int):
+            return value
+        raise TypeError("Invalid type passed to SemesterField!")
 
 
 class Department(models.Model):
