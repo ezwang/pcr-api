@@ -2,6 +2,8 @@
 import sys
 import os
 
+import dj_database_url
+
 ADMINS = (
     ('PennApps', 'pennappslabs@google.groups.com'),
 )
@@ -12,12 +14,6 @@ MANAGERS = ADMINS
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 DEBUG = os.getenv("API_DEBUG", "false").lower() == "true"
-
-DB_ENGINE = 'django.db.backends.sqlite3' if 'test' in sys.argv or DEBUG \
-            else 'django.db.backends.mysql'
-DATABASE_NAME = os.getenv("API_DB_NAME", "api")
-DATABASE_USER = os.getenv("API_DB_USER", "root")
-DATABASE_PWD = os.getenv("API_DB_PWD")
 
 ALLOWED_HOSTS = ["127.0.0.1", "localhost", "[::1]", "api.penncoursereview.com"]
 
@@ -41,19 +37,9 @@ IMPORT_DATABASE_NAME = os.getenv("API_IMPORT_DATABASE_NAME", "old_pcr_2011b")
 IMPORT_DATABASE_USER = os.getenv("API_IMPORT_DATABASE_USER", "pcr-daemon")
 IMPORT_DATABASE_PWD = os.getenv("API_IMPORT_DATABASE_PWD")
 
-DATABASES = {
-    'default': {
-        # sqlite3 is used when testing
-        'ENGINE': DB_ENGINE,
-        'NAME': DATABASE_NAME,  # Or path to database file if using sqlite3.
-        'USER': DATABASE_USER,                      # Not used with sqlite3.
-        'PASSWORD': DATABASE_PWD,                   # Not used with sqlite3.
-        'HOST': '',  # Set to empty string for localhost. Not used with sqlite3
-        'PORT': '',  # Set to empty string for default. Not used with sqlite3.
-    }
-}
+DATABASES = {"default": dj_database_url.config(conn_max_age=600, default="sqlite:///api")}
 
-if DB_ENGINE.endswith("mysql"):
+if DATABASES["default"]["ENGINE"].endswith("mysql"):
     DATABASES["default"]["OPTIONS"] = {
         'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
     }

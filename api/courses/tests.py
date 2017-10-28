@@ -12,7 +12,7 @@ from django.test.client import Client
 
 from api.apiconsumer.models import APIConsumer
 from models import (Alias, Course, CourseHistory, Department, Instructor,
-                    Section, Semester, Review, ReviewBit)
+                    Section, Review, ReviewBit)
 
 
 class ViewTest(TestCase):
@@ -53,7 +53,7 @@ class ViewTest(TestCase):
 
 
 class DataTest(ViewTest):
-    """Test the basic integrety of the API structure."""
+    """Test the basic integrity of the API structure."""
 
     def setUp(self):
         super(DataTest, self).setUp()
@@ -63,6 +63,7 @@ class DataTest(ViewTest):
         ese = Department.objects.create(
             code='ESE', name='Electrical Engineering')
         cis110 = CourseHistory.objects.create(notes="None.")
+        self.histid = cis110.id
         cis110_1 = Course.objects.create(
             semester=810,
             name="CIS 110",
@@ -70,15 +71,17 @@ class DataTest(ViewTest):
             description="intro to CS.",
             history=cis110
         )
+        self.courseid = cis110_1.id
         instructor1 = Instructor.objects.create(
             first_name="John", last_name="Doe")
         section1 = Section.objects.create(
             course=cis110_1, name="Intro to CS",
             sectionnum='001', sectiontype='LEC')
+        self.sectionid = section1.sectionnum
         alias1 = Alias.objects.create(
-            course=cis110_1, department=cis, coursenum=1, semester='810')
+            course=cis110_1, department=cis, coursenum=1, semester=810)
         alias2 = Alias.objects.create(
-            course=cis110_1, department=ese, coursenum=1, semester='810')
+            course=cis110_1, department=ese, coursenum=1, semester=810)
         cis110_1.primary_alias = alias1
         cis110_1.save()
         review1 = Review.objects.create(
@@ -109,7 +112,7 @@ class DataTest(ViewTest):
         self.assertTrue("reviews" in result)
 
     def test_coursehistory_should_have(self):
-        result = self.get_result('/coursehistories/1')
+        result = self.get_result('/coursehistories/{}'.format(self.histid))
         self.assertTrue("aliases" in result)
         self.assertTrue("courses" in result)
         self.assertTrue("id" in result)
@@ -129,7 +132,7 @@ class DataTest(ViewTest):
         self.assertTrue("reviews" in result)
 
     def test_course_should_have(self):
-        result = self.get_result('/courses/1')
+        result = self.get_result('/courses/{}'.format(self.histid))
         self.assertTrue("aliases" in result)
         self.assertTrue("coursehistories" in result)
         self.assertTrue("credits" in result)
@@ -142,13 +145,13 @@ class DataTest(ViewTest):
         self.assertTrue("semester" in result)
 
     def test_presence_of_course_reviews(self):
-        self.validate_results('/courses/1/reviews')
+        self.validate_results('/courses/{}/reviews'.format(self.courseid))
 
     def test_presence_of_sections(self):
-        self.validate_results('/courses/1/sections')
+        self.validate_results('/courses/{}/sections'.format(self.courseid))
 
     def test_section_should_have(self):
-        result = self.get_result('/courses/1/sections/001/')
+        result = self.get_result('/courses/{}/sections/{}/'.format(self.courseid, self.sectionid))
         self.assertTrue("aliases" in result)
         self.assertTrue("courses" in result)
         self.assertTrue("group" in result)
@@ -161,10 +164,10 @@ class DataTest(ViewTest):
         self.assertTrue("sectionnum" in result)
 
     def test_presence_of_section_reviews(self):
-        self.validate_results('/courses/1/sections/001/reviews')
+        self.validate_results('/courses/{}/sections/{}/reviews'.format(self.courseid, self.sectionid))
 
     def test_review_should_have(self):
-        result = self.get_result('/courses/1/sections/001/reviews')
+        result = self.get_result('/courses/{}/sections/{}/reviews'.format(self.courseid, self.sectionid))
         review = result['values'][0]
 
         self.assertTrue("comments" in review)
@@ -190,6 +193,21 @@ class DataTest(ViewTest):
         self.assertTrue(int(num_reviewers) > 0)
         self.assertTrue(int(num_students) > 0)
         self.assertTrue(section['sectionnum'] == '001')
+
+    def test_presence_of_semesters(self):
+        self.validate_results('/semesters')
+
+    def test_forward_slash_depts(self):
+        self.validate_results('/depts/')
+
+    def test_forward_slash_instructors(self):
+        self.validate_results('/instructors/')
+
+    def test_forward_slash_coursehistories(self):
+        self.validate_results('/coursehistories/')
+
+    def test_forward_slash_semesters(self):
+        self.validate_results('/semesters/')
 
 
 class LiveViewTest(TestCase):

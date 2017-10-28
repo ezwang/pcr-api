@@ -1,7 +1,11 @@
 import re
 
 from django.db import models
-from links import *
+from django.shortcuts import reverse
+
+from .links import (RSRCS, DEPARTMENT_TOKEN, REVIEW_TOKEN,
+                    COURSEHISTORY_TOKEN, COURSE_TOKEN, SECTION_TOKEN,
+                    INSTRUCTOR_TOKEN)
 
 # Note: each class has get_absolute_url - this is for "url" when queried
 
@@ -54,7 +58,7 @@ class Semester:
         return "%s %d" % (["Spring", "Summer", "Fall"][self.semesternum], self.year)
 
     def get_absolute_url(self):
-        return semester_url(self.code())
+        return reverse("semester", kwargs={"semester_code": self.code()})
 
     def __cmp__(self, other):
         if other:
@@ -86,6 +90,8 @@ class Semester:
 
 def semesterFromID(id):
     """ Given a numerical semester ID, return a semester. """
+    if isinstance(id, Semester):
+        return id
     return Semester(1740 + id / 3, "abc"[id % 3])
 
 
@@ -129,8 +135,15 @@ class SemesterField(models.Field):
         else:
             return semesterFromID(id)
 
+    def from_db_value(self, value, expression, connection, context):
+        return self.to_python(value)
+
     def get_prep_value(self, value):
-        return value
+        if isinstance(value, Semester):
+            return value.id
+        if isinstance(value, int):
+            return value
+        raise TypeError("Invalid type passed to SemesterField!")
 
 
 class Department(models.Model):
@@ -180,7 +193,7 @@ class Department(models.Model):
 
     def get_absolute_url(self):
         # don't know actual semester
-        return department_url(self.code)
+        return reverse("department", kwargs={"dept_code": self.code})
 
     def toShortJSON(self):
         return {
@@ -221,7 +234,7 @@ class CourseHistory(models.Model):
         return Alias.objects.filter(course__history=self).only('coursenum', 'department__name')
 
     def get_absolute_url(self):
-        return coursehistory_url(self.id)
+        return reverse("history", kwargs={"histid": self.id})
 
     # name_override: string, or None
     # aliases_override: list of (dept, num) tuple pairs, or None
@@ -257,7 +270,7 @@ class Course(models.Model):
     """A course that can be taken during a particular semester
        (e.g. CIS-120 @2010c). A course may have multiple
        crosslistings, i.e. COGS 001 and CIS 140 are the same
-       course. 
+       course.
 
        The following should be distinct courses (TODO are they?):
        WRIT-039-301 and WRIT-039-303 (they have same course number,
@@ -308,7 +321,7 @@ class Course(models.Model):
         return tokens
 
     def get_absolute_url(self):
-        return course_url(self.id)
+        return reverse("course", kwargs={"courseid": self.id})
 
     @property
     def code(self):
@@ -326,7 +339,7 @@ class Course(models.Model):
             'primary_alias': self.code,
             'aliases': self.getAliases(),
             'path': self.get_absolute_url(),
-            'semester': self.semester
+            'semester': self.semester.code()
         }
 
     def toJSON(self):
@@ -342,7 +355,7 @@ class Course(models.Model):
             REVIEW_TOKEN: {
                 'path': '%s/%s' % (path, REVIEW_TOKEN),
             },
-            COURSEHISTORY_TOKEN: {'path': coursehistory_url(self.history_id)},
+            COURSEHISTORY_TOKEN: {'path': reverse("history", kwargs={"histid": self.history_id})},
         })
 
         return result
@@ -412,7 +425,7 @@ class Instructor(models.Model):
         return name.lower().split()
 
     def get_absolute_url(self):
-        return instructor_url(self.temp_id)
+        return reverse("instructor", kwargs={"instructor_id": self.temp_id})
 
     def __unicode__(self):
         return self.name
@@ -518,7 +531,7 @@ class Section(models.Model):
         return "%s-%03d " % (self.course, self.sectionnum)
 
     def get_absolute_url(self):
-        return section_url(self.course_id, self.sectionnum)
+        return reverse("section", kwargs={"courseid": self.course_id, "sectionnum": self.sectionnum})
 
     class Meta:
         """ To hold uniqueness constraint """
@@ -583,15 +596,15 @@ class Review(models.Model):
 
     def get_absolute_url(self):
         pennkey = self.instructor.temp_id if self.instructor else "99999-JAIME-MUNDO"
-        return review_url(self.section.course_id, self.section.sectionnum, pennkey)
+        return reverse("review", kwargs={"courseid": self.section.course_id, "sectionnum": self.section.sectionnum, "instructor_id": pennkey})
 
     def toShortJSON(self):
         return {
             'id': '%s-%s' % (self.section.api_id, self.instructor.temp_id),
             'section': self.section.toShortJSON(),
             'instructor': self.instructor.toShortJSON() if self.instructor_id else None,
-            'path': review_url(self.section.course_id, self.section.sectionnum,
-                               self.instructor.temp_id if self.instructor_id else "99999-JAIME-MUNDO")
+            'path': reverse("review", kwargs={"courseid": self.section.course_id, "sectionnum": self.section.sectionnum,
+                            "instructor_id": self.instructor.temp_id if self.instructor_id else "99999-JAIME-MUNDO"})
         }
 
     def toJSON(self):
@@ -632,7 +645,7 @@ class Building(models.Model):
         return self.code
 
     def get_absolute_url(self):
-        return building_url(self.code)
+        return reverse("building", kwargs={"code": self.code})
 
     def toJSON(self):
         return {
@@ -640,7 +653,7 @@ class Building(models.Model):
             'name': self.name,
             'latitude': self.latitude,
             'longitude': self.longitude,
-            'path': building_url(self.code)
+            'path': self.get_absolute_url()
         }
 
 
@@ -704,7 +717,7 @@ class SemesterDepartment:
         return unicode((self.semester, self.department))
 
     def get_absolute_url(self):
-        return semdept_url(self.semester.code(), self.department.code)
+        return reverse("semdept", kwargs={"semester_code": self.semester.code(), "dept_code": self.department.code})
 
     def toShortJSON(self):
         return {

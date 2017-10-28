@@ -77,7 +77,7 @@ admin.site.register(Section, SectionAdmin)
 admin.site.register(Review, ReviewAdmin)
 
 """
- add urls to some Admin's get_urls(self) 
+ add urls to some Admin's get_urls(self)
  a la the end of http://djangosnippets.org/snippets/1936/
 
  Make it fire towards some custom python script that Matt has.

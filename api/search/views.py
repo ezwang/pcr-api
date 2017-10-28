@@ -3,11 +3,10 @@ The modules implement the PennCourseReview search endpoint.
 """
 from django.db.models import Q
 from django.http import HttpResponseBadRequest
-from django.http import HttpResponse
 from django.views.decorators.http import require_GET
 
 from ..json_helpers import JSON
-from ..courses.models import Alias, Course, Department, Instructor
+from ..courses.models import Alias, Department, Instructor
 
 # Field name for the query value
 QUERY_FIELD = 'q'
@@ -46,7 +45,7 @@ def search(request):
     :param request: a Django request
     """
     try:
-        if not QUERY_FIELD in request.GET:
+        if QUERY_FIELD not in request.GET:
             raise ValueError("expected `q`, got %s" % request.GET.keys())
         q = request.GET[QUERY_FIELD]
 

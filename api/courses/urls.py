@@ -1,91 +1,84 @@
-# import each of the keys for the dispatch_root
-from links import *
+from django.conf.urls import url
+
 # import each of the handlers
-from views import *
-from dispatcher import cross_domain_ajax
+from . import views
+from .utils import cross_domain_ajax, API404
 
 
 def dispatch_404(message=None, perhaps=None):
-    def view(request, path, _):
+    def view(request):
         raise API404(message)
     return view
 
 
-def dispatcher(dispatchers):
-    d_str = dispatchers.get("/str")
-    d_int = dispatchers.get("/int")
+urlpatterns = [
+    # Index
+    url(r"^$", views.index),
 
-    def dispatch_func(request, path, variables=[]):
-        if not path:
-            return dispatchers[''](request, [], variables)
-        first, rest = path[0], path[1:]
-        if first in dispatchers:
-            return dispatchers[first](request, rest, variables)
-        elif d_int and first.isdigit():
-            return d_int(request, rest, variables + [int(first)])
-        elif d_str:
-            return d_str(request, rest, variables + [first])
-        elif d_int:
-            return dispatch_404("i can has digits")(request, path, variables)
-        else:
-            return dispatch_404("what is this i dont even")(request, path, variables)
-    return dispatch_func
+    # Instructors
+    url(r"^instructors/?$", views.instructors),
+    url(r"^instructors/(?P<instructor_id>[^/]+)/?$", views.instructor_main, name="instructor"),
+    url(r"^instructors/(?P<instructor_id>[^/]+)/sections/?$", views.instructor_sections),
+    url(r"^instructors/(?P<instructor_id>[^/]+)/reviews$/?", views.instructor_reviews),
 
+    # Course Histories
+    url(r"^coursehistories/?$", views.course_histories),
+    url(r"^coursehistories/(?P<histid>\d+)/?$", views.coursehistory_main, name="history"),
+    url(r"^coursehistories/(?P<histid>\d+)/reviews/?$", views.coursehistory_reviews),
+    url(r"^coursehistories/(?P<historyalias>[^/]+)(?P<path>.*)", views.alias_coursehistory),
 
-dispatch_root = {
-    '': index,
-    INSTRUCTOR_TOKEN: {'': instructors,
-                       '/str': {'': instructor_main,
-                                SECTION_TOKEN: instructor_sections,
-                                REVIEW_TOKEN: instructor_reviews}},
-    COURSEHISTORY_TOKEN: {'': course_histories,
-                          '/int': {'': coursehistory_main,
-                                   REVIEW_TOKEN: coursehistory_reviews},
-                          '/str': alias_coursehistory},
-    DEPARTMENT_TOKEN: {'': depts,
-                       '/str': {'': dept_main,
-                                REVIEW_TOKEN: dept_reviews}},
-    COURSE_TOKEN: {'': dispatch_404("sorry, no global course list"),
-                   '/int': {'': course_main,
-                            REVIEW_TOKEN: course_reviews,
-                            SECTION_TOKEN: {'': course_sections,
-                                            '/int': {'': section_main,
-                                                     REVIEW_TOKEN: {'': section_reviews,
-                                                                    '/str': review_main}}},
-                            COURSEHISTORY_TOKEN: course_history},
-                   '/str': alias_course},
-    SECTION_TOKEN: {'': dispatch_404("sorry, no global sections list"),
-                    '/str': alias_section},
-    SEMESTER_TOKEN: {'': semesters,
-                     '/str': {'': semester_main,
-                              '/str': semester_dept}},
-    BUILDING_TOKEN: {'': buildings,
-                     '/str': building_main},
-    '/str': alias_misc}
+    # Departments
+    url(r"^depts/?$", views.depts),
+    url(r"^depts/(?P<dept_code>[^/]+)/?$", views.dept_main, name="department"),
+    url(r"^depts/(?P<dept_code>[^/]+)/reviews/?$", views.dept_reviews),
+
+    # Semesters
+    url(r"^semesters/?$", views.semesters),
+    url(r"^semesters/(?P<semester_code>[^/]+)/?$", views.semester_main, name="semester"),
+    url(r"^semesters/(?P<semester_code>[^/]+)/(?P<dept_code>[^/]+)/?$", views.semester_dept, name="semdept"),
+
+    # Buildings
+    url(r"^building/?$", views.buildings),
+    url(r"^building/(?P<code>[^/]+)/?$", views.building_main, name="building"),
+
+    # Courses
+    url(r"^courses/?$", dispatch_404("sorry, no global course list")),
+    url(r"^courses/(?P<courseid>\d+)/?$", views.course_main, name="course"),
+    url(r"^courses/(?P<courseid>\d+)/reviews/?$", views.course_reviews),
+    url(r"^courses/(?P<courseid>\d+)/sections/?$", views.course_sections),
+    url(r"^courses/(?P<courseid>\d+)/sections/(?P<sectionnum>[^/]+)/?$", views.section_main, name="section"),
+    url(r"^courses/(?P<courseid>\d+)/sections/(?P<sectionnum>[^/]+)/reviews/?$", views.section_reviews),
+    url(r"^courses/(?P<courseid>\d+)/sections/(?P<sectionnum>[^/]+)/reviews/(?P<instructor_id>[^/]+)/?$", views.review_main, name="review"),
+    url(r"^courses/(?P<coursealias>[^/]+)(?P<path>.*)$", views.alias_course),
+
+    # Sections
+    url(r"^sections$", dispatch_404("sorry, no global sections list")),
+    url(r"^sections/(?P<sectionalias>[^/]+)$", views.alias_section),
+
+    # Misc
+    url(r"^(?P<alias>.*)$", views.alias_misc)
+]
 
 
-def _annotate_dictionary(d, fn):
-    if type(d) == dict:
-        return fn(dict((k, _annotate_dictionary(v, fn)) for k, v in d.iteritems()))
-    else:
-        return d
+def handle_errors(func):
+    def wrap(request, *args, **kwargs):
+        try:
+            if not request.consumer.access_pcr and "review" in request.path:
+                raise API404("This API token does not have access to review data.")
+            response = func(request, *args, **kwargs)
+        except API404 as e:
+            obj = {
+                'help': "See %s for API documentation." % views.DOCS_HTML,
+                'error': 'Error 404. The resource could not be found: ' + request.path
+            }
+            if e.perhaps:
+                obj['perhaps_you_meant'] = e.perhaps  # and perhaps not
+            if e.message:
+                obj['message'] = e.message
+            return views.JSON(obj, valid=False, httpstatus=404)
+        return response
+    return wrap
 
 
-dispatch_root = _annotate_dictionary(dispatch_root, dispatcher)
-
-
-@cross_domain_ajax
-def dispatch(request, url):
-    try:
-        if not request.consumer.access_pcr and "review" in url:
-            raise API404("This API token does not have access to review data.")
-        return dispatch_root(request, [x for x in url.split('/') if x])
-    except API404 as e:
-        obj = {
-            'help': "See %s for API documentation." % DOCS_HTML,
-            'error': 'Error 404. The resource could not be found: ' + request.path}
-        if e.perhaps:
-            obj['perhaps_you_meant'] = e.perhaps  # and perhaps not
-        if e.message:
-            obj['message'] = e.message
-        return JSON(obj, valid=False, httpstatus=404)
+for pattern in urlpatterns:
+    pattern.callback = handle_errors(cross_domain_ajax(pattern.callback))

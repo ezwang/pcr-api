@@ -1,22 +1,21 @@
 import json
-import datetime
 
 from collections import defaultdict
 from django.http import HttpResponse
+from django.shortcuts import redirect, reverse
 
-from .utils import current_semester
+from .utils import current_semester, API404
 from ..json_helpers import JSON
-from .models import *
-from .links import *
-from . import dispatcher
-from .dispatcher import API404, dead_end
+from .models import (Course, Department, Review, Alias, Building, CourseHistory,
+                     Section, Instructor, SemesterDepartment, semesterFromID,
+                     semesterFromCode, )
+from .links import RSRCS
 
 DOCS_URL = 'http://pennlabs.org/console/docs.html'
 DOCS_HTML = "<a href='%s'>%s</a>" % (DOCS_URL, DOCS_URL)
 
 
-@dead_end
-def course_histories(request, path, _):
+def course_histories(request):
     if not request.consumer.access_secret:
         # This method is for the PCR site only.
         raise API404("This is not the database dump you are looking for.")
@@ -102,7 +101,7 @@ def merge_union(setlist):
     # Construct result by union the sets within a component
     result = defaultdict(dict)
     for merge_from, merge_to in enumerate(parent):
-        if not merge_to in result:
+        if merge_to not in result:
             result[merge_to] = setlist[merge_from]
         else:
             result[merge_to]['aliases'] = list(set(result[merge_to]['aliases']) |
@@ -110,28 +109,24 @@ def merge_union(setlist):
     return list(result.values())
 
 
-@dead_end
-def semesters(request, path, _):
+def semesters(request):
     semester_list = (semesterFromID(d['semester']) for d in
                      Course.objects.values('semester').order_by('semester').distinct())
     return JSON({RSRCS: [s.toShortJSON() for s in semester_list]})
 
 
-@dead_end
-def semester_main(request, path, (semester_code,)):
+def semester_main(request, semester_code):
     return JSON(semesterFromCode(semester_code).toJSON())
 
 
-@dead_end
-def semester_dept(request, path, (semester_code, dept_code,)):
+def semester_dept(request, semester_code, dept_code):
     dept_code = dept_code.upper()
     d = Department.objects.get(code=dept_code)
     dept = SemesterDepartment(semesterFromCode(semester_code), d)
     return JSON(dept.toJSON())
 
 
-@dead_end
-def instructors(request, path, _):
+def instructors(request):
     if not request.consumer.access_pcr:
         # This method is only available to those with review data access.
         raise API404("This is not the database dump you are looking for.")
@@ -159,7 +154,7 @@ def instructors(request, path, _):
 
     def make_instructor_json(i):
         json = i.toShortJSON()
-        json[DEPARTMENT_TOKEN] = instructor_to_depts(i)
+        json["depts"] = instructor_to_depts(i)
         return json
 
     # 3. get and aggregate all course alias data no 'this semester only' prof, please
@@ -169,23 +164,20 @@ def instructors(request, path, _):
     ]})
 
 
-@dead_end
-def instructor_main(request, path, (instructor_id,)):
+def instructor_main(request, instructor_id):
     db_id = int(instructor_id.split("-")[0])
     c = Instructor.objects.get(id=db_id)
     return JSON(c.toJSON(extra=['sections', 'reviews']))
 
 
-@dead_end
-def instructor_sections(request, path, (instructor_id,)):
+def instructor_sections(request, instructor_id):
     db_id = int(instructor_id.split("-")[0])
     sections = Instructor.objects.get(id=db_id).section_set.all()
 
     return JSON({RSRCS: [s.toJSON() for s in sections]})
 
 
-@dead_end
-def instructor_reviews(request, path, (instructor_id,)):
+def instructor_reviews(request, instructor_id):
     db_id = int(instructor_id.split("-")[0])
     sections = Instructor.objects.get(id=db_id).section_set.all()
     reviews = sum([list(s.review_set.all()) for s in sections], [])
@@ -193,45 +185,41 @@ def instructor_reviews(request, path, (instructor_id,)):
     return JSON({RSRCS: [r.toJSON() for r in reviews]})
 
 
-@dead_end
-def coursehistory_main(request, path, (histid,)):
-    hist = CourseHistory.objects.get(id=histid)
+def coursehistory_main(request, histid):
+    hist = CourseHistory.objects.get(id=int(histid))
     return JSON(hist.toJSON())
 
 
-@dead_end
-def coursehistory_reviews(request, path, (histid,)):
-    reviews = Review.objects.filter(section__course__history__id=histid)
+def coursehistory_reviews(request, histid):
+    reviews = Review.objects.filter(section__course__history__id=int(histid))
     return JSON({RSRCS: [r.toJSON() for r in reviews]})
 
 
-@dead_end
-def course_main(request, path, (courseid,)):
+def course_main(request, courseid):
     course = Course.objects.get(id=int(courseid))
     return JSON(course.toJSON())
 
 
-@dead_end
-def course_reviews(request, path, (courseid,)):
-    sections = Course.objects.get(id=courseid).section_set.all()
+def course_reviews(request, courseid):
+    sections = Course.objects.get(id=int(courseid)).section_set.all()
     reviews = sum([list(s.review_set.all()) for s in sections], [])
     return JSON({RSRCS: [r.toJSON() for r in reviews]})
 
 
-@dead_end
-def course_sections(request, path, (courseid,)):
+def course_sections(request, courseid):
     # Return full JSON.
-    api_sections = list(Course(courseid).section_set.all())
+    api_sections = list(Course.objects.get(id=int(courseid)).section_set.all())
     return JSON({RSRCS: [s.toJSON() for s in api_sections]})
 
 
-def course_history(request, path, (courseid,)):
+def course_history(request, path, courseid):
     course = Course.objects.get(id=int(courseid))
-    return dispatcher.redirect(coursehistory_url(course.history_id), request)
+    return redirect(reverse("history", histid=course.history_id) + "?token=" + request.GET.get("token", ""))
 
 
-@dead_end
-def section_main(request, path, (courseid, sectionnum)):
+def section_main(request, courseid, sectionnum):
+    courseid = int(courseid)
+    sectionnum = int(sectionnum)
     try:
         section = Section.objects.get(sectionnum=sectionnum, course=courseid)
         return JSON(section.toJSON())
@@ -240,8 +228,9 @@ def section_main(request, path, (courseid, sectionnum)):
                      (sectionnum, courseid))
 
 
-@dead_end
-def section_reviews(request, path, (courseid, sectionnum)):
+def section_reviews(request, courseid, sectionnum):
+    courseid = int(courseid)
+    sectionnum = int(sectionnum)
     try:
         section = Section.objects.get(sectionnum=sectionnum, course=courseid)
         return JSON({RSRCS: [r.toJSON() for r in section.review_set.all()]})
@@ -250,8 +239,7 @@ def section_reviews(request, path, (courseid, sectionnum)):
                      (sectionnum, courseid))
 
 
-@dead_end
-def review_main(request, path, (courseid, sectionnum, instructor_id)):
+def review_main(request, courseid, sectionnum, instructor_id):
     try:
         db_instructor_id = int(instructor_id.split("-")[0])
         db_review = Review.objects.get(section__sectionnum=sectionnum,
@@ -264,7 +252,7 @@ def review_main(request, path, (courseid, sectionnum, instructor_id)):
                      (instructor_id, sectionnum, courseid))
 
 
-def alias_course(request, path, (coursealias,)):
+def alias_course(request, coursealias, path):
     try:
         semester_code, dept_code, coursenum_str = coursealias.upper().split('-')
         semester = semesterFromCode(semester_code)
@@ -276,10 +264,10 @@ def alias_course(request, path, (coursealias,)):
     courseid = Alias.objects.get(semester=semester,
                                  department=dept_code,
                                  coursenum=coursenum).course_id
-    return dispatcher.redirect(course_url(courseid), request, path)
+    return redirect(reverse("course", kwargs={"courseid": courseid}) + path + "?token=" + request.GET.get("token", ""))
 
 
-def alias_section(request, path, (sectionalias,)):
+def alias_section(request, sectionalias):
     try:
         semester_code, dept_code, coursenum_str, sectionnum_str = (
             sectionalias.upper().split('-'))
@@ -293,14 +281,10 @@ def alias_section(request, path, (sectionalias,)):
     courseid = Alias.objects.get(semester=semester,
                                  department=dept_code,
                                  coursenum=coursenum).course_id
-    return dispatcher.redirect(section_url(courseid, sectionnum), request, path)
+    return redirect(reverse("section", courseid=courseid, sectionnum=sectionnum) + "?token=" + request.GET.get("token", ""))
 
 
-def alias_currentsemester(request, path, _):
-    return HttpResponse("(redirect) current semester, extra %s" % path)
-
-
-def alias_coursehistory(request, path, (historyalias,)):
+def alias_coursehistory(request, historyalias, path):
     try:
         dept_code, coursenum_str = historyalias.upper().split('-')
         coursenum = int(coursenum_str)
@@ -311,11 +295,10 @@ def alias_coursehistory(request, path, (historyalias,)):
     latest_alias = Alias.objects.filter(
         department=dept_code, coursenum=coursenum).order_by('-semester')[0]
 
-    return dispatcher.redirect(coursehistory_url(latest_alias.course.history_id),
-                               request, path)
+    return redirect(reverse("history", kwargs={"histid": latest_alias.course.history_id}) + path + "?token=" + request.GET.get("token", ""))
 
 
-def alias_misc(request, path, (alias,)):
+def alias_misc(request, alias):
     content = json.dumps({"error": "Unmatched query '%s'" % alias,
                           "valid": False,
                           "version": "0.3"},
@@ -326,34 +309,29 @@ def alias_misc(request, path, (alias,)):
                         content_type="application/json")
 
 
-@dead_end
-def depts(request, path, _):
+def depts(request):
     depts = Department.objects.order_by('code').all()
     return JSON({RSRCS: [d.toShortJSON() for d in depts]})
 
 
-@dead_end
-def dept_main(request, path, (dept_code,)):
+def dept_main(request, dept_code):
     dept_code = dept_code.upper()
     d = Department.objects.get(code=dept_code)
     return JSON(d.toJSON())
 
 
-@dead_end
-def dept_reviews(request, path, (dept_code,)):
+def dept_reviews(request, dept_code):
     reviews = Review.objects.filter(
         section__course__alias__department__code=dept_code)
     return JSON({RSRCS: [r.toJSON() for r in reviews]})
 
 
-@dead_end
-def buildings(request, path, _):
+def buildings(request):
     # TODO
     return JSON({RSRCS: [Building(code="LEVH", name="Levine Hall").toJSON()]})
 
 
-@dead_end
-def building_main(request, path, (code,)):
+def building_main(request, code):
     code = code.upper()
     if code != "LEVH":
         raise API404("Building %s not found" % code)
@@ -361,7 +339,6 @@ def building_main(request, path, (code,)):
     return JSON(Building(code="LEVH", name="Levine Hall").toJSON())
 
 
-@dead_end
-def index(request, path, _):
+def index(request):
     return JSON("Welcome to the Penn Labs PCR API. For docs, see %s."
                 % DOCS_HTML)
