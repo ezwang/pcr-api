@@ -17,7 +17,7 @@ from django.core.management.base import BaseCommand
 from django.conf import settings
 
 from ....courses.models import (Alias, Course, CourseHistory, Department,
-                            Instructor, Review, ReviewBit, Section, Semester)
+                                Instructor, Review, ReviewBit, Section, Semester)
 
 
 class Command(BaseCommand):
@@ -52,29 +52,30 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('semester', nargs='*',
-                    help=('A list of semesters that should be imported (ex: 2017A). '
-                          'You can either specify all or leave this blank to '
-                          'import all semesters.')),
+                            help=('A list of semesters that should be imported '
+                                  '(ex: 2017A). You can either specify all or '
+                                  'leave this blank to import all semesters.'))
         parser.add_argument('-a', '--otheraliases', action='store_true',
-                    help=('Also check the ISC crosslist table for aliases, not '
-                          'just the normal summary table. Note that this usually '
-                          'doesn\'t end up adding more aliases (and <10 when it '
-                          'does). It also generates a bunch (>20) errors '
-                          'in trying to crosslist courses that don\'t exit.')),
+                            help=('Also check the ISC crosslist table for aliases, '
+                                  'not just the normal summary table. Note that '
+                                  'this usually doesn\'t end up adding more aliases '
+                                  '(and <10 when it does). It also generates a bunch '
+                                  '(>20 errors) in trying to crosslist courses '
+                                  'that don\'t exist.'))
         parser.add_argument('-c', '--comments', action='store_true',
-                    help=('Import the comments from the old-PCR DB dump, '
-                          'not the full course data form ISC. Note that this '
-                          'should only have to be used, like, once. Comments are '
-                          'not part of the import otherwise.')),
+                            help=('Import the comments from the old-PCR DB dump, '
+                                  'not the full course data form ISC. Note that this '
+                                  'should only have to be used, like, once. '
+                                  'Comments are not part of the import otherwise.'))
         parser.add_argument('-e', '--catcherrors', action='store_true',
-                    help='Log errors instead of interrupting the import.'),
+                            help='Log errors instead of interrupting the import.')
         parser.add_argument('-d', '--db',
-                    help=('An alternate database (uses the IMPORT_DATABASE '
-                          'in settings by default).')),
+                            help=('An alternate database (uses the IMPORT_DATABASE '
+                                  'in settings by default).'))
         parser.add_argument('-p', '--passwd',
-                    help='Alternate database password.'),
+                            help='Alternate database password.')
         parser.add_argument('-u', '--user',
-                    help='Alternate database username.'),
+                            help='Alternate database username.')
 
     ISC_SUMMARY_TABLE = 'TEST_PCR_SUMMARY_V'
     ISC_RATING_TABLE = 'TEST_PCR_RATING_V'
