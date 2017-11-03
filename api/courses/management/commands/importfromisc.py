@@ -9,7 +9,6 @@ separately (and after).
 """
 __author__ = 'Kyle Hardgrave (kyleh@sas.upenn.edu)'
 
-from optparse import make_option
 import time
 import traceback
 
@@ -17,8 +16,8 @@ import MySQLdb as db
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
-from courses.models import (Alias, Course, CourseHistory, Department,
-                            Instructor, Review, ReviewBit, Section, Semester)
+from ....courses.models import (Alias, Course, CourseHistory, Department,
+                                Instructor, Review, ReviewBit, Section, Semester)
 
 
 class Command(BaseCommand):
@@ -51,28 +50,32 @@ class Command(BaseCommand):
     args = '[all | <semester semester ...>]'
     help = 'Imports the given semesters from the ISC database dumps to Django'
 
-    option_list = (
-        make_option('-a', '--otheraliases', action='store_true',
-                    help=('Also check the ISC crosslist table for aliases, not '
-                          'just the normal summary table. Note that this usually '
-                          'doesn\'t end up adding more aliases (and <10 when it '
-                          'does). It also generates a bunch (>20) errors '
-                          'in trying to crosslist courses that don\'t exit.')),
-        make_option('-c', '--comments', action='store_true',
-                    help=('Import the comments from the old-PCR DB dump, '
-                          'not the full course data form ISC. Note that this '
-                          'should only have to be used, like, once. Comments are '
-                          'not part of the import otherwise.')),
-        make_option('-e', '--catcherrors', action='store_true',
-                    help='Log errors instead of interrupting the import.'),
-        make_option('-d', '--db',
-                    help=('An alternate database (uses the IMPORT_DATABASE '
-                          'in settings by default).')),
-        make_option('-p', '--passwd',
-                    help='Alternate database password.'),
-        make_option('-u', '--user',
-                    help='Alternate database username.'),
-    ) + BaseCommand.option_list
+    def add_arguments(self, parser):
+        parser.add_argument('semester', nargs='*',
+                            help=('A list of semesters that should be imported '
+                                  '(ex: 2017A). You can either specify all or '
+                                  'leave this blank to import all semesters.'))
+        parser.add_argument('-a', '--otheraliases', action='store_true',
+                            help=('Also check the ISC crosslist table for aliases, '
+                                  'not just the normal summary table. Note that '
+                                  'this usually doesn\'t end up adding more aliases '
+                                  '(and <10 when it does). It also generates a bunch '
+                                  '(>20 errors) in trying to crosslist courses '
+                                  'that don\'t exist.'))
+        parser.add_argument('-c', '--comments', action='store_true',
+                            help=('Import the comments from the old-PCR DB dump, '
+                                  'not the full course data form ISC. Note that this '
+                                  'should only have to be used, like, once. '
+                                  'Comments are not part of the import otherwise.'))
+        parser.add_argument('-e', '--catcherrors', action='store_true',
+                            help='Log errors instead of interrupting the import.')
+        parser.add_argument('-d', '--db',
+                            help=('An alternate database (uses the IMPORT_DATABASE '
+                                  'in settings by default).'))
+        parser.add_argument('-p', '--passwd',
+                            help='Alternate database password.')
+        parser.add_argument('-u', '--user',
+                            help='Alternate database username.')
 
     ISC_SUMMARY_TABLE = 'TEST_PCR_SUMMARY_V'
     ISC_RATING_TABLE = 'TEST_PCR_RATING_V'
@@ -116,7 +119,7 @@ class Command(BaseCommand):
             self.db = db.connect(db=db_name, user=db_user, passwd=db_pw)
 
             # Set the semesters; this also validates the input
-            if not args or args == 'all':
+            if not opts['semester'] or opts['semester'] == 'all':
                 self._log('Importing all available semesters.')
                 if not self.just_comments:
                     # We use the semesters in the primary ISC table
@@ -133,7 +136,7 @@ class Command(BaseCommand):
                     semesters = [Semester(year, semester)
                                  for year, semester in terms]
             else:
-                semesters = [Semester(sem_arg) for sem_arg in set(args)]
+                semesters = [Semester(sem_arg) for sem_arg in set(opts['semester'])]
 
             # Do the magic
             for sem in semesters:
