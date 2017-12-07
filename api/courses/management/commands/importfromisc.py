@@ -548,7 +548,7 @@ class Command(BaseCommand):
         self._log('-' * 50)
         self._log('New objects: %s' % (
             ', '.join(['%d %s' % (num, model)
-                       for model, num in self.num_created.iteritems()])))
+                       for model, num in self.num_created.items()])))
         self._log('Updated %d review comments.' % self.total_updated_reviews)
         self._log('Uncaught errors: %d' % self.num_errors)
 

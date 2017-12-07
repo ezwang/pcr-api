@@ -1,4 +1,4 @@
-from models import Page
+from .models import Page
 from django.http import HttpResponse
 from django.views.decorators.cache import never_cache
 from ..json_helpers import JSON

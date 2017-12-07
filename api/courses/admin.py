@@ -27,8 +27,8 @@ class CourseAdmin(admin.ModelAdmin):
     def get_urls(self):
         urls = super(CourseAdmin, self).get_urls()
         my_urls = [
-            url(r'^generate_cache/$', lambda(request): HttpResponse("you clicked generate cache")),
-            url(r'^push_to_live/$', lambda(request): HttpResponse("you clicked push to live"))
+            url(r'^generate_cache/$', lambda request: HttpResponse("you clicked generate cache")),
+            url(r'^push_to_live/$', lambda request: HttpResponse("you clicked push to live"))
         ]
         return my_urls + urls
 
