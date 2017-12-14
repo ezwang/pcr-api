@@ -5,7 +5,7 @@ import string
 
 def generate_key():
     chars = string.ascii_uppercase + string.ascii_lowercase + string.digits + '_'
-    return ''.join(choice(chars) for x in xrange(30))
+    return ''.join(choice(chars) for x in range(30))
 
 
 def generate_api_consumer(token):
