@@ -2,6 +2,7 @@
 import sys
 import os
 
+import raven
 import dj_database_url
 
 ADMINS = (
@@ -131,6 +132,7 @@ INSTALLED_APPS = (
     'api.courses',
     'api.apiconsumer',
     'api.static_content',
+    'raven.contrib.django.raven_compat',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
 )
@@ -159,3 +161,11 @@ else:
     MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
     INSTALLED_APPS += ('debug_toolbar',)
     INTERNAL_IPS = ('158.130.103.7', '127.0.0.1')
+
+
+# Sentry error reporting
+if 'SENTRY_DSN' in os.environ:
+    RAVEN_CONFIG = {
+        'dsn': os.getenv('SENTRY_DSN'),
+        'release': raven.fetch_git_sha(os.path.abspath(os.pardir))
+    }
