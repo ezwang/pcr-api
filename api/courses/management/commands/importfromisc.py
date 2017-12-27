@@ -7,8 +7,6 @@ data dumps have been turned into SQL and loaded into a database.
 It will NOT import the qualitative reviews from PCR, that must be done
 separately (and after).
 """
-__author__ = 'Kyle Hardgrave (kyleh@sas.upenn.edu)'
-
 import time
 import traceback
 
@@ -18,6 +16,9 @@ from django.conf import settings
 
 from ....courses.models import (Alias, Course, CourseHistory, Department,
                                 Instructor, Review, ReviewBit, Section, Semester)
+
+
+__author__ = 'Kyle Hardgrave (kyleh@sas.upenn.edu)'
 
 
 class Command(BaseCommand):
@@ -644,8 +645,8 @@ class Command(BaseCommand):
     def _log(self, msg, v=1):
         """Log messages to standard out, depending on the verbosity."""
         if self.verbosity >= v:
-            self.stdout.write('%s\n' % msg)
+            self.stdout.write(msg)
 
     def _err(self, msg):
         """Log errors to stderr, regardless of verbosity."""
-        self.stderr.write('ERR: %s\n' % msg)
+        self.stderr.write(self.style.ERROR('ERR: {}'.format(msg)))
