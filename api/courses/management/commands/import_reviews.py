@@ -3,7 +3,7 @@ import json
 
 from django.core.management.base import BaseCommand, CommandError
 
-from ...models import Review
+from ...models import Review, Semester, Alias, Section, Department, Instructor
 
 
 class Command(BaseCommand):
@@ -30,7 +30,17 @@ class Command(BaseCommand):
 
         for section in data:
             if section["comments"] or section["tags"]:
+                dept, course, sect = section["section"][:-6], int(section["section"][-6:-3]), int(section["section"][-3:])
+                dept = Department.objects.get(code=dept)
+                semester = Semester(section["term"])
+                alias = Alias.objects.get(department=dept, coursenum=course, semester=semester)
+                sect = Section.objects.get(course=alias.course, sectionnum=sect)
+                last, first = [x.strip() for x in section["instructor"]["name"].split(",")]
+                first = first.split(" ", 1)[0]
+                inst = Instructor.objects.get(last_name=last, first_name__startswith=first)
+                review = Review.objects.get(section=sect, instructor=inst)
+                # TODO: modify review object
+
                 count += 1
-                # TODO: add comments and tags to database
 
         self.stdout.write(self.style.SUCCESS("{} reviews processed!".format(count)))
