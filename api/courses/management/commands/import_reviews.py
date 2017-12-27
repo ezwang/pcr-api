@@ -42,5 +42,7 @@ class Command(BaseCommand):
                 # TODO: modify review object
 
                 count += 1
+            else:
+                self.stdout.write(self.style.WARNING("Skipping {}, no comments or tags found...".format(section["section"])))
 
         self.stdout.write(self.style.SUCCESS("{} reviews processed!".format(count)))
