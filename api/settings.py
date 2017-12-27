@@ -132,6 +132,7 @@ INSTALLED_APPS = (
     'api.apiconsumer',
     'api.static_content',
     'raven.contrib.django.raven_compat',
+    'django_extensions',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
 )
