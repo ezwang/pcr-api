@@ -61,3 +61,14 @@ Password: laurenspringer
 4. Run "python import_from_pcr.py YEAR SEMESTER"
    * import_from_pcr.py [YEAR] [SEMESTER] reads from an external database-- assumed to have the original PCR records --and creates or updates course and review data in the new PCR API database.
    * (This can take a while.)
+
+### Environment Variables
+* `API_DEBUG` - Set this to `true` to enable Django debug mode.
+* `API_DISPLAY_NAME` - Prepended before every api endpoint url, default is `/`.
+* `API_SECRET_KEY` - The secret key for the Django application.
+* `API_IMPORT_DATABASE_NAME` - The database to import from when using the import script.
+* `API_IMPORT_DATABASE_USER` - The username for the database to import from when using the import script.
+* `API_IMPORT_DATABASE_PWD` - The password for the database to import from when using the import script.
+* `API_TEST_TOKEN` - The token used for live tests when running unit tests.
+* `DATABASE_URL` - The location of the database.
+* `SENTRY_DSN` - Set this to the Sentry DSN to enable error reporting.
