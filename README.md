@@ -62,6 +62,14 @@ Password: laurenspringer
    * import_from_pcr.py [YEAR] [SEMESTER] reads from an external database-- assumed to have the original PCR records --and creates or updates course and review data in the new PCR API database.
    * (This can take a while.)
 
+## Deployment
+
+1. Connect to the production server.
+2. Go to the directory containing `pcr-api` and run `source venv/bin/activate`.
+3. Perform a `git pull`, `pip install -r requirements.txt`, and `./manage.py migrate`.
+4. Set any necessary environment variables.
+5. Run `sudo apachectl -k graceful` to restart the server.
+
 ### Environment Variables
 * `API_DEBUG` - Set this to `true` to enable Django debug mode.
 * `API_DISPLAY_NAME` - Prepended before every api endpoint url, default is `/`.
