@@ -67,7 +67,7 @@ Password: laurenspringer
 1. Connect to the production server.
 2. Go to the directory containing `pcr-api` and run `source venv/bin/activate`.
 3. Perform a `git pull`, `pip install -r requirements.txt`, and `./manage.py migrate`.
-4. Set any necessary environment variables.
+4. Set any necessary environment variables in `api/django.wsgi`.
 5. Run `sudo apachectl -k graceful` to restart the server.
 
 ### Environment Variables
