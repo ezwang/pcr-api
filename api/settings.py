@@ -8,7 +8,6 @@ import dj_database_url
 ADMINS = (
     ('PennApps', 'pennappslabs@google.groups.com'),
 )
-SERVER_EMAIL = "pennapps@ve.rckr5ngx.vesrv.com"
 
 MANAGERS = ADMINS
 
