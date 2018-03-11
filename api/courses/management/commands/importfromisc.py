@@ -137,6 +137,7 @@ class Command(BaseCommand):
                                  for year, semester in terms]
             else:
                 semesters = [Semester(sem_arg) for sem_arg in set(opts['semester'])]
+                self._log('Importing the following semesters: {}'.format(semesters))
 
             # Do the magic
             for sem in semesters:
