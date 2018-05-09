@@ -1,4 +1,4 @@
-from django.http import HttpResponse
+from django.http import JsonResponse
 from .models import APIConsumer, generate_api_consumer
 import requests
 
@@ -22,10 +22,10 @@ class Authenticate(object):
         if old_path.startswith("/admin/") or old_path.startswith("/__debug__/"):
             return None
 
-        try:
-            token = request.GET['token']
-        except:
-            return HttpResponse("No token provided.", status=403)
+        token = request.GET.get('token')
+
+        if not token:
+            return JsonResponse({"error": "No token provided."}, status=403)
 
         try:
             consumer = APIConsumer.objects.get(token=token)
@@ -43,4 +43,4 @@ class Authenticate(object):
             request.consumer = consumer
             return None  # continue rendering
         else:
-            return HttpResponse("Invalid token.", status=403)
+            return JsonResponse({"error": "Invalid token."}, status=403)
