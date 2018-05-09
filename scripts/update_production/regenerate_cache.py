@@ -4,7 +4,7 @@
 #   /usr/bin/python2.6
 # since it has twisted installed, but python2.7 does not.
 #
-# Before running this, make sure the symlink at 
+# Before running this, make sure the symlink at
 #   penncoursereview.com:~pcr/projects/pcrsite/staticgenerator_output/write
 # points to a fresh cache directory. (Also, all cache directories and symlinks
 # should be owned by the Apache user "www-data".) When finished, remove the
@@ -31,7 +31,8 @@ import os
 import urllib2
 import json
 import string
-from pprint import pformat
+import argparse
+import logging
 
 from twisted.internet import reactor
 import twisted.internet.defer
@@ -39,10 +40,13 @@ from twisted.internet.protocol import Protocol
 from twisted.web.client import Agent
 from twisted.web.http_headers import Headers
 
-URL_PREFIX = 'http://api.penncoursereview.com/cachegen__access/'
-AUTOCOMPLETE_PATH = "autocomplete_data.json/"
+logging.getLogger().setLevel(logging.INFO)
+
+URL_PREFIX = 'https://penncoursereview.com/__cache__regen/'
+AUTOCOMPLETE_PATH = 'autocomplete_data.json/'
 N_CONCURRENT_ACCESSES = 15
 SUCCESS_DISPLAY_LEN = 80
+
 
 class PrinterClient(Protocol):
     def __init__(self, whenFinished, displayMax=80, displayFinished=True):
@@ -54,30 +58,32 @@ class PrinterClient(Protocol):
     def dataReceived(self, bytes):
         if self.firstPart:
             self.firstPart = False
-            print repr(bytes)[1:(1+self.displayMax)]
+            logging.info(repr(bytes)[1:(1+self.displayMax)])
 
     def connectionLost(self, reason):
         if self.displayFinished:
-            print 'Finished:', reason.getErrorMessage()
+            logging.warning('Finished:', reason.getErrorMessage())
         self.whenFinished.callback(None)
+
 
 def handleResponse(r, url, num, lenurls):
     isError = r.code != 200
-    print "%c %6.2f%% (%6d) %50s  " % ('X' if isError else ' ', num*100.0/lenurls, num, url),
+    logging.info("%c %d %6.2f%% (%6d) %50s  " % ('X' if isError else ' ', r.code, num*100.0/lenurls, num, url))
     if isError:
-        print
-        print "##### HTTP Error %d: %s" % (r.code, r.phrase)
+        logging.error("##### HTTP Error %d: %s" % (r.code, r.phrase))
         for k, v in r.headers.getAllRawHeaders():
-            print "%s: %s" % (k, '\n  '.join(v))
+            logging.error("%s: %s" % (k, '\n  '.join(v)))
     whenFinished = twisted.internet.defer.Deferred()
     r.deliverBody(PrinterClient(whenFinished, 400 if isError else SUCCESS_DISPLAY_LEN, isError))
     return whenFinished
 
+
 def handleError(reason, url, num, lenurls):
-    print "X %6.2f%% (%6d) %50s" % (num*100.0/lenurls, num, url)
-    print "##### Script Error"
+    logging.error("X %6.2f%% (%6d) %50s" % (num*100.0/lenurls, num, url))
+    logging.error("##### Script Error")
     reason.printTraceback()
     reactor.stop()
+
 
 def getPage(url, num, lenurls):
     args = [url, num, lenurls]
@@ -86,23 +92,36 @@ def getPage(url, num, lenurls):
     return d
 
 
+parser = argparse.ArgumentParser(description='Regenerate the cache on PCR by visiting common pages.')
+parser.add_argument('-n', '--dry-run', action='store_true', help='Do not actually generate cache, but print out urls that would be visited.')
+args = parser.parse_args()
+
+logging.info('Retrieving base json file...')
 d = urllib2.urlopen(URL_PREFIX + AUTOCOMPLETE_PATH)
 d_data = d.read()
-print '!'
+logging.info('Retrieved base json file...')
 j = json.loads(d_data)
-print '!'
+logging.info('Finished parsing base json file...')
 urls = ([os.path.join(AUTOCOMPLETE_PATH, c1 + c2 + ".json")
          for c1 in string.letters[:26] for c2 in string.letters[:26]] +
         [str(item['url']) for item_categ in j.values() for item in item_categ])
+logging.info('Finished parsing prefix json files...')
 
 
 semaphore = twisted.internet.defer.DeferredSemaphore(N_CONCURRENT_ACCESSES)
 dl = list()
 
-print "Loading %d URLS..." % len(urls)
+if args.dry_run:
+    for url in urls:
+        logging.info(">>> {}".format(url))
+    logging.info("Total of {} urls.".format(len(urls)))
+    exit(0)
+
+logging.info("Loading %d URLS..." % len(urls))
 for i, url in enumerate(urls):
     dl.append(semaphore.run(getPage, url, i, len(urls)))
 
+logging.info("Starting URL processing...")
 dl = twisted.internet.defer.DeferredList(dl)
 dl.addCallbacks(lambda x: reactor.stop(), handleError)
 
