@@ -1,4 +1,5 @@
 from django.conf.urls import url
+from django.core.exceptions import ObjectDoesNotExist
 
 # import each of the handlers
 from . import views
@@ -76,6 +77,22 @@ def handle_errors(func):
             if e.message:
                 obj['message'] = e.message
             return views.JSON(obj, valid=False, httpstatus=404)
+        except ObjectDoesNotExist as e:
+            obj = {
+                'error': 'Error 404. An object could not be found while processing your query.',
+                'help': "See %s for API documentation." % views.DOCS_HTML,
+                'message': e.message,
+                'path': request.path
+            }
+            return views.JSON(obj, valid=False, httpstatus=404)
+        except ValueError as e:
+            obj = {
+                'error': 'Error 400. An error occured while trying to parse your query.',
+                'help': "See %s for API documentation." % views.DOCS_HTML,
+                'message': e.message,
+                'path': request.path
+            }
+            return views.JSON(obj, valid=False, httpstatus=400)
         return response
     return wrap
 
