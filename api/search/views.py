@@ -81,7 +81,7 @@ def _get_datasets(q, result_type, count, page):
     if result_type in (ResultType.MIXED, ResultType.DEPARTMENTS):
         datasets['departments'] = _retrieve_departments(q, offset + count)
 
-    for k, dataset in datasets.iteritems():
+    for k, dataset in datasets.items():
         datasets[k] = [obj.datum for obj in dataset[offset:]]
     return datasets
 

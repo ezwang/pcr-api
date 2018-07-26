@@ -28,7 +28,7 @@ def cross_domain_ajax(func):
             response = func(request, *args, **kwargs)
         else:
             response = HttpResponse()
-        for k, v in ACC_HEADERS.iteritems():
+        for k, v in ACC_HEADERS.items():
             response[k] = v
         return response
     return wrap

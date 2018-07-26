@@ -22,7 +22,7 @@ def sort_lists(obj):
   if type(obj) == list:
     return sorted(sort_lists(x) for x in obj)
   elif type(obj) == dict:
-    return dict((k, sort_lists(v)) for (k,v) in obj.iteritems())
+    return dict((k, sort_lists(v)) for (k,v) in obj.items())
   else:
     return obj
 

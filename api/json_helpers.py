@@ -6,7 +6,7 @@ import json
 
 from django.http import HttpResponse
 
-import settings
+from django.conf import settings
 
 
 def JSON(result, valid=True, httpstatus=200):
