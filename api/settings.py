@@ -6,7 +6,7 @@ import raven
 import dj_database_url
 
 ADMINS = (
-    ('PennApps', 'pennappslabs@google.groups.com'),
+    ('Penn Labs', 'pennappslabs@gmail.com'),
 )
 
 MANAGERS = ADMINS
