@@ -77,6 +77,8 @@ class Command(BaseCommand):
         parser.add_argument('-u', '--user',
                             help='Alternate database username.')
 
+    # NOTE: if importing legacy data (past the past 3 semesters)
+    # this should instead be set to TEST_PCR_SUMMARY_HIST_V
     ISC_SUMMARY_TABLE = 'TEST_PCR_SUMMARY_V'
     ISC_RATING_TABLE = 'TEST_PCR_RATING_V'
     ISC_CROSSLIST_TABLE = 'TEST_PCR_CROSSLIST_SUMMARY_V'
