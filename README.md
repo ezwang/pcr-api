@@ -43,11 +43,6 @@ testconsole is a simple javascript interface for the api.
 Responsible for scraping new data from the registrar and grabbing old data from
 the legacy PCR site.
 
-### PCR Daemon User
-
-Username: pcr-daemon
-Password: laurenspringer
-
 ### Instructions to update the PCR API database
 
 1. Change your directory to Penn-Course-API/scripts
